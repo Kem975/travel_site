@@ -1,0 +1,22 @@
+# Our Journey — production SPA + API routing (PLAN_REVIEW A1)
+RewriteEngine On
+
+# 1) API: route everything under /api to the PHP front controller, which parses
+#    the sub-path itself. (The naive `RewriteRule ^api/ - [L]` 404s real routes.)
+RewriteRule ^api/(.*)$ api/index.php [L,QSA]
+
+# 2) Serve real files and directories as-is (hashed assets, uploaded images).
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 3) SPA fallback: every other route renders the React shell.
+RewriteRule ^ index.html [L]
+
+# --- Hardening ---
+Options -Indexes
+
+# Block dotfiles and sensitive extensions (.env, dumps, logs, configs, sources).
+<FilesMatch "(^\.|\.(env|sql|log|ini|sh|lock)$)">
+    Require all denied
+</FilesMatch>

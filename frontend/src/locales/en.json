@@ -1,0 +1,111 @@
+{
+  "app": {
+    "title": "Our Journey",
+    "subtitle": "Eight months across South America, Japan, Southeast Asia and Nepal."
+  },
+  "nav": {
+    "globe": "Globe",
+    "journal": "Journal",
+    "gallery": "Gallery",
+    "about": "About"
+  },
+  "health": {
+    "heading": "System status",
+    "checking": "Checking the API…",
+    "apiOk": "API is reachable",
+    "apiDown": "API is unreachable",
+    "phpVersion": "PHP version",
+    "database": "Database",
+    "up": "connected",
+    "down": "not connected"
+  },
+  "common": {
+    "language": "Language"
+  },
+  "auth": {
+    "gate": {
+      "label": "Trip password",
+      "placeholder": "Enter the trip password",
+      "button": "Access the journey",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "logout": "Log out",
+    "admin": {
+      "title": "Administration",
+      "email": "Email",
+      "password": "Password",
+      "signIn": "Sign in",
+      "dashboard": "Dashboard",
+      "signedInAs": "Signed in as {{name}}.",
+      "placeholder": "Trip and content management arrives in Phase 3."
+    }
+  },
+  "home": {
+    "empty": "No published trips yet. Create one in the admin area."
+  },
+  "admin": {
+    "trips": {
+      "title": "Trips",
+      "new": "New trip",
+      "edit": "Edit trip",
+      "empty": "No trips yet. Create your first one.",
+      "manageDestinations": "Manage destinations",
+      "confirmDelete": "Delete \"{{title}}\" and all of its destinations?"
+    },
+    "destinations": {
+      "title": "Destinations",
+      "new": "Add destination",
+      "edit": "Edit destination",
+      "empty": "No destinations yet.",
+      "order": "Order",
+      "confirmDelete": "Delete destination \"{{title}}\"?"
+    },
+    "fields": {
+      "title": "Title",
+      "slug": "Slug",
+      "slugPlaceholder": "auto from title",
+      "description": "Description",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "arrivalDate": "Arrival date",
+      "departureDate": "Departure date",
+      "status": "Status",
+      "visibility": "Visibility",
+      "dates": "Dates",
+      "country": "Country",
+      "coords": "Coordinates",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "excerpt": "Excerpt"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "stats": {
+      "trips": "Trips",
+      "destinations": "Destinations",
+      "published_articles": "Published articles",
+      "draft_articles": "Drafts",
+      "pending_comments": "Pending comments",
+      "photos": "Photos"
+    },
+    "tripStatus": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "visibility": {
+      "private": "Private",
+      "password_protected": "Password protected",
+      "public": "Public"
+    },
+    "destStatus": {
+      "planned": "Planned",
+      "visited": "Visited",
+      "current": "Current",
+      "cancelled": "Cancelled",
+      "hidden": "Hidden"
+    }
+  }
+}

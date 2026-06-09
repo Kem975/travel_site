@@ -1,0 +1,111 @@
+{
+  "app": {
+    "title": "Notre Voyage",
+    "subtitle": "Huit mois à travers l'Amérique du Sud, le Japon, l'Asie du Sud-Est et le Népal."
+  },
+  "nav": {
+    "globe": "Globe",
+    "journal": "Journal",
+    "gallery": "Galerie",
+    "about": "À propos"
+  },
+  "health": {
+    "heading": "État du système",
+    "checking": "Vérification de l'API…",
+    "apiOk": "L'API est accessible",
+    "apiDown": "L'API est inaccessible",
+    "phpVersion": "Version de PHP",
+    "database": "Base de données",
+    "up": "connectée",
+    "down": "non connectée"
+  },
+  "common": {
+    "language": "Langue"
+  },
+  "auth": {
+    "gate": {
+      "label": "Mot de passe du voyage",
+      "placeholder": "Saisissez le mot de passe du voyage",
+      "button": "Accéder au voyage",
+      "genericError": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "logout": "Se déconnecter",
+    "admin": {
+      "title": "Administration",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "signIn": "Se connecter",
+      "dashboard": "Tableau de bord",
+      "signedInAs": "Connecté·e en tant que {{name}}.",
+      "placeholder": "La gestion des voyages et du contenu arrive en phase 3."
+    }
+  },
+  "home": {
+    "empty": "Aucun voyage publié pour l'instant. Créez-en un dans l'administration."
+  },
+  "admin": {
+    "trips": {
+      "title": "Voyages",
+      "new": "Nouveau voyage",
+      "edit": "Modifier le voyage",
+      "empty": "Aucun voyage. Créez le premier.",
+      "manageDestinations": "Gérer les destinations",
+      "confirmDelete": "Supprimer « {{title}} » et toutes ses destinations ?"
+    },
+    "destinations": {
+      "title": "Destinations",
+      "new": "Ajouter une destination",
+      "edit": "Modifier la destination",
+      "empty": "Aucune destination.",
+      "order": "Ordre",
+      "confirmDelete": "Supprimer la destination « {{title}} » ?"
+    },
+    "fields": {
+      "title": "Titre",
+      "slug": "Slug",
+      "slugPlaceholder": "auto depuis le titre",
+      "description": "Description",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "arrivalDate": "Date d'arrivée",
+      "departureDate": "Date de départ",
+      "status": "Statut",
+      "visibility": "Visibilité",
+      "dates": "Dates",
+      "country": "Pays",
+      "coords": "Coordonnées",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "excerpt": "Extrait"
+    },
+    "actions": {
+      "save": "Enregistrer",
+      "cancel": "Annuler"
+    },
+    "stats": {
+      "trips": "Voyages",
+      "destinations": "Destinations",
+      "published_articles": "Articles publiés",
+      "draft_articles": "Brouillons",
+      "pending_comments": "Commentaires en attente",
+      "photos": "Photos"
+    },
+    "tripStatus": {
+      "draft": "Brouillon",
+      "published": "Publié",
+      "archived": "Archivé"
+    },
+    "visibility": {
+      "private": "Privé",
+      "password_protected": "Protégé par mot de passe",
+      "public": "Public"
+    },
+    "destStatus": {
+      "planned": "Prévu",
+      "visited": "Visité",
+      "current": "Actuel",
+      "cancelled": "Annulé",
+      "hidden": "Masqué"
+    }
+  }
+}
