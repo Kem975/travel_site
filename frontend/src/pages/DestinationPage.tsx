@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { publicArticleApi } from '../api/article';
 import { ApiError } from '../api/client';
 import { ArticleRenderer } from '../components/article/ArticleRenderer';
+import { CommentThread } from '../components/comments/CommentThread';
 
 export function DestinationPage() {
   const { t } = useTranslation();
@@ -93,6 +94,8 @@ export function DestinationPage() {
             <span />
           )}
         </Group>
+
+        {destinationSlug && <CommentThread slug={destinationSlug} />}
       </Container>
     </Stack>
   );

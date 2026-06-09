@@ -41,6 +41,7 @@ export function AdminLayout() {
             {navButton('/admin', t('auth.admin.dashboard'))}
             {navButton('/admin/trips', t('admin.trips.title'))}
             {navButton('/admin/media', t('media.nav'))}
+            {navButton('/admin/comments', t('comments.admin.nav'))}
           </Group>
           <Group gap="sm">
             <LanguageToggle />

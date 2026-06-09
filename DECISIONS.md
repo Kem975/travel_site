@@ -52,7 +52,10 @@ block editor against an unfinished image schema would force a redesign. Revised 
 2. ✓ **Photo / media pipeline**: upload + WebP variants + media library + picker + cover selection + gc.
 3. ✓ **Article editor + renderer** (block model: richText/image/gallery/quote/practicalInfo/divider;
    server-side HTML sanitize; public renderer + prev/next). `map` block deferred to the globe phase.
-4. **Comments** ← current
+4. ✓ **Comments** (pending-by-default moderation, one reply level, honeypot + min-fill-time +
+   keyed-IP rate limit, public thread, admin moderation queue).
+5. **Journal / public reading experience** ← current
+6. Globe (last, per §21)
 5. Journal / public reading experience
 6. Globe (last, per §21)
 

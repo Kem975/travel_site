@@ -5,10 +5,12 @@ declare(strict_types=1);
 use App\Controllers\AdminStatsController;
 use App\Controllers\ArticleController;
 use App\Controllers\AuthController;
+use App\Controllers\CommentController;
 use App\Controllers\DestinationController;
 use App\Controllers\HealthController;
 use App\Controllers\PhotoController;
 use App\Controllers\PublicArticleController;
+use App\Controllers\PublicCommentController;
 use App\Controllers\PublicDestinationController;
 use App\Controllers\PublicTripController;
 use App\Controllers\TripController;
@@ -56,6 +58,9 @@ $router->get('/api/trips', [$publicTrips, 'index']);
 $router->get('/api/trips/:tripSlug/destinations', [$publicDestinations, 'forTrip']);
 $router->get('/api/trips/:slug', [$publicTrips, 'show']);
 $router->get('/api/destinations/:slug/article', [new PublicArticleController(), 'show']);
+$publicComments = new PublicCommentController();
+$router->get('/api/destinations/:slug/comments', [$publicComments, 'index']);
+$router->post('/api/destinations/:slug/comments', [$publicComments, 'store']);
 $router->get('/api/destinations/:slug', [$publicDestinations, 'show']);
 
 // --- Admin content management (admin + CSRF, Phase 3) ---
@@ -90,5 +95,12 @@ $router->get('/api/admin/photos', [$photos, 'index']);
 $router->get('/api/admin/photos/:id', [$photos, 'show']);
 $router->put('/api/admin/photos/:id', [$photos, 'update']);
 $router->delete('/api/admin/photos/:id', [$photos, 'destroy']);
+
+// --- Comment moderation (admin + CSRF) ---
+$adminComments = new CommentController();
+$router->get('/api/admin/comments', [$adminComments, 'index']);
+$router->post('/api/admin/comments/:id/reply', [$adminComments, 'reply']);
+$router->put('/api/admin/comments/:id', [$adminComments, 'update']);
+$router->delete('/api/admin/comments/:id', [$adminComments, 'destroy']);
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

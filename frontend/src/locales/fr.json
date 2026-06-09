@@ -176,5 +176,33 @@
       "conflictBody": "Cet article a été modifié dans une autre session. Rechargez pour obtenir la dernière version — les modifications non enregistrées seront perdues.",
       "reload": "Recharger"
     }
+  },
+  "comments": {
+    "title": "Commentaires",
+    "empty": "Aucun commentaire pour l'instant. Soyez le premier !",
+    "leave": "Laisser un commentaire",
+    "name": "Votre nom",
+    "email": "E-mail (facultatif, jamais affiché)",
+    "body": "Votre commentaire",
+    "submit": "Publier",
+    "reply": "Répondre",
+    "replyTo": "Répondre",
+    "pending": "Merci ! Votre commentaire est en attente de modération.",
+    "error": "Une erreur est survenue. Veuillez réessayer.",
+    "status": { "pending": "En attente", "published": "Publié", "rejected": "Rejeté", "spam": "Spam" },
+    "admin": {
+      "nav": "Commentaires",
+      "title": "Modération des commentaires",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "spam": "Spam",
+      "delete": "Supprimer",
+      "replyBtn": "Répondre",
+      "replyBadge": "réponse",
+      "replyPlaceholder": "Écrire une réponse…",
+      "send": "Envoyer",
+      "confirmDelete": "Supprimer ce commentaire ? Ses réponses seront aussi supprimées.",
+      "empty": "Rien ici."
+    }
   }
 }

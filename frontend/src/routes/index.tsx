@@ -22,6 +22,7 @@ const ArticleEditorPage = lazy(() =>
   import('../pages/admin/ArticleEditorPage').then((m) => ({ default: m.ArticleEditorPage })),
 );
 const DestinationPage = lazy(() => import('../pages/DestinationPage').then((m) => ({ default: m.DestinationPage })));
+const CommentsPage = lazy(() => import('../pages/admin/CommentsPage').then((m) => ({ default: m.CommentsPage })));
 
 const fallback = (
   <Center style={{ minHeight: '100dvh' }}>
@@ -71,6 +72,7 @@ export const router = createBrowserRouter([
       { path: 'trips/:tripId', element: <TripDestinationsPage /> },
       { path: 'destinations/:destinationId/article', element: <ArticleEditorPage /> },
       { path: 'media', element: <MediaLibraryPage /> },
+      { path: 'comments', element: <CommentsPage /> },
     ],
   },
 ]);

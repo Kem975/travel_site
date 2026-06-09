@@ -91,5 +91,10 @@ Deploy `frontend/dist/` → OVH `www/`, backend front controller → `www/api/`,
   (integer `version`, row-locked check, `409` on a stale save with a reload prompt).
   The `map` block is deferred to the globe phase.
 
-Next (DECISIONS D5): **Comments** — visitor comments behind the gate, one-level replies, moderation
-(pending/published/rejected/spam), honeypot + rate limit (no Turnstile — the gate makes it moot).
+- **Comments** ✓ Visitor comments behind the gate, **pending by default**, one reply level; admin
+  moderation queue (approve/reject/spam/delete + reply); public thread + form on the destination
+  page; dashboard `pending_comments` count live. Anti-spam: honeypot, HMAC-signed minimum-fill-time
+  token, keyed-IP rate limit (5/10 min), moderation — no Turnstile (the gate already blocks bots).
+
+Next (DECISIONS D5): **Journal & public reading experience** (chronological timeline, gallery,
+trip overview), then the **interactive globe** (MapLibre + Protomaps), then polish & deploy.

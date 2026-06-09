@@ -176,5 +176,33 @@
       "conflictBody": "This article was changed in another session. Reload to get the latest version — unsaved changes here will be lost.",
       "reload": "Reload"
     }
+  },
+  "comments": {
+    "title": "Comments",
+    "empty": "No comments yet. Be the first!",
+    "leave": "Leave a comment",
+    "name": "Your name",
+    "email": "Email (optional, never shown)",
+    "body": "Your comment",
+    "submit": "Post comment",
+    "reply": "Reply",
+    "replyTo": "Reply",
+    "pending": "Thanks! Your comment is awaiting moderation.",
+    "error": "Something went wrong. Please try again.",
+    "status": { "pending": "Pending", "published": "Published", "rejected": "Rejected", "spam": "Spam" },
+    "admin": {
+      "nav": "Comments",
+      "title": "Comment moderation",
+      "approve": "Approve",
+      "reject": "Reject",
+      "spam": "Spam",
+      "delete": "Delete",
+      "replyBtn": "Reply",
+      "replyBadge": "reply",
+      "replyPlaceholder": "Write a reply…",
+      "send": "Send",
+      "confirmDelete": "Delete this comment? Its replies will be removed too.",
+      "empty": "Nothing here."
+    }
   }
 }
