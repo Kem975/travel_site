@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActionIcon, Anchor, Badge, Button, Container, Group, Loader, Table, Text, Title } from '@mantine/core';
-import { IconArrowDown, IconArrowUp, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconArrowDown, IconArrowUp, IconEdit, IconFileText, IconPlus, IconTrash } from '@tabler/icons-react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { adminApi, type Destination } from '../../api/admin';
@@ -139,6 +139,14 @@ export function TripDestinationsPage() {
                 </Table.Td>
                 <Table.Td>
                   <Group gap="xs" justify="flex-end" wrap="nowrap">
+                    <ActionIcon
+                      variant="subtle"
+                      component={Link}
+                      to={`/admin/destinations/${destination.id}/article`}
+                      title={t('article.edit')}
+                    >
+                      <IconFileText size={16} />
+                    </ActionIcon>
                     <ActionIcon variant="subtle" onClick={() => openEdit(destination)}>
                       <IconEdit size={16} />
                     </ActionIcon>

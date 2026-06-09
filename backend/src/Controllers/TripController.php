@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Http\Request;
 use App\Http\Response;
 use App\Middleware\AuthMiddleware;
+use App\Repositories\PhotoRepository;
 use App\Repositories\TripRepository;
 use App\Support\Slug;
 use App\Validation\Validator;
@@ -19,11 +20,36 @@ final class TripController
 
     private AuthMiddleware $guard;
     private TripRepository $trips;
+    private PhotoRepository $photos;
 
     public function __construct()
     {
         $this->guard = new AuthMiddleware();
         $this->trips = new TripRepository();
+        $this->photos = new PhotoRepository();
+    }
+
+    /** @param array<string,string> $params */
+    public function setCover(array $params): void
+    {
+        $ctx = $this->guard->requireAdmin();
+        $this->guard->requireCsrf($ctx);
+
+        $id = (int) $params['id'];
+        if ($this->trips->find($id) === null) {
+            Response::error('Trip not found.', 404);
+            return;
+        }
+        $data = Request::json();
+        $photoId = isset($data['photo_id']) && $data['photo_id'] !== null && $data['photo_id'] !== ''
+            ? (int) $data['photo_id']
+            : null;
+        if ($photoId !== null && $this->photos->find($photoId) === null) {
+            Response::error('Photo not found.', 422);
+            return;
+        }
+        $this->trips->setCover($id, $photoId);
+        Response::json(['trip' => $this->trips->find($id)]);
     }
 
     public function index(): void

@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Repositories\PhotoRepository;
 use App\Repositories\SettingsRepository;
 use App\Repositories\UserRepository;
+use App\Support\Storage;
 
 require __DIR__ . '/bootstrap.php';
 
@@ -45,9 +47,52 @@ switch ($command) {
         echo "Admin user #{$id} created: {$email}\n";
         break;
 
+    case 'photos:gc':
+        $delete = in_array('--delete', $args, true);
+        $expected = [];
+        foreach ((new PhotoRepository())->allForGc() as $photo) {
+            $variants = json_decode((string) $photo['variants'], true);
+            if (!is_array($variants)) {
+                continue;
+            }
+            foreach ($variants as $w) {
+                $rel = trim((string) $photo['storage_path'], '/') . '/' . $photo['filename'] . '-' . (int) $w . '.webp';
+                $expected[Storage::absolute($rel)] = true;
+            }
+        }
+
+        $root = Storage::dir() . '/photos';
+        $orphans = [];
+        if (is_dir($root)) {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS),
+            );
+            foreach ($iterator as $file) {
+                $path = $file->getPathname();
+                if ($file->isFile() && str_ends_with($path, '.webp') && !isset($expected[$path])) {
+                    $orphans[] = $path;
+                }
+            }
+        }
+
+        if ($orphans === []) {
+            echo "No orphan files.\n";
+            break;
+        }
+        foreach ($orphans as $orphan) {
+            if ($delete) {
+                @unlink($orphan);
+            }
+            echo ($delete ? 'deleted: ' : 'orphan:  ') . $orphan . "\n";
+        }
+        echo ($delete ? 'Deleted ' : 'Found ') . count($orphans) . ' orphan file(s)'
+            . ($delete ? '' : ' — run with --delete to remove') . ".\n";
+        break;
+
     default:
         echo "Our Journey — console\n";
         echo "  php backend/console.php visitor:set-password \"<password>\"\n";
         echo "  php backend/console.php admin:create <email> \"<display name>\" \"<password>\"\n";
+        echo "  php backend/console.php photos:gc [--delete]\n";
         exit($command === '' ? 0 : 1);
 }

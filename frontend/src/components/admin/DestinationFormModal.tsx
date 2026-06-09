@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { adminApi, type Destination, type DestinationInput, type DestinationStatus } from '../../api/admin';
 import { fieldErrors } from '../../api/client';
 import { DESTINATION_STATUSES } from './status';
+import { CoverPhotoField } from './CoverPhotoField';
 
 type Props = { opened: boolean; onClose: () => void; tripId: number; destination: Destination | null };
 
@@ -101,6 +102,9 @@ export function DestinationFormModal({ opened, onClose, tripId, destination }: P
             onChange={(value) => form.setFieldValue('status', (value as DestinationStatus | null) ?? 'planned')}
           />
           <Textarea label={t('admin.fields.excerpt')} autosize minRows={2} {...form.getInputProps('excerpt')} />
+          {destination && (
+            <CoverPhotoField destinationId={destination.id} initialCoverPhotoId={destination.cover_photo_id} />
+          )}
           <Group justify="flex-end" mt="sm">
             <Button variant="default" onClick={onClose}>
               {t('admin.actions.cancel')}

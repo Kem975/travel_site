@@ -107,5 +107,65 @@
       "cancelled": "Annulé",
       "hidden": "Masqué"
     }
+  },
+  "media": {
+    "nav": "Médias",
+    "library": { "title": "Médiathèque" },
+    "dropzone": {
+      "title": "Déposez des photos ici ou cliquez pour parcourir",
+      "hint": "JPEG, PNG ou WebP — redimensionnées dans le navigateur avant l'envoi"
+    },
+    "status": { "queued": "En attente", "done": "Envoyée", "error": "Échec" },
+    "retry": "Réessayer",
+    "picker": { "title": "Choisir une photo" },
+    "empty": "Aucune photo.",
+    "edit": { "title": "Détails de la photo" },
+    "fields": { "caption": "Légende", "altText": "Texte alternatif", "category": "Catégorie", "featured": "Mise en avant" },
+    "categories": {
+      "none": "— aucune —",
+      "landscapes": "Paysages",
+      "cities": "Villes",
+      "food": "Cuisine",
+      "wildlife": "Faune",
+      "portraits": "Portraits",
+      "accommodation": "Hébergement",
+      "hiking": "Randonnée"
+    },
+    "cover": {
+      "label": "Photo de couverture",
+      "none": "Aucune couverture",
+      "choose": "Choisir",
+      "change": "Changer",
+      "remove": "Retirer"
+    },
+    "confirmDelete": "Supprimer cette photo ? Ses fichiers seront supprimés.",
+    "deleteError": "Impossible de supprimer la photo."
+  },
+  "article": {
+    "edit": "Modifier l'article",
+    "editorTitle": "Article — {{name}}",
+    "viewPublic": "Voir",
+    "addBlock": "Ajouter un bloc",
+    "save": "Enregistrer l'article",
+    "saved": "Enregistré",
+    "fields": { "title": "Titre", "subtitle": "Sous-titre", "status": "Statut" },
+    "status": { "draft": "Brouillon", "published": "Publié" },
+    "types": {
+      "richText": "Texte",
+      "image": "Image",
+      "gallery": "Galerie",
+      "quote": "Citation",
+      "practicalInfo": "Infos pratiques",
+      "divider": "Séparateur"
+    },
+    "layouts": { "normal": "Normal", "wide": "Large", "fullBleed": "Pleine largeur" },
+    "galleryLayouts": { "grid": "Grille", "masonry": "Mosaïque", "carousel": "Carrousel" },
+    "blocks": {
+      "image": { "none": "Aucune image sélectionnée", "choose": "Choisir une image", "change": "Changer l'image", "caption": "Légende (facultatif)" },
+      "gallery": { "add": "Ajouter une photo", "empty": "Aucune photo dans cette galerie." },
+      "quote": { "text": "Texte de la citation", "attribution": "Attribution (facultatif)" },
+      "practical": { "label": "Libellé", "value": "Valeur", "add": "Ajouter une ligne" }
+    },
+    "public": { "notFound": "Ce récit n'est pas encore publié.", "error": "Impossible de charger ce récit." }
   }
 }

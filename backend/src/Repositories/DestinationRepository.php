@@ -130,6 +130,12 @@ final class DestinationRepository
         $stmt->execute([$order, $id, $tripId]);
     }
 
+    public function setCover(int $id, ?int $photoId): void
+    {
+        $stmt = Database::connection()->prepare('UPDATE destinations SET cover_photo_id = ? WHERE id = ?');
+        $stmt->execute([$photoId, $id]);
+    }
+
     /**
      * @param array<string,mixed> $data
      * @return array<string,mixed>

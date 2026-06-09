@@ -77,5 +77,17 @@ Deploy `frontend/dist/` → OVH `www/`, backend front controller → `www/api/`,
   Admin UI is lazy-loaded (§17.2). Coordinates are lat/lng inputs for now — the map picker
   comes with MapLibre in the globe phase.
 
-Next (per §21 build order — content before the globe): **Articles** — the block-based editor
-(`@mantine/tiptap`, with the server-side HTML sanitize from PLAN_REVIEW A3) and previous/next nav.
+- **Media pipeline** ✓ Upload endpoint with real-MIME validation + generated filenames,
+  browser-side compression (canvas → WebP), server-side WebP variants (GD, 480/960/1600/2400),
+  image metadata, media-library page, reusable media picker, cover-photo selection, delete-with-
+  file-removal, upload retry, and `console.php photos:gc` for orphan files. Dev serves `/uploads`
+  via PHP; Apache serves it in prod.
+
+- **Articles** ✓ Block model (richText via `@mantine/tiptap`, plus image/gallery/quote/practicalInfo/
+  divider) where image/gallery blocks reference stable photo IDs; server-side HTML sanitize
+  (PLAN_REVIEW A3); admin block editor (add/reorder/delete, draft/publish); public destination page
+  with hero, responsive renderer, and previous/next nav. TipTap is isolated to a lazy admin chunk.
+  The `map` block is deferred to the globe phase.
+
+Next (DECISIONS D5): **Comments** — visitor comments behind the gate, one-level replies, moderation
+(pending/published/rejected/spam), honeypot + rate limit (no Turnstile — the gate makes it moot).

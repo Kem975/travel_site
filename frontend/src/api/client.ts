@@ -32,8 +32,11 @@ export function fieldErrors(error: unknown): Record<string, string> {
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const method = (options.method ?? 'GET').toUpperCase();
+  const isForm = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    // Let the browser set multipart boundaries for FormData uploads.
+    ...(isForm ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers as Record<string, string> | undefined),
   };
   if (method !== 'GET' && csrfToken) {
@@ -67,4 +70,5 @@ export const api = {
   put: <T>(path: string, data?: unknown) =>
     request<T>(path, { method: 'PUT', body: data === undefined ? undefined : JSON.stringify(data) }),
   del: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+  upload: <T>(path: string, formData: FormData) => request<T>(path, { method: 'POST', body: formData }),
 };

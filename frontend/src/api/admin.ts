@@ -71,6 +71,9 @@ export type DestinationInput = {
 export const adminApi = {
   stats: () => api.get<{ stats: Stats }>('/admin/stats').then((r) => r.stats),
 
+  getDestination: (id: number) =>
+    api.get<{ destination: Destination }>(`/admin/destinations/${id}`).then((r) => r.destination),
+
   listTrips: () => api.get<{ trips: Trip[] }>('/admin/trips').then((r) => r.trips),
   getTrip: (id: number) => api.get<{ trip: Trip }>(`/admin/trips/${id}`).then((r) => r.trip),
   createTrip: (data: TripInput) => api.post<{ trip: Trip }>('/admin/trips', data).then((r) => r.trip),
@@ -92,4 +95,9 @@ export const adminApi = {
         ordered_ids: orderedIds,
       })
       .then((r) => r.destinations),
+
+  setTripCover: (id: number, photoId: number | null) =>
+    api.put<{ trip: Trip }>(`/admin/trips/${id}/cover`, { photo_id: photoId }).then((r) => r.trip),
+  setDestinationCover: (id: number, photoId: number | null) =>
+    api.put<{ destination: Destination }>(`/admin/destinations/${id}/cover`, { photo_id: photoId }).then((r) => r.destination),
 };

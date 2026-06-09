@@ -107,5 +107,65 @@
       "cancelled": "Cancelled",
       "hidden": "Hidden"
     }
+  },
+  "media": {
+    "nav": "Media",
+    "library": { "title": "Media library" },
+    "dropzone": {
+      "title": "Drop photos here or click to browse",
+      "hint": "JPEG, PNG or WebP — resized in your browser before upload"
+    },
+    "status": { "queued": "Queued", "done": "Uploaded", "error": "Failed" },
+    "retry": "Retry",
+    "picker": { "title": "Choose a photo" },
+    "empty": "No photos yet.",
+    "edit": { "title": "Photo details" },
+    "fields": { "caption": "Caption", "altText": "Alt text", "category": "Category", "featured": "Featured" },
+    "categories": {
+      "none": "— none —",
+      "landscapes": "Landscapes",
+      "cities": "Cities",
+      "food": "Food",
+      "wildlife": "Wildlife",
+      "portraits": "Portraits",
+      "accommodation": "Accommodation",
+      "hiking": "Hiking"
+    },
+    "cover": {
+      "label": "Cover photo",
+      "none": "No cover set",
+      "choose": "Choose cover",
+      "change": "Change",
+      "remove": "Remove"
+    },
+    "confirmDelete": "Delete this photo? Its files will be removed.",
+    "deleteError": "Could not delete the photo."
+  },
+  "article": {
+    "edit": "Edit article",
+    "editorTitle": "Article — {{name}}",
+    "viewPublic": "View",
+    "addBlock": "Add block",
+    "save": "Save article",
+    "saved": "Saved",
+    "fields": { "title": "Title", "subtitle": "Subtitle", "status": "Status" },
+    "status": { "draft": "Draft", "published": "Published" },
+    "types": {
+      "richText": "Text",
+      "image": "Image",
+      "gallery": "Gallery",
+      "quote": "Quote",
+      "practicalInfo": "Practical info",
+      "divider": "Divider"
+    },
+    "layouts": { "normal": "Normal", "wide": "Wide", "fullBleed": "Full bleed" },
+    "galleryLayouts": { "grid": "Grid", "masonry": "Masonry", "carousel": "Carousel" },
+    "blocks": {
+      "image": { "none": "No image selected", "choose": "Choose image", "change": "Change image", "caption": "Caption (optional)" },
+      "gallery": { "add": "Add photo", "empty": "No photos in this gallery yet." },
+      "quote": { "text": "Quote text", "attribution": "Attribution (optional)" },
+      "practical": { "label": "Label", "value": "Value", "add": "Add item" }
+    },
+    "public": { "notFound": "This story isn't published yet.", "error": "Could not load this story." }
   }
 }

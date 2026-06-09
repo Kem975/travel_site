@@ -9,6 +9,7 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Middleware\AuthMiddleware;
 use App\Repositories\DestinationRepository;
+use App\Repositories\PhotoRepository;
 use App\Repositories\TripRepository;
 use App\Support\Slug;
 use App\Validation\Validator;
@@ -22,12 +23,37 @@ final class DestinationController
     private AuthMiddleware $guard;
     private DestinationRepository $destinations;
     private TripRepository $trips;
+    private PhotoRepository $photos;
 
     public function __construct()
     {
         $this->guard = new AuthMiddleware();
         $this->destinations = new DestinationRepository();
         $this->trips = new TripRepository();
+        $this->photos = new PhotoRepository();
+    }
+
+    /** @param array<string,string> $params */
+    public function setCover(array $params): void
+    {
+        $ctx = $this->guard->requireAdmin();
+        $this->guard->requireCsrf($ctx);
+
+        $id = (int) $params['id'];
+        if ($this->destinations->find($id) === null) {
+            Response::error('Destination not found.', 404);
+            return;
+        }
+        $data = Request::json();
+        $photoId = isset($data['photo_id']) && $data['photo_id'] !== null && $data['photo_id'] !== ''
+            ? (int) $data['photo_id']
+            : null;
+        if ($photoId !== null && $this->photos->find($photoId) === null) {
+            Response::error('Photo not found.', 422);
+            return;
+        }
+        $this->destinations->setCover($id, $photoId);
+        Response::json(['destination' => $this->destinations->find($id)]);
     }
 
     /** @param array<string,string> $params  (trip id) */

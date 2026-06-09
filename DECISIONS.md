@@ -49,9 +49,10 @@ fixes that carry into the build regardless of these choices.
 Articles depend heavily on photographs, so the media system is defined first — building the
 block editor against an unfinished image schema would force a redesign. Revised sequence:
 1. ✓ **Foundation** (Phases 1–3): auth, trips, destinations — committed & tagged `v0.1.0`.
-2. **Photo / media pipeline** ← current
-3. Article editor + renderer (block-based)
-4. Comments
+2. ✓ **Photo / media pipeline**: upload + WebP variants + media library + picker + cover selection + gc.
+3. ✓ **Article editor + renderer** (block model: richText/image/gallery/quote/practicalInfo/divider;
+   server-side HTML sanitize; public renderer + prev/next). `map` block deferred to the globe phase.
+4. **Comments** ← current
 5. Journal / public reading experience
 6. Globe (last, per §21)
 

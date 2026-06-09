@@ -15,6 +15,13 @@ const TripsListPage = lazy(() => import('../pages/admin/TripsListPage').then((m)
 const TripDestinationsPage = lazy(() =>
   import('../pages/admin/TripDestinationsPage').then((m) => ({ default: m.TripDestinationsPage })),
 );
+const MediaLibraryPage = lazy(() =>
+  import('../pages/admin/MediaLibraryPage').then((m) => ({ default: m.MediaLibraryPage })),
+);
+const ArticleEditorPage = lazy(() =>
+  import('../pages/admin/ArticleEditorPage').then((m) => ({ default: m.ArticleEditorPage })),
+);
+const DestinationPage = lazy(() => import('../pages/DestinationPage').then((m) => ({ default: m.DestinationPage })));
 
 const fallback = (
   <Center style={{ minHeight: '100dvh' }}>
@@ -29,7 +36,17 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
-    children: [{ index: true, element: <HomePage /> }],
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'trips/:tripSlug/:destinationSlug',
+        element: (
+          <Suspense fallback={fallback}>
+            <DestinationPage />
+          </Suspense>
+        ),
+      },
+    ],
   },
   {
     path: '/admin/login',
@@ -52,6 +69,8 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboardPage /> },
       { path: 'trips', element: <TripsListPage /> },
       { path: 'trips/:tripId', element: <TripDestinationsPage /> },
+      { path: 'destinations/:destinationId/article', element: <ArticleEditorPage /> },
+      { path: 'media', element: <MediaLibraryPage /> },
     ],
   },
 ]);
