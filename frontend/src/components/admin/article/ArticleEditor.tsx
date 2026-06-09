@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   ActionIcon,
   Alert,
+  Badge,
   Button,
   Card,
   Divider,
@@ -14,7 +15,7 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { IconArrowDown, IconArrowUp, IconDeviceFloppy, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconArrowDown, IconArrowUp, IconDeviceFloppy, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import {
   articleApi,
@@ -26,15 +27,19 @@ import {
   type PhotoMap,
 } from '../../../api/article';
 import type { Photo } from '../../../api/media';
-import { fieldErrors } from '../../../api/client';
+import { ApiError, fieldErrors } from '../../../api/client';
 import { BlockEditor } from './BlockEditor';
 
 // Stable client id per block so reordering never desyncs a TipTap editor instance.
 type Row = { id: string; block: ArticleBlock };
+const AUTOSAVE_MS = 2000;
+
+const snapshotOf = (title: string, subtitle: string, status: ArticleStatus, blocks: ArticleBlock[]) =>
+  JSON.stringify({ title, subtitle, status, blocks });
 
 export function ArticleEditor({ destinationId }: { destinationId: number }) {
   const { t } = useTranslation();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['admin', 'article', destinationId],
     queryFn: () => articleApi.get(destinationId),
   });
@@ -44,31 +49,71 @@ export function ArticleEditor({ destinationId }: { destinationId: number }) {
   const [status, setStatus] = useState<ArticleStatus>('draft');
   const [rows, setRows] = useState<Row[]>([]);
   const [photos, setPhotos] = useState<PhotoMap>({});
+  const [version, setVersion] = useState<number | null>(null);
+  const [savedSnapshot, setSavedSnapshot] = useState('');
+  const [conflict, setConflict] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+  const inFlight = useRef('');
 
   useEffect(() => {
     if (!data) return;
-    setTitle(data.article?.title ?? '');
-    setSubtitle(data.article?.subtitle ?? '');
-    setStatus(data.article?.status === 'published' ? 'published' : 'draft');
+    const a = data.article;
+    const st: ArticleStatus = a?.status === 'published' ? 'published' : 'draft';
+    setTitle(a?.title ?? '');
+    setSubtitle(a?.subtitle ?? '');
+    setStatus(st);
     setRows(data.blocks.map((block) => ({ id: crypto.randomUUID(), block })));
     setPhotos(data.photos);
+    setVersion(a?.version ?? null);
+    setSavedSnapshot(snapshotOf(a?.title ?? '', a?.subtitle ?? '', st, data.blocks));
+    setConflict(false);
+    setError(null);
   }, [data]);
 
+  const blocks = rows.map((r) => r.block);
+  const currentSnapshot = snapshotOf(title, subtitle, status, blocks);
+  const dirty = currentSnapshot !== savedSnapshot;
+
   const save = useMutation({
-    mutationFn: () => articleApi.save(destinationId, { title, subtitle, status, blocks: rows.map((r) => r.block) }),
+    mutationFn: () => articleApi.save(destinationId, { title, subtitle, status, version: version ?? undefined, blocks }),
+    onMutate: () => {
+      inFlight.current = currentSnapshot;
+    },
     onSuccess: (res) => {
+      setSavedSnapshot(inFlight.current);
+      setVersion(res.article?.version ?? version);
       setPhotos((prev) => ({ ...prev, ...res.photos }));
+      setConflict(false);
       setError(null);
-      setSaved(true);
     },
     onError: (e) => {
+      if (e instanceof ApiError && e.status === 409) {
+        setConflict(true); // stop autosave; user must reload
+        return;
+      }
       const fe = fieldErrors(e);
       setError(fe.blocks ?? (e instanceof Error ? e.message : 'Error'));
-      setSaved(false);
     },
   });
+
+  // Debounced autosave: fire AUTOSAVE_MS after the last edit settles.
+  useEffect(() => {
+    if (!dirty || conflict || save.isPending) return;
+    const id = window.setTimeout(() => save.mutate(), AUTOSAVE_MS);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSnapshot, savedSnapshot, conflict, save.isPending]);
+
+  // Warn before closing/reloading the tab with unsaved changes.
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [dirty]);
 
   const addBlock = (type: BlockType) => setRows((r) => [...r, { id: crypto.randomUUID(), block: emptyBlock(type) }]);
   const updateBlock = (i: number, block: ArticleBlock) => setRows((r) => r.map((x, k) => (k === i ? { ...x, block } : x)));
@@ -87,8 +132,37 @@ export function ArticleEditor({ destinationId }: { destinationId: number }) {
     return <Loader />;
   }
 
+  const statusBadge = conflict ? (
+    <Badge color="red" variant="light">
+      {t('article.autosave.conflict')}
+    </Badge>
+  ) : save.isPending ? (
+    <Badge color="blue" variant="light">
+      {t('article.autosave.saving')}
+    </Badge>
+  ) : dirty ? (
+    <Badge color="yellow" variant="light">
+      {t('article.autosave.unsaved')}
+    </Badge>
+  ) : (
+    <Badge color="teal" variant="light">
+      {t('article.autosave.saved')}
+    </Badge>
+  );
+
   return (
     <Stack>
+      {conflict && (
+        <Alert color="red" title={t('article.autosave.conflictTitle')}>
+          <Group justify="space-between" wrap="nowrap">
+            <Text size="sm">{t('article.autosave.conflictBody')}</Text>
+            <Button size="xs" leftSection={<IconRefresh size={14} />} onClick={() => void refetch()}>
+              {t('article.autosave.reload')}
+            </Button>
+          </Group>
+        </Alert>
+      )}
+
       <Group grow>
         <TextInput label={t('article.fields.title')} value={title} onChange={(e) => setTitle(e.currentTarget.value)} />
         <TextInput label={t('article.fields.subtitle')} value={subtitle} onChange={(e) => setSubtitle(e.currentTarget.value)} />
@@ -147,18 +221,16 @@ export function ArticleEditor({ destinationId }: { destinationId: number }) {
           allowDeselect={false}
           data={(['draft', 'published'] as ArticleStatus[]).map((s) => ({ value: s, label: t(`article.status.${s}`) }))}
           value={status}
-          onChange={(v) => {
-            setStatus((v as ArticleStatus | null) ?? 'draft');
-            setSaved(false);
-          }}
+          onChange={(v) => setStatus((v as ArticleStatus | null) ?? 'draft')}
         />
         <Group>
-          {saved && !save.isPending && (
-            <Text size="sm" c="teal">
-              {t('article.saved')}
-            </Text>
-          )}
-          <Button leftSection={<IconDeviceFloppy size={16} />} loading={save.isPending} onClick={() => save.mutate()}>
+          {statusBadge}
+          <Button
+            leftSection={<IconDeviceFloppy size={16} />}
+            loading={save.isPending}
+            disabled={!dirty || conflict}
+            onClick={() => save.mutate()}
+          >
             {t('article.save')}
           </Button>
         </Group>

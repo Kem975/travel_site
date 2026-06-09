@@ -87,6 +87,8 @@ Deploy `frontend/dist/` → OVH `www/`, backend front controller → `www/api/`,
   divider) where image/gallery blocks reference stable photo IDs; server-side HTML sanitize
   (PLAN_REVIEW A3); admin block editor (add/reorder/delete, draft/publish); public destination page
   with hero, responsive renderer, and previous/next nav. TipTap is isolated to a lazy admin chunk.
+  The editor has **debounced autosave**, an **unsaved-changes guard**, and **optimistic concurrency**
+  (integer `version`, row-locked check, `409` on a stale save with a reload prompt).
   The `map` block is deferred to the globe phase.
 
 Next (DECISIONS D5): **Comments** — visitor comments behind the gate, one-level replies, moderation

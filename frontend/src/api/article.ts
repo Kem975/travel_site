@@ -23,6 +23,7 @@ export type Article = {
   title: string | null;
   subtitle: string | null;
   status: ArticleStatus;
+  version: number;
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -32,7 +33,13 @@ export type PhotoMap = Record<string, Photo>;
 
 export type ArticleEditorData = { article: Article | null; blocks: ArticleBlock[]; photos: PhotoMap };
 
-export type ArticleSaveInput = { title?: string; subtitle?: string; status: ArticleStatus; blocks: ArticleBlock[] };
+export type ArticleSaveInput = {
+  title?: string;
+  subtitle?: string;
+  status: ArticleStatus;
+  blocks: ArticleBlock[];
+  version?: number;
+};
 
 export type PublicArticle = {
   destination: {

@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Database;
+use App\Exceptions\VersionConflictException;
 use Throwable;
 
 final class ArticleRepository
 {
-    private const COLUMNS = 'id, destination_id, title, subtitle, status, published_at, created_at, updated_at';
+    private const COLUMNS = 'id, destination_id, title, subtitle, status, version, published_at, created_at, updated_at';
 
     /** @return array<string,mixed>|null */
     public function findByDestinationId(int $destinationId): ?array
@@ -51,34 +52,47 @@ final class ArticleRepository
      * meta + publication state, and replace all blocks. A failure rolls everything
      * back, leaving the previously-saved article intact.
      *
+     * Optimistic concurrency: the row is locked (FOR UPDATE) and its version must
+     * match $expectedVersion, otherwise a VersionConflictException is thrown.
+     *
      * @param array<string,mixed> $meta
      * @param list<array{type:string,content:mixed}> $blocks
+     * @return int the new version
      */
-    public function save(int $destinationId, array $meta, array $blocks): int
+    public function save(int $destinationId, array $meta, array $blocks, ?int $expectedVersion): int
     {
         $pdo = Database::connection();
         $pdo->beginTransaction();
         try {
-            $find = $pdo->prepare('SELECT id FROM articles WHERE destination_id = ? LIMIT 1');
+            $find = $pdo->prepare('SELECT id, version FROM articles WHERE destination_id = ? FOR UPDATE');
             $find->execute([$destinationId]);
-            $id = $find->fetchColumn();
+            $existing = $find->fetch();
 
-            if ($id === false) {
+            if ($existing !== false) {
+                $currentVersion = (int) $existing['version'];
+                // A stale (or absent) expected version means someone else saved first.
+                if ($expectedVersion === null || $expectedVersion !== $currentVersion) {
+                    $pdo->rollBack();
+                    throw new VersionConflictException();
+                }
+                $id = (int) $existing['id'];
+                $newVersion = $currentVersion + 1;
+            } else {
                 $create = $pdo->prepare('INSERT INTO articles (destination_id) VALUES (?)');
                 $create->execute([$destinationId]);
                 $id = (int) $pdo->lastInsertId();
-            } else {
-                $id = (int) $id;
+                $newVersion = 1;
             }
 
             $update = $pdo->prepare(
                 'UPDATE articles SET title = :title, subtitle = :subtitle, status = :status,
-                 published_at = :published_at WHERE id = :id',
+                 version = :version, published_at = :published_at WHERE id = :id',
             );
             $update->execute([
                 'title' => $meta['title'],
                 'subtitle' => $meta['subtitle'],
                 'status' => $meta['status'],
+                'version' => $newVersion,
                 'published_at' => $meta['published_at'],
                 'id' => $id,
             ]);
@@ -97,7 +111,7 @@ final class ArticleRepository
             }
 
             $pdo->commit();
-            return $id;
+            return $newVersion;
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();

@@ -166,6 +166,15 @@
       "quote": { "text": "Quote text", "attribution": "Attribution (optional)" },
       "practical": { "label": "Label", "value": "Value", "add": "Add item" }
     },
-    "public": { "notFound": "This story isn't published yet.", "error": "Could not load this story." }
+    "public": { "notFound": "This story isn't published yet.", "error": "Could not load this story." },
+    "autosave": {
+      "saving": "Saving…",
+      "saved": "All changes saved",
+      "unsaved": "Unsaved changes",
+      "conflict": "Conflict",
+      "conflictTitle": "Edited elsewhere",
+      "conflictBody": "This article was changed in another session. Reload to get the latest version — unsaved changes here will be lost.",
+      "reload": "Reload"
+    }
   }
 }

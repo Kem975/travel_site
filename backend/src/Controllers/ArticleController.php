@@ -9,6 +9,7 @@ use App\Http\Response;
 use App\Middleware\AuthMiddleware;
 use App\Repositories\ArticleRepository;
 use App\Repositories\DestinationRepository;
+use App\Exceptions\VersionConflictException;
 use App\Repositories\PhotoRepository;
 use App\Services\ArticleBlocks;
 use App\Support\PhotoPresenter;
@@ -74,19 +75,32 @@ final class ArticleController
             $publishedAt = date('Y-m-d H:i:s');
         }
 
-        $id = $this->articles->save($destinationId, [
-            'title' => $this->strOrNull($data['title'] ?? null),
-            'subtitle' => $this->strOrNull($data['subtitle'] ?? null),
-            'status' => $status,
-            'published_at' => $publishedAt,
-        ], $blocks);
+        $expectedVersion = isset($data['version']) && is_numeric($data['version']) ? (int) $data['version'] : null;
 
-        $savedBlocks = $this->articles->blocks($id);
-        Response::json([
-            'article' => $this->articles->findByDestinationId($destinationId),
-            'blocks' => $savedBlocks,
-            'photos' => $this->photosFor($savedBlocks),
-        ]);
+        try {
+            $this->articles->save($destinationId, [
+                'title' => $this->strOrNull($data['title'] ?? null),
+                'subtitle' => $this->strOrNull($data['subtitle'] ?? null),
+                'status' => $status,
+                'published_at' => $publishedAt,
+            ], $blocks, $expectedVersion);
+        } catch (VersionConflictException) {
+            // Hand back the current server state so the client can reconcile.
+            $current = $this->articles->findByDestinationId($destinationId);
+            $currentBlocks = $current !== null ? $this->articles->blocks((int) $current['id']) : [];
+            Response::json([
+                'error' => 'This article was changed elsewhere. Reload to get the latest version.',
+                'conflict' => true,
+                'article' => $current,
+                'blocks' => $currentBlocks,
+                'photos' => $this->photosFor($currentBlocks),
+            ], 409);
+            return;
+        }
+
+        $saved = $this->articles->findByDestinationId($destinationId);
+        $savedBlocks = $saved !== null ? $this->articles->blocks((int) $saved['id']) : [];
+        Response::json(['article' => $saved, 'blocks' => $savedBlocks, 'photos' => $this->photosFor($savedBlocks)]);
     }
 
     /**

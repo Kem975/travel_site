@@ -166,6 +166,15 @@
       "quote": { "text": "Texte de la citation", "attribution": "Attribution (facultatif)" },
       "practical": { "label": "Libellé", "value": "Valeur", "add": "Ajouter une ligne" }
     },
-    "public": { "notFound": "Ce récit n'est pas encore publié.", "error": "Impossible de charger ce récit." }
+    "public": { "notFound": "Ce récit n'est pas encore publié.", "error": "Impossible de charger ce récit." },
+    "autosave": {
+      "saving": "Enregistrement…",
+      "saved": "Modifications enregistrées",
+      "unsaved": "Modifications non enregistrées",
+      "conflict": "Conflit",
+      "conflictTitle": "Modifié ailleurs",
+      "conflictBody": "Cet article a été modifié dans une autre session. Rechargez pour obtenir la dernière version — les modifications non enregistrées seront perdues.",
+      "reload": "Recharger"
+    }
   }
 }
