@@ -34,6 +34,15 @@ final class ArticleRepository
         return is_array($row) ? $row : null;
     }
 
+    /** Destination ids that have a published article (for the journal's "Read" links). @return list<int> */
+    public function publishedDestinationIds(): array
+    {
+        $ids = Database::connection()
+            ->query("SELECT destination_id FROM articles WHERE status = 'published'")
+            ->fetchAll(\PDO::FETCH_COLUMN);
+        return array_map('intval', $ids);
+    }
+
     /** @return list<array{type:string,content:array<string,mixed>}> */
     public function blocks(int $articleId): array
     {

@@ -96,5 +96,10 @@ Deploy `frontend/dist/` → OVH `www/`, backend front controller → `www/api/`,
   page; dashboard `pending_comments` count live. Anti-spam: honeypot, HMAC-signed minimum-fill-time
   token, keyed-IP rate limit (5/10 min), moderation — no Turnstile (the gate already blocks bots).
 
-Next (DECISIONS D5): **Journal & public reading experience** (chronological timeline, gallery,
-trip overview), then the **interactive globe** (MapLibre + Protomaps), then polish & deploy.
+- **Journal & reading experience** ✓ Chronological **journal** (month-grouped, covers, Read links),
+  **trip overview** (cover hero + stats: countries/destinations/days/photos + destination cards),
+  global **gallery** (trip/country/category filters + keyboard lightbox), an **About** page, and
+  header navigation (Journal / Gallery / About). The non-globe ways to explore (§8).
+
+Next (DECISIONS D5): the **interactive globe** (MapLibre globe + self-hosted Protomaps PMTiles,
+route lines, photo markers, zoom-to-destination), then polish & deploy.

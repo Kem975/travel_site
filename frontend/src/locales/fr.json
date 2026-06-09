@@ -204,5 +204,28 @@
       "confirmDelete": "Supprimer ce commentaire ? Ses réponses seront aussi supprimées.",
       "empty": "Rien ici."
     }
+  },
+  "gallery": {
+    "title": "Galerie",
+    "allTrips": "Tous les voyages",
+    "allCountries": "Tous les pays",
+    "allCategories": "Toutes les catégories",
+    "empty": "Aucune photo ne correspond à ces filtres."
+  },
+  "journal": {
+    "title": "Journal",
+    "undated": "Sans date",
+    "read": "Lire le récit",
+    "empty": "Aucune destination publiée pour l'instant."
+  },
+  "trip": {
+    "notFound": "Voyage introuvable.",
+    "destinations": "Destinations",
+    "stats": { "countries": "Pays", "destinations": "Destinations", "days": "Jours", "photos": "Photos" }
+  },
+  "about": {
+    "title": "À propos du voyage",
+    "body": "Un journal de voyage privé pour les proches — récits, photographies et itinéraire, une destination à la fois.",
+    "trips": "Voyages"
   }
 }

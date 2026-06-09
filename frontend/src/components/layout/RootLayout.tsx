@@ -1,5 +1,5 @@
-import { AppShell, Button, Center, Group, Loader, Title } from '@mantine/core';
-import { Outlet } from 'react-router-dom';
+import { AppShell, Anchor, Button, Center, Group, Loader, Title } from '@mantine/core';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ColorSchemeToggle } from './ColorSchemeToggle';
@@ -13,6 +13,7 @@ export function RootLayout() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data, isLoading } = useSession();
+  const { pathname } = useLocation();
 
   const logoutMutation = useMutation({
     mutationFn: logoutRequest,
@@ -35,20 +36,30 @@ export function RootLayout() {
     return <PasswordGate />;
   }
 
+  const navLink = (to: string, label: string) => (
+    <Button component={Link} to={to} size="xs" variant={pathname === to ? 'light' : 'subtle'}>
+      {label}
+    </Button>
+  );
+
   return (
     <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between">
-          <Title order={3}>{t('app.title')}</Title>
-          <Group gap="sm">
+        <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+          <Group gap="lg" wrap="nowrap">
+            <Anchor component={Link} to="/" underline="never" c="inherit">
+              <Title order={4}>{t('app.title')}</Title>
+            </Anchor>
+            <Group gap={4} visibleFrom="sm">
+              {navLink('/journal', t('nav.journal'))}
+              {navLink('/gallery', t('nav.gallery'))}
+              {navLink('/about', t('nav.about'))}
+            </Group>
+          </Group>
+          <Group gap="sm" wrap="nowrap">
             <LanguageToggle />
             <ColorSchemeToggle />
-            <Button
-              variant="default"
-              size="xs"
-              onClick={() => logoutMutation.mutate()}
-              loading={logoutMutation.isPending}
-            >
+            <Button variant="default" size="xs" onClick={() => logoutMutation.mutate()} loading={logoutMutation.isPending}>
               {t('auth.logout')}
             </Button>
           </Group>

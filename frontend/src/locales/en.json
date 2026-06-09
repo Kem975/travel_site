@@ -204,5 +204,28 @@
       "confirmDelete": "Delete this comment? Its replies will be removed too.",
       "empty": "Nothing here."
     }
+  },
+  "gallery": {
+    "title": "Gallery",
+    "allTrips": "All trips",
+    "allCountries": "All countries",
+    "allCategories": "All categories",
+    "empty": "No photos match these filters."
+  },
+  "journal": {
+    "title": "Journal",
+    "undated": "Undated",
+    "read": "Read the story",
+    "empty": "No published destinations yet."
+  },
+  "trip": {
+    "notFound": "Trip not found.",
+    "destinations": "Destinations",
+    "stats": { "countries": "Countries", "destinations": "Destinations", "days": "Days", "photos": "Photos" }
+  },
+  "about": {
+    "title": "About the journey",
+    "body": "A private travel journal for friends and family — stories, photographs, and the route, one destination at a time.",
+    "trips": "Trips"
   }
 }

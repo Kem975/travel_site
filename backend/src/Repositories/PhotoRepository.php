@@ -147,6 +147,60 @@ final class PhotoRepository
         return $reasons;
     }
 
+    /**
+     * Public gallery: photos whose destination is visible in a published trip.
+     * @param array{trip?:?string,country?:?string,destination?:?string,category?:?string} $filters
+     * @return list<array<string,mixed>>
+     */
+    public function publicGallery(array $filters, bool $includePlanned): array
+    {
+        $where = ["t.status = 'published'", "d.status NOT IN ('hidden','cancelled')"];
+        $params = [];
+        if (!$includePlanned) {
+            $where[] = "d.status <> 'planned'";
+        }
+        foreach (['trip' => 't.slug', 'country' => 'd.country', 'destination' => 'd.slug', 'category' => 'p.category'] as $key => $col) {
+            if (!empty($filters[$key])) {
+                $where[] = "{$col} = ?";
+                $params[] = $filters[$key];
+            }
+        }
+        $sql = 'SELECT p.* FROM photos p
+                JOIN destinations d ON d.id = p.destination_id
+                JOIN trips t ON t.id = d.trip_id
+                WHERE ' . implode(' AND ', $where) . '
+                ORDER BY p.taken_at DESC, p.created_at DESC, p.id DESC LIMIT 500';
+        $stmt = Database::connection()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    /** @return array{trips:list<array{slug:string,title:string}>,countries:list<string>,categories:list<string>} */
+    public function galleryFilters(bool $includePlanned): array
+    {
+        $planned = $includePlanned ? '' : " AND d.status <> 'planned'";
+        $base = "FROM photos p JOIN destinations d ON d.id = p.destination_id JOIN trips t ON t.id = d.trip_id
+                 WHERE t.status = 'published' AND d.status NOT IN ('hidden','cancelled')" . $planned;
+        $pdo = Database::connection();
+        return [
+            'trips' => $pdo->query("SELECT DISTINCT t.slug, t.title {$base} ORDER BY t.title")->fetchAll(),
+            'countries' => $pdo->query("SELECT DISTINCT d.country {$base} AND d.country IS NOT NULL ORDER BY d.country")
+                ->fetchAll(\PDO::FETCH_COLUMN),
+            'categories' => $pdo->query("SELECT DISTINCT p.category {$base} AND p.category IS NOT NULL ORDER BY p.category")
+                ->fetchAll(\PDO::FETCH_COLUMN),
+        ];
+    }
+
+    public function countPublicForTrip(int $tripId, bool $includePlanned): int
+    {
+        $planned = $includePlanned ? '' : " AND d.status <> 'planned'";
+        $sql = "SELECT COUNT(*) FROM photos p JOIN destinations d ON d.id = p.destination_id
+                WHERE d.trip_id = ? AND d.status NOT IN ('hidden','cancelled'){$planned}";
+        $stmt = Database::connection()->prepare($sql);
+        $stmt->execute([$tripId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     /** @return list<array{filename:string,storage_path:string,variants:mixed}> */
     public function allForGc(): array
     {
