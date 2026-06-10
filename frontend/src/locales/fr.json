@@ -227,5 +227,12 @@
     "title": "À propos du voyage",
     "body": "Un journal de voyage privé pour les proches — récits, photographies et itinéraire, une destination à la fois.",
     "trips": "Voyages"
+  },
+  "globe": {
+    "rotate": "Tourner",
+    "pause": "Pause",
+    "reset": "Réinitialiser la vue",
+    "read": "Lire le récit",
+    "noStory": "Pas encore de récit"
   }
 }

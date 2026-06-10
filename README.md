@@ -101,5 +101,12 @@ Deploy `frontend/dist/` → OVH `www/`, backend front controller → `www/api/`,
   global **gallery** (trip/country/category filters + keyboard lightbox), an **About** page, and
   header navigation (Journal / Gallery / About). The non-globe ways to explore (§8).
 
-Next (DECISIONS D5): the **interactive globe** (MapLibre globe + self-hosted Protomaps PMTiles,
-route lines, photo markers, zoom-to-destination), then polish & deploy.
+- **Interactive globe** ✓ MapLibre globe with a configurable basemap (bundled vector world in
+  dev, PMTiles-ready for prod). Homepage IS the globe: real destinations, route from `sort_order`
+  as great-circle arcs (date-line safe), status-styled dots + circular **cover-photo markers**,
+  click → preview card → article. The **locked landing shows the globe behind the password form**
+  (decorative — the real route is never exposed pre-auth). Auto-rotation, reduced-motion, light/dark.
+  MapLibre is lazy-loaded; `/globe-prototype` remains as a demo/regression harness.
+
+Next: **polish & deploy** — final QA pass, then the OVH build/deploy (`.htaccess`, migrations,
+PMTiles basemap + self-hosted glyphs, backups). Stack-level pieces are already drafted.

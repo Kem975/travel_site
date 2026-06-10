@@ -1,17 +1,37 @@
 import { Box, Text } from '@mantine/core';
-import { GlobePrototype } from '../components/globe/GlobePrototype';
+import { Globe } from '../components/globe/Globe';
+import { TEST_DESTINATIONS } from '../lib/map/testDestinations';
+import type { GlobeTrip } from '../api/public';
 
-// Standalone, reviewable prototype (not yet the homepage). Validates the globe,
-// route arcs, markers, rotation and reduced-motion before integration.
+// Keeps the multi-continent demo (incl. the date-line hop) as a regression
+// harness for the same Globe component the homepage uses.
+const demoTrips: GlobeTrip[] = [
+  {
+    slug: 'demo',
+    title: 'Demo',
+    places: TEST_DESTINATIONS.map((d) => ({
+      id: 0,
+      slug: d.id,
+      trip_slug: 'demo',
+      title: d.title,
+      country: d.country,
+      lat: d.lat,
+      lng: d.lng,
+      status: d.status,
+      has_article: false,
+      cover_thumb: null,
+    })),
+  },
+];
+
 export function GlobePrototypePage() {
   return (
     <Box>
       <Text size="sm" c="dimmed" mb="xs">
-        Globe prototype — test data across continents (incl. an Auckland→Honolulu hop across the date line).
-        Click a marker to select; drag/scroll to explore (auto-rotation stops on interaction).
+        Globe prototype — demo data across continents (Auckland→Honolulu crosses the date line).
       </Text>
       <Box style={{ height: 'calc(100dvh - 120px)', minHeight: 420, borderRadius: 10, overflow: 'hidden' }}>
-        <GlobePrototype />
+        <Globe trips={demoTrips} interactive />
       </Box>
     </Box>
   );

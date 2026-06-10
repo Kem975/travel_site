@@ -1,54 +1,33 @@
 import { useQuery } from '@tanstack/react-query';
-import { Box, Card, Image, Loader, SimpleGrid, Stack, Text, Title } from '@mantine/core';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { Box, Center, Loader } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
 import { publicApi } from '../api/public';
+import { LazyGlobe } from '../components/globe/LazyGlobe';
 
-// Temporary landing (becomes the interactive globe in the next phase). For now,
-// a trips grid that links into each trip overview.
+// The homepage IS the interactive globe (plan §6.1). Header nav (Journal /
+// Gallery / About) stays persistent above it.
 export function HomePage() {
-  const { t } = useTranslation();
-  const { data: trips, isLoading } = useQuery({ queryKey: ['trips'], queryFn: publicApi.trips });
+  const navigate = useNavigate();
+  const { data: trips, isLoading } = useQuery({ queryKey: ['globe'], queryFn: publicApi.globe });
+
+  const fallback = (
+    <Center h="100%">
+      <Loader />
+    </Center>
+  );
 
   return (
-    <Stack maw={900} mx="auto" mt="xl" gap="lg">
-      <div>
-        <Title order={1}>{t('app.title')}</Title>
-        <Text c="dimmed">{t('app.subtitle')}</Text>
-      </div>
-
+    <Box style={{ height: 'calc(100dvh - 92px)', minHeight: 420, borderRadius: 10, overflow: 'hidden' }}>
       {isLoading ? (
-        <Loader />
-      ) : trips && trips.length > 0 ? (
-        <SimpleGrid cols={{ base: 1, sm: 2 }}>
-          {trips.map((trip) => (
-            <Card key={trip.id} component={Link} to={`/trips/${trip.slug}`} withBorder radius="md" padding="0">
-              <Card.Section>
-                {trip.cover ? (
-                  <Image src={trip.cover.thumb ?? undefined} h={180} fit="cover" alt="" />
-                ) : (
-                  <Box h={180} style={{ background: 'var(--mantine-color-default-hover)' }} />
-                )}
-              </Card.Section>
-              <Stack gap={4} p="md">
-                <Title order={3}>{trip.title}</Title>
-                {(trip.start_date || trip.end_date) && (
-                  <Text size="sm" c="dimmed">
-                    {[trip.start_date, trip.end_date].filter(Boolean).join(' → ')}
-                  </Text>
-                )}
-                {trip.description && (
-                  <Text size="sm" c="dimmed" lineClamp={2}>
-                    {trip.description}
-                  </Text>
-                )}
-              </Stack>
-            </Card>
-          ))}
-        </SimpleGrid>
+        fallback
       ) : (
-        <Text c="dimmed">{t('home.empty')}</Text>
+        <LazyGlobe
+          trips={trips ?? []}
+          interactive
+          fallback={fallback}
+          onOpen={(place) => navigate(`/trips/${place.trip_slug}/${place.slug}`)}
+        />
       )}
-    </Stack>
+    </Box>
   );
 }

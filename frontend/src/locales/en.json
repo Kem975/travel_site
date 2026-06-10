@@ -227,5 +227,12 @@
     "title": "About the journey",
     "body": "A private travel journal for friends and family — stories, photographs, and the route, one destination at a time.",
     "trips": "Trips"
+  },
+  "globe": {
+    "rotate": "Rotate",
+    "pause": "Pause",
+    "reset": "Reset view",
+    "read": "Read the story",
+    "noStory": "No story yet"
   }
 }

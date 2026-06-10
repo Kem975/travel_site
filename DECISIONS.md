@@ -56,8 +56,9 @@ block editor against an unfinished image schema would force a redesign. Revised 
    keyed-IP rate limit, public thread, admin moderation queue).
 5. ✓ **Journal / public reading experience** (journal, trip overview + stats, gallery + filters +
    lightbox, About, header nav).
-6. **Interactive globe** ← current (MapLibre globe + self-hosted Protomaps PMTiles)
-7. Polish & deploy
+6. ✓ **Interactive globe** — prototype validated, then integrated as the homepage (locked globe
+   behind the password form; real destinations, route arcs, cover-photo markers, click-to-article).
+7. **Polish & deploy** ← current
 5. Journal / public reading experience
 6. Globe (last, per §21)
 
