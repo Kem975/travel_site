@@ -229,7 +229,12 @@ export function Globe({ trips, interactive = true, onOpen }: Props) {
 
   return (
     <Box style={{ position: 'relative', height: '100%', width: '100%', background: palette(scheme).space }}>
-      <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
+      <div
+        ref={containerRef}
+        role="application"
+        aria-label={t('globe.ariaLabel')}
+        style={{ position: 'absolute', inset: 0 }}
+      />
 
       {showData && (
         <Group style={{ position: 'absolute', top: 12, left: 12 }} gap="xs">

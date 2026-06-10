@@ -1,4 +1,5 @@
-import { AppShell, Button, Group, Title } from '@mantine/core';
+import { AppShell, Box, Burger, Button, Collapse, Divider, Group, Paper, Stack, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,6 +14,7 @@ export function AdminLayout() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [menuOpened, { toggle: toggleMenu, close: closeMenu }] = useDisclosure(false);
 
   const logoutMutation = useMutation({
     mutationFn: logoutRequest,
@@ -23,30 +25,36 @@ export function AdminLayout() {
     },
   });
 
+  const navItems: [string, string][] = [
+    ['/admin', t('auth.admin.dashboard')],
+    ['/admin/trips', t('admin.trips.title')],
+    ['/admin/media', t('media.nav')],
+    ['/admin/comments', t('comments.admin.nav')],
+  ];
   const isActive = (to: string) => (to === '/admin' ? pathname === to : pathname.startsWith(to));
-  const navButton = (to: string, label: string) => (
-    <Button component={Link} to={to} size="xs" variant={isActive(to) ? 'light' : 'subtle'}>
-      {label}
-    </Button>
-  );
 
   return (
     <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between">
-          <Group gap="xs">
+        <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+          <Group gap="xs" wrap="nowrap">
+            <Burger opened={menuOpened} onClick={toggleMenu} hiddenFrom="sm" size="sm" aria-label={t('nav.menu')} />
             <Title order={4} mr="sm">
               {t('auth.admin.title')}
             </Title>
-            {navButton('/admin', t('auth.admin.dashboard'))}
-            {navButton('/admin/trips', t('admin.trips.title'))}
-            {navButton('/admin/media', t('media.nav'))}
-            {navButton('/admin/comments', t('comments.admin.nav'))}
+            <Group gap={4} visibleFrom="sm">
+              {navItems.map(([to, label]) => (
+                <Button key={to} component={Link} to={to} size="xs" variant={isActive(to) ? 'light' : 'subtle'}>
+                  {label}
+                </Button>
+              ))}
+            </Group>
           </Group>
-          <Group gap="sm">
+          <Group gap="sm" wrap="nowrap">
             <LanguageToggle />
             <ColorSchemeToggle />
             <Button
+              visibleFrom="sm"
               variant="default"
               size="xs"
               onClick={() => logoutMutation.mutate()}
@@ -57,6 +65,39 @@ export function AdminLayout() {
           </Group>
         </Group>
       </AppShell.Header>
+
+      <Box hiddenFrom="sm" style={{ position: 'fixed', top: 60, left: 0, right: 0, zIndex: 200 }}>
+        <Collapse in={menuOpened}>
+          <Paper shadow="md" radius={0} p="sm" withBorder>
+            <Stack gap="xs">
+              {navItems.map(([to, label]) => (
+                <Button
+                  key={to}
+                  component={Link}
+                  to={to}
+                  variant={isActive(to) ? 'light' : 'subtle'}
+                  justify="flex-start"
+                  onClick={closeMenu}
+                >
+                  {label}
+                </Button>
+              ))}
+              <Divider my={4} />
+              <Button
+                variant="default"
+                justify="flex-start"
+                onClick={() => {
+                  closeMenu();
+                  logoutMutation.mutate();
+                }}
+              >
+                {t('auth.logout')}
+              </Button>
+            </Stack>
+          </Paper>
+        </Collapse>
+      </Box>
+
       <AppShell.Main>
         <Outlet />
       </AppShell.Main>

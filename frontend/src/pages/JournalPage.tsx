@@ -11,7 +11,7 @@ function monthKey(date: string | null): string {
 
 export function JournalPage() {
   const { t, i18n } = useTranslation();
-  const { data: entries, isLoading } = useQuery({ queryKey: ['public', 'journal'], queryFn: publicApi.journal });
+  const { data: entries, isLoading, isError } = useQuery({ queryKey: ['public', 'journal'], queryFn: publicApi.journal });
 
   const groups = useMemo(() => {
     const map = new Map<string, JournalEntry[]>();
@@ -35,6 +35,8 @@ export function JournalPage() {
 
       {isLoading ? (
         <Loader />
+      ) : isError ? (
+        <Text c="dimmed">{t('common.loadError')}</Text>
       ) : groups.length === 0 ? (
         <Text c="dimmed">{t('journal.empty')}</Text>
       ) : (

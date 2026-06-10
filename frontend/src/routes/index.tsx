@@ -3,6 +3,7 @@ import { Center, Loader } from '@mantine/core';
 import { createBrowserRouter } from 'react-router-dom';
 import { RootLayout } from '../components/layout/RootLayout';
 import { HomePage } from '../pages/HomePage';
+import { NotFoundPage } from '../pages/NotFoundPage';
 import { AdminGate } from '../components/auth/AdminGate';
 
 // The admin section is lazy-loaded so visitors never download it (plan §17.2).
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([
       { path: 'globe-prototype', element: page(<GlobePrototypePage />) },
       { path: 'trips/:tripSlug', element: page(<TripOverviewPage />) },
       { path: 'trips/:tripSlug/:destinationSlug', element: page(<DestinationPage />) },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
   {
@@ -80,6 +82,7 @@ export const router = createBrowserRouter([
       { path: 'destinations/:destinationId/article', element: <ArticleEditorPage /> },
       { path: 'media', element: <MediaLibraryPage /> },
       { path: 'comments', element: <CommentsPage /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);

@@ -12,7 +12,7 @@ export function GalleryPage() {
   const [category, setCategory] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['public', 'gallery', trip, country, category],
     queryFn: () => publicApi.gallery({ trip: trip ?? undefined, country: country ?? undefined, category: category ?? undefined }),
   });
@@ -46,6 +46,8 @@ export function GalleryPage() {
 
       {isLoading ? (
         <Loader />
+      ) : isError ? (
+        <Text c="dimmed">{t('common.loadError')}</Text>
       ) : photos.length > 0 ? (
         <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="xs">
           {photos.map((photo, i) => (

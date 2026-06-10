@@ -7,7 +7,8 @@
     "globe": "Globe",
     "journal": "Journal",
     "gallery": "Galerie",
-    "about": "À propos"
+    "about": "À propos",
+    "menu": "Menu"
   },
   "health": {
     "heading": "État du système",
@@ -20,7 +21,8 @@
     "down": "non connectée"
   },
   "common": {
-    "language": "Langue"
+    "language": "Langue",
+    "loadError": "Impossible de charger. Veuillez réessayer."
   },
   "auth": {
     "gate": {
@@ -233,6 +235,11 @@
     "pause": "Pause",
     "reset": "Réinitialiser la vue",
     "read": "Lire le récit",
-    "noStory": "Pas encore de récit"
+    "noStory": "Pas encore de récit",
+    "ariaLabel": "Globe interactif du voyage. Vous préférez une liste ? Ouvrez le Journal."
+  },
+  "notFound": {
+    "body": "Cette page est introuvable.",
+    "home": "Retour au globe"
   }
 }

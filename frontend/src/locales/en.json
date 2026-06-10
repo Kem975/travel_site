@@ -7,7 +7,8 @@
     "globe": "Globe",
     "journal": "Journal",
     "gallery": "Gallery",
-    "about": "About"
+    "about": "About",
+    "menu": "Menu"
   },
   "health": {
     "heading": "System status",
@@ -20,7 +21,8 @@
     "down": "not connected"
   },
   "common": {
-    "language": "Language"
+    "language": "Language",
+    "loadError": "Couldn't load this. Please try again."
   },
   "auth": {
     "gate": {
@@ -233,6 +235,11 @@
     "pause": "Pause",
     "reset": "Reset view",
     "read": "Read the story",
-    "noStory": "No story yet"
+    "noStory": "No story yet",
+    "ariaLabel": "Interactive globe of the journey. Prefer a text list? Open the Journal."
+  },
+  "notFound": {
+    "body": "We couldn't find that page.",
+    "home": "Back to the globe"
   }
 }
