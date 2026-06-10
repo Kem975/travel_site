@@ -51,7 +51,7 @@ export function GalleryPage() {
       ) : photos.length > 0 ? (
         <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="xs">
           {photos.map((photo, i) => (
-            <UnstyledButton key={photo.id} onClick={() => setLightbox(i)}>
+            <UnstyledButton key={photo.id} aria-label={photo.caption ?? photo.alt_text ?? t('gallery.viewPhoto')} onClick={() => setLightbox(i)}>
               <Image src={photo.urls['480'] ?? photo.thumb ?? undefined} alt={photo.alt_text ?? ''} h={180} fit="cover" radius="sm" />
             </UnstyledButton>
           ))}

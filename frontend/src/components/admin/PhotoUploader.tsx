@@ -84,7 +84,7 @@ export function PhotoUploader({ destinationId, onUploaded }: Props) {
                   <Text size="xs" c="red">
                     {t('media.status.error')}
                   </Text>
-                  <ActionIcon variant="subtle" size="sm" onClick={() => void process(it.id, files[it.id])} title={t('media.retry')}>
+                  <ActionIcon variant="subtle" size="sm" aria-label={t('media.retry')} onClick={() => void process(it.id, files[it.id])} title={t('media.retry')}>
                     <IconRefresh size={14} />
                   </ActionIcon>
                 </Group>

@@ -182,13 +182,13 @@ export function ArticleEditor({ destinationId }: { destinationId: number }) {
                 {t(`article.types.${row.block.type}`)}
               </Text>
               <Group gap={2}>
-                <ActionIcon size="sm" variant="subtle" disabled={i === 0} onClick={() => moveBlock(i, -1)}>
+                <ActionIcon size="sm" variant="subtle" aria-label={t('common.moveUp')} disabled={i === 0} onClick={() => moveBlock(i, -1)}>
                   <IconArrowUp size={14} />
                 </ActionIcon>
-                <ActionIcon size="sm" variant="subtle" disabled={i === rows.length - 1} onClick={() => moveBlock(i, 1)}>
+                <ActionIcon size="sm" variant="subtle" aria-label={t('common.moveDown')} disabled={i === rows.length - 1} onClick={() => moveBlock(i, 1)}>
                   <IconArrowDown size={14} />
                 </ActionIcon>
-                <ActionIcon size="sm" variant="subtle" color="red" onClick={() => removeBlock(i)}>
+                <ActionIcon size="sm" variant="subtle" color="red" aria-label={t('common.delete')} onClick={() => removeBlock(i)}>
                   <IconTrash size={14} />
                 </ActionIcon>
               </Group>

@@ -84,8 +84,9 @@ export function TripDestinationsPage() {
       {destQuery.isLoading ? (
         <Loader />
       ) : list.length > 0 ? (
-        <Table verticalSpacing="sm">
-          <Table.Thead>
+        <Table.ScrollContainer minWidth={640}>
+          <Table verticalSpacing="sm">
+            <Table.Thead>
             <Table.Tr>
               <Table.Th w={90}>{t('admin.destinations.order')}</Table.Th>
               <Table.Th>{t('admin.fields.title')}</Table.Th>
@@ -105,6 +106,7 @@ export function TripDestinationsPage() {
                       size="sm"
                       disabled={index === 0 || reorderMutation.isPending}
                       onClick={() => move(index, -1)}
+                      aria-label={t('common.moveUp')}
                     >
                       <IconArrowUp size={14} />
                     </ActionIcon>
@@ -113,6 +115,7 @@ export function TripDestinationsPage() {
                       size="sm"
                       disabled={index === list.length - 1 || reorderMutation.isPending}
                       onClick={() => move(index, 1)}
+                      aria-label={t('common.moveDown')}
                     >
                       <IconArrowDown size={14} />
                     </ActionIcon>
@@ -144,21 +147,23 @@ export function TripDestinationsPage() {
                       component={Link}
                       to={`/admin/destinations/${destination.id}/article`}
                       title={t('article.edit')}
+                      aria-label={t('article.edit')}
                     >
                       <IconFileText size={16} />
                     </ActionIcon>
-                    <ActionIcon variant="subtle" onClick={() => openEdit(destination)}>
+                    <ActionIcon variant="subtle" aria-label={t('common.edit')} onClick={() => openEdit(destination)}>
                       <IconEdit size={16} />
                     </ActionIcon>
-                    <ActionIcon variant="subtle" color="red" onClick={() => confirmDelete(destination)}>
+                    <ActionIcon variant="subtle" color="red" aria-label={t('common.delete')} onClick={() => confirmDelete(destination)}>
                       <IconTrash size={16} />
                     </ActionIcon>
                   </Group>
                 </Table.Td>
               </Table.Tr>
             ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
       ) : (
         <Text c="dimmed">{t('admin.destinations.empty')}</Text>
       )}

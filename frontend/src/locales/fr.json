@@ -22,7 +22,17 @@
   },
   "common": {
     "language": "Langue",
-    "loadError": "Impossible de charger. Veuillez réessayer."
+    "loadError": "Impossible de charger. Veuillez réessayer.",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "remove": "Retirer",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "moveLeft": "Déplacer à gauche",
+    "moveRight": "Déplacer à droite",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "close": "Fermer"
   },
   "auth": {
     "gate": {
@@ -212,7 +222,8 @@
     "allTrips": "Tous les voyages",
     "allCountries": "Tous les pays",
     "allCategories": "Toutes les catégories",
-    "empty": "Aucune photo ne correspond à ces filtres."
+    "empty": "Aucune photo ne correspond à ces filtres.",
+    "viewPhoto": "Voir la photo"
   },
   "journal": {
     "title": "Journal",

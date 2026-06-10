@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { ActionIcon, Box, Text } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight, IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import type { Photo } from '../../api/media';
 
 type Props = { photos: Photo[]; index: number | null; onClose: () => void; onIndex: (i: number) => void };
 
 /** Minimal full-screen lightbox with keyboard + arrow navigation (no extra dependency). */
 export function Lightbox({ photos, index, onClose, onIndex }: Props) {
+  const { t } = useTranslation();
   useEffect(() => {
     if (index === null) return;
     const handler = (e: KeyboardEvent) => {
@@ -37,16 +39,16 @@ export function Lightbox({ photos, index, onClose, onIndex }: Props) {
         justifyContent: 'center',
       }}
     >
-      <ActionIcon variant="subtle" color="gray" size="lg" onClick={(e) => { stop(e); onClose(); }} style={{ position: 'absolute', top: 16, right: 16 }}>
+      <ActionIcon variant="subtle" color="gray" size="lg" aria-label={t('common.close')} onClick={(e) => { stop(e); onClose(); }} style={{ position: 'absolute', top: 16, right: 16 }}>
         <IconX />
       </ActionIcon>
       {index > 0 && (
-        <ActionIcon variant="subtle" color="gray" size="xl" onClick={(e) => { stop(e); onIndex(index - 1); }} style={{ position: 'absolute', left: 12 }}>
+        <ActionIcon variant="subtle" color="gray" size="xl" aria-label={t('common.previous')} onClick={(e) => { stop(e); onIndex(index - 1); }} style={{ position: 'absolute', left: 12 }}>
           <IconChevronLeft />
         </ActionIcon>
       )}
       {index < photos.length - 1 && (
-        <ActionIcon variant="subtle" color="gray" size="xl" onClick={(e) => { stop(e); onIndex(index + 1); }} style={{ position: 'absolute', right: 12 }}>
+        <ActionIcon variant="subtle" color="gray" size="xl" aria-label={t('common.next')} onClick={(e) => { stop(e); onIndex(index + 1); }} style={{ position: 'absolute', right: 12 }}>
           <IconChevronRight />
         </ActionIcon>
       )}

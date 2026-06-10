@@ -50,8 +50,9 @@ export function TripsListPage() {
       {isLoading ? (
         <Loader />
       ) : trips && trips.length > 0 ? (
-        <Table verticalSpacing="sm" highlightOnHover>
-          <Table.Thead>
+        <Table.ScrollContainer minWidth={560}>
+          <Table verticalSpacing="sm" highlightOnHover>
+            <Table.Thead>
             <Table.Tr>
               <Table.Th>{t('admin.fields.title')}</Table.Th>
               <Table.Th>{t('admin.fields.status')}</Table.Th>
@@ -87,21 +88,23 @@ export function TripsListPage() {
                       component={Link}
                       to={`/admin/trips/${trip.id}`}
                       title={t('admin.trips.manageDestinations')}
+                      aria-label={t('admin.trips.manageDestinations')}
                     >
                       <IconMapPin size={16} />
                     </ActionIcon>
-                    <ActionIcon variant="subtle" onClick={() => openEdit(trip)} title={t('admin.trips.edit')}>
+                    <ActionIcon variant="subtle" aria-label={t('admin.trips.edit')} onClick={() => openEdit(trip)} title={t('admin.trips.edit')}>
                       <IconEdit size={16} />
                     </ActionIcon>
-                    <ActionIcon variant="subtle" color="red" onClick={() => confirmDelete(trip)}>
+                    <ActionIcon variant="subtle" color="red" aria-label={t('common.delete')} onClick={() => confirmDelete(trip)}>
                       <IconTrash size={16} />
                     </ActionIcon>
                   </Group>
                 </Table.Td>
               </Table.Tr>
             ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
       ) : (
         <Text c="dimmed">{t('admin.trips.empty')}</Text>
       )}

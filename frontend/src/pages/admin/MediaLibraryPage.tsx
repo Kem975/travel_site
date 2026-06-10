@@ -60,10 +60,10 @@ export function MediaLibraryPage() {
                     {photo.caption ?? photo.original_filename ?? `#${photo.id}`}
                   </Text>
                   <Group gap={2} wrap="nowrap">
-                    <ActionIcon variant="subtle" size="sm" onClick={() => edit(photo)}>
+                    <ActionIcon variant="subtle" size="sm" aria-label={t('common.edit')} onClick={() => edit(photo)}>
                       <IconEdit size={15} />
                     </ActionIcon>
-                    <ActionIcon variant="subtle" color="red" size="sm" onClick={() => confirmDelete(photo)}>
+                    <ActionIcon variant="subtle" color="red" size="sm" aria-label={t('common.delete')} onClick={() => confirmDelete(photo)}>
                       <IconTrash size={15} />
                     </ActionIcon>
                   </Group>

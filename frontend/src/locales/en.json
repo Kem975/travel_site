@@ -22,7 +22,17 @@
   },
   "common": {
     "language": "Language",
-    "loadError": "Couldn't load this. Please try again."
+    "loadError": "Couldn't load this. Please try again.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "remove": "Remove",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "moveLeft": "Move left",
+    "moveRight": "Move right",
+    "previous": "Previous",
+    "next": "Next",
+    "close": "Close"
   },
   "auth": {
     "gate": {
@@ -212,7 +222,8 @@
     "allTrips": "All trips",
     "allCountries": "All countries",
     "allCategories": "All categories",
-    "empty": "No photos match these filters."
+    "empty": "No photos match these filters.",
+    "viewPhoto": "View photo"
   },
   "journal": {
     "title": "Journal",

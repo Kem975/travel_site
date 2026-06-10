@@ -31,7 +31,7 @@ export function PracticalInfoBlock({ content, onChange }: { content: Content; on
             value={item.value}
             onChange={(e) => setItem(i, { value: e.currentTarget.value })}
           />
-          <ActionIcon size="sm" variant="subtle" color="red" onClick={() => remove(i)}>
+          <ActionIcon size="sm" variant="subtle" color="red" aria-label={t('common.remove')} onClick={() => remove(i)}>
             <IconX size={14} />
           </ActionIcon>
         </Group>
