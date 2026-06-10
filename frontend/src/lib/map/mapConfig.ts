@@ -3,15 +3,19 @@ import { Protocol } from 'pmtiles';
 
 // The basemap source is configuration, not baked into the globe component.
 // Dev/PoC defaults to a self-contained bundled vector world; in production set
-// pmtilesUrl (self-hosted PMTiles on OVH) or a full styleUrl. OVH range-request,
-// file-size, caching and bandwidth behaviour still need real production testing.
+// pmtilesUrl (self-hosted PMTiles on OVH) or a full styleUrl, and self-host glyphs.
+// OVH range-request, file-size, caching and bandwidth behaviour still need real
+// production testing.
 export type MapConfig = {
   styleUrl?: string;
   pmtilesUrl?: string;
+  glyphsUrl?: string; // for label fonts; self-host in production
   attribution: string;
 };
 
 export const DEFAULT_MAP_CONFIG: MapConfig = {
+  // PoC default: public free glyph server. Self-host on OVH for production.
+  glyphsUrl: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
   attribution: 'Natural Earth (public domain)',
 };
 

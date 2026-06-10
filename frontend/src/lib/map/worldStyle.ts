@@ -19,6 +19,8 @@ type Palette = {
   land: string;
   border: string;
   route: string;
+  label: string;
+  labelHalo: string;
   sky: string;
   horizon: string;
   fog: string;
@@ -26,8 +28,30 @@ type Palette = {
 };
 
 const PALETTES: Record<Scheme, Palette> = {
-  dark: { ocean: '#0b1f30', land: '#1d3b4b', border: '#2f5a6e', route: '#ffd27d', sky: '#0a1622', horizon: '#163047', fog: '#0a1622', space: '#05101a' },
-  light: { ocean: '#b7d2e2', land: '#eef3f5', border: '#c4d3db', route: '#d9722e', sky: '#dceaf3', horizon: '#bcd6e6', fog: '#eef3f5', space: '#e6eef4' },
+  dark: {
+    ocean: '#0b1f30',
+    land: '#1d3b4b',
+    border: '#2f5a6e',
+    route: '#ffd27d',
+    label: '#ffffff',
+    labelHalo: 'rgba(0,0,0,0.85)',
+    sky: '#0a1622',
+    horizon: '#163047',
+    fog: '#0a1622',
+    space: '#05101a',
+  },
+  light: {
+    ocean: '#b7d2e2',
+    land: '#eef3f5',
+    border: '#c4d3db',
+    route: '#d9722e',
+    label: '#15323f',
+    labelHalo: 'rgba(255,255,255,0.85)',
+    sky: '#dceaf3',
+    horizon: '#bcd6e6',
+    fog: '#eef3f5',
+    space: '#e6eef4',
+  },
 };
 
 export function palette(scheme: Scheme): Palette {
@@ -43,6 +67,7 @@ export function buildStyle(config: MapConfig, scheme: Scheme): StyleSpecificatio
   const style: Record<string, unknown> = {
     version: 8,
     projection: { type: 'globe' },
+    glyphs: config.glyphsUrl,
     sky: {
       'sky-color': p.sky,
       'horizon-color': p.horizon,
@@ -59,7 +84,6 @@ export function buildStyle(config: MapConfig, scheme: Scheme): StyleSpecificatio
   const layers = style.layers as Record<string, unknown>[];
 
   if (config.pmtilesUrl) {
-    // Production path: self-hosted vector tiles, tuned once the file is on OVH.
     sources.basemap = { type: 'vector', url: `pmtiles://${config.pmtilesUrl}` };
   } else {
     sources.countries = { type: 'geojson', data: world };
@@ -79,6 +103,10 @@ export function applyPalette(map: MaplibreMap, scheme: Scheme): void {
   if (map.getLayer('land')) map.setPaintProperty('land', 'fill-color', p.land);
   if (map.getLayer('borders')) map.setPaintProperty('borders', 'line-color', p.border);
   if (map.getLayer('route')) map.setPaintProperty('route', 'line-color', p.route);
+  if (map.getLayer('marker-labels')) {
+    map.setPaintProperty('marker-labels', 'text-color', p.label);
+    map.setPaintProperty('marker-labels', 'text-halo-color', p.labelHalo);
+  }
   map.setSky({
     'sky-color': p.sky,
     'horizon-color': p.horizon,

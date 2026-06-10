@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import './globe.css';
 import { Badge, Box, Button, Card, Group, Text, useComputedColorScheme } from '@mantine/core';
 import { DEFAULT_MAP_CONFIG, registerPmtiles } from '../../lib/map/mapConfig';
 import { applyPalette, buildStyle, palette } from '../../lib/map/worldStyle';
@@ -12,9 +11,21 @@ registerPmtiles();
 
 const SPIN_SPEED = 0.08; // degrees of longitude per frame (~slow cinematic)
 const WORLD_VIEW: [number, number] = [10, 25];
-const WORLD_ZOOM = 2.5;
+const WORLD_ZOOM = 3;
+const NONE = '__none__';
 const reducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Markers as a native GeoJSON source so MapLibre renders them ON the globe
+// (correct positioning + occlusion). Density adapts via zoom expressions.
+const markerData = {
+  type: 'FeatureCollection',
+  features: TEST_DESTINATIONS.filter((d) => d.lng != null && d.lat != null).map((d) => ({
+    type: 'Feature',
+    properties: { id: d.id, title: d.title, color: d.color },
+    geometry: { type: 'Point', coordinates: [d.lng, d.lat] },
+  })),
+} as unknown as GeoJSON.FeatureCollection;
 
 export function GlobePrototype() {
   const scheme = useComputedColorScheme('dark');
@@ -23,7 +34,6 @@ export function GlobePrototype() {
   const readyRef = useRef(false);
   const spinningRef = useRef(false);
   const rafRef = useRef<number | null>(null);
-  const markersRef = useRef<{ el: HTMLDivElement; id: string }[]>([]);
   const selectedIdRef = useRef<string | null>(null);
 
   const [selected, setSelected] = useState<GlobeDestination | null>(null);
@@ -52,22 +62,11 @@ export function GlobePrototype() {
     rafRef.current = requestAnimationFrame(frame);
   };
 
-  const applyMarkerState = () => {
-    const map = mapRef.current;
-    if (!map) return;
-    const z = map.getZoom();
-    const size = z < 2.6 ? 'dot' : z < 4 ? 'thumb' : 'large';
-    markersRef.current.forEach(({ el, id }) => {
-      el.dataset.size = size;
-      el.dataset.selected = selectedIdRef.current === id ? 'true' : 'false';
-    });
-  };
-
   const select = (dest: GlobeDestination) => {
     stopSpin();
     selectedIdRef.current = dest.id;
     setSelected(dest);
-    applyMarkerState();
+    mapRef.current?.setFilter('markers-selected', ['==', ['get', 'id'], dest.id]);
     if (dest.lng != null && dest.lat != null) {
       mapRef.current?.flyTo({ center: [dest.lng, dest.lat], zoom: 4.2, duration: 2200, essential: true });
     }
@@ -76,7 +75,7 @@ export function GlobePrototype() {
   const resetView = () => {
     selectedIdRef.current = null;
     setSelected(null);
-    applyMarkerState();
+    mapRef.current?.setFilter('markers-selected', ['==', ['get', 'id'], NONE]);
     mapRef.current?.flyTo({ center: WORLD_VIEW, zoom: WORLD_ZOOM, duration: 1600 });
   };
 
@@ -91,6 +90,7 @@ export function GlobePrototype() {
       dragRotate: false,
     });
     mapRef.current = map;
+    const p = palette(scheme);
 
     map.on('load', () => {
       map.setProjection({ type: 'globe' });
@@ -101,31 +101,64 @@ export function GlobePrototype() {
         type: 'line',
         source: 'route',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': palette(scheme).route, 'line-width': 2, 'line-opacity': 0.9 },
+        paint: { 'line-color': p.route, 'line-width': 2, 'line-opacity': 0.9 },
       });
 
-      for (const dest of TEST_DESTINATIONS) {
-        if (dest.lng == null || dest.lat == null) continue;
-        const el = document.createElement('div');
-        el.className = 'globe-marker';
-        el.style.setProperty('--c', dest.color);
-        el.dataset.size = 'dot';
-        el.innerHTML = '<span class="globe-marker__dot"></span><span class="globe-marker__label"></span>';
-        el.querySelector('.globe-marker__label')!.textContent = dest.title;
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          select(dest);
-        });
-        new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([dest.lng, dest.lat]).addTo(map);
-        markersRef.current.push({ el, id: dest.id });
-      }
+      map.addSource('markers', { type: 'geojson', data: markerData });
+      map.addLayer({
+        id: 'markers-selected',
+        type: 'circle',
+        source: 'markers',
+        filter: ['==', ['get', 'id'], NONE],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 7, 5, 16],
+          'circle-color': 'rgba(255,210,125,0.18)',
+          'circle-stroke-color': '#ffd27d',
+          'circle-stroke-width': 2,
+        },
+      });
+      map.addLayer({
+        id: 'markers',
+        type: 'circle',
+        source: 'markers',
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 2.5, 3, 5, 5, 9],
+          'circle-color': ['get', 'color'],
+          'circle-stroke-color': '#ffffff',
+          'circle-stroke-width': 1.5,
+        },
+      });
+      map.addLayer({
+        id: 'marker-labels',
+        type: 'symbol',
+        source: 'markers',
+        layout: {
+          'text-field': ['get', 'title'],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 2.4, 0, 3.2, 12],
+          'text-anchor': 'left',
+          'text-offset': [0.8, 0],
+          'text-allow-overlap': false,
+          'text-optional': true,
+        },
+        paint: { 'text-color': p.label, 'text-halo-color': p.labelHalo, 'text-halo-width': 1.4 },
+      });
+
+      map.on('click', 'markers', (e) => {
+        const id = e.features?.[0]?.properties?.id;
+        const dest = TEST_DESTINATIONS.find((d) => d.id === id);
+        if (dest) select(dest);
+      });
+      map.on('mouseenter', 'markers', () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseleave', 'markers', () => {
+        map.getCanvas().style.cursor = '';
+      });
 
       readyRef.current = true;
-      applyMarkerState();
       startSpin();
     });
-
-    map.on('zoom', applyMarkerState);
 
     const onInteract = () => stopSpin();
     const canvas = map.getCanvas();
@@ -136,7 +169,6 @@ export function GlobePrototype() {
     return () => {
       stopSpin();
       map.remove();
-      markersRef.current = [];
       readyRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
