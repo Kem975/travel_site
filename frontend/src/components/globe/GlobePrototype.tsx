@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './globe.css';
-import { Badge, Box, Button, Card, Group, Text } from '@mantine/core';
+import { Badge, Box, Button, Card, Group, Text, useComputedColorScheme } from '@mantine/core';
 import { DEFAULT_MAP_CONFIG, registerPmtiles } from '../../lib/map/mapConfig';
-import { buildStyle, ROUTE_COLOR } from '../../lib/map/worldStyle';
+import { applyPalette, buildStyle, palette } from '../../lib/map/worldStyle';
 import { routeFeature } from '../../lib/map/greatCircle';
 import { TEST_DESTINATIONS, type GlobeDestination } from '../../lib/map/testDestinations';
 
@@ -12,12 +12,15 @@ registerPmtiles();
 
 const SPIN_SPEED = 0.08; // degrees of longitude per frame (~slow cinematic)
 const WORLD_VIEW: [number, number] = [10, 25];
+const WORLD_ZOOM = 2.5;
 const reducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function GlobePrototype() {
+  const scheme = useComputedColorScheme('dark');
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const readyRef = useRef(false);
   const spinningRef = useRef(false);
   const rafRef = useRef<number | null>(null);
   const markersRef = useRef<{ el: HTMLDivElement; id: string }[]>([]);
@@ -53,7 +56,7 @@ export function GlobePrototype() {
     const map = mapRef.current;
     if (!map) return;
     const z = map.getZoom();
-    const size = z < 2.2 ? 'dot' : z < 4 ? 'thumb' : 'large';
+    const size = z < 2.6 ? 'dot' : z < 4 ? 'thumb' : 'large';
     markersRef.current.forEach(({ el, id }) => {
       el.dataset.size = size;
       el.dataset.selected = selectedIdRef.current === id ? 'true' : 'false';
@@ -74,16 +77,16 @@ export function GlobePrototype() {
     selectedIdRef.current = null;
     setSelected(null);
     applyMarkerState();
-    mapRef.current?.flyTo({ center: WORLD_VIEW, zoom: 1.5, duration: 1800 });
+    mapRef.current?.flyTo({ center: WORLD_VIEW, zoom: WORLD_ZOOM, duration: 1600 });
   };
 
   useEffect(() => {
     if (!containerRef.current) return;
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: buildStyle(DEFAULT_MAP_CONFIG),
+      style: buildStyle(DEFAULT_MAP_CONFIG, scheme),
       center: WORLD_VIEW,
-      zoom: 1.5,
+      zoom: WORLD_ZOOM,
       attributionControl: false,
       dragRotate: false,
     });
@@ -98,7 +101,7 @@ export function GlobePrototype() {
         type: 'line',
         source: 'route',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': ROUTE_COLOR, 'line-width': 2, 'line-opacity': 0.9 },
+        paint: { 'line-color': palette(scheme).route, 'line-width': 2, 'line-opacity': 0.9 },
       });
 
       for (const dest of TEST_DESTINATIONS) {
@@ -107,7 +110,7 @@ export function GlobePrototype() {
         el.className = 'globe-marker';
         el.style.setProperty('--c', dest.color);
         el.dataset.size = 'dot';
-        el.innerHTML = `<span class="globe-marker__dot"></span><span class="globe-marker__label"></span>`;
+        el.innerHTML = '<span class="globe-marker__dot"></span><span class="globe-marker__label"></span>';
         el.querySelector('.globe-marker__label')!.textContent = dest.title;
         el.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -117,6 +120,7 @@ export function GlobePrototype() {
         markersRef.current.push({ el, id: dest.id });
       }
 
+      readyRef.current = true;
       applyMarkerState();
       startSpin();
     });
@@ -133,12 +137,21 @@ export function GlobePrototype() {
       stopSpin();
       map.remove();
       markersRef.current = [];
+      readyRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Recolor when the app's light/dark scheme changes.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map && readyRef.current) {
+      applyPalette(map, scheme);
+    }
+  }, [scheme]);
+
   return (
-    <Box style={{ position: 'relative', height: '100%', width: '100%', background: '#05101a' }}>
+    <Box style={{ position: 'relative', height: '100%', width: '100%', background: palette(scheme).space }}>
       <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
 
       <Group style={{ position: 'absolute', top: 12, left: 12 }} gap="xs">
@@ -178,7 +191,7 @@ export function GlobePrototype() {
         </Card>
       )}
 
-      <Text size="xs" c="gray.5" style={{ position: 'absolute', bottom: 4, right: 8 }}>
+      <Text size="xs" c="dimmed" style={{ position: 'absolute', bottom: 4, right: 8 }}>
         {DEFAULT_MAP_CONFIG.attribution}
       </Text>
     </Box>
