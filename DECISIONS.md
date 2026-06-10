@@ -80,3 +80,19 @@ list of blocks; TipTap only edits the `html` of a `richText` block:
 
 Image/gallery blocks reference **stable photo IDs** from the media library — never embedded
 URLs. `richText` HTML is sanitized server-side before storage (PLAN_REVIEW A3).
+
+## D7 — Globe built in two stages (prototype → integration)
+1. **Prototype** (`/globe-prototype`, reviewable, NOT the homepage): validate MapLibre globe
+   projection, route arcs across the date line, zoom-adaptive markers, rotation, reduced-motion,
+   on multi-continent test data. Confirm the cinematic result before integrating.
+2. **Integration** (only after visual sign-off): locked homepage with the globe behind the
+   password form; unlocked globe after auth; one cover photo per place; click-to-article with a
+   marker→article transition; persistent Journal/Gallery/About.
+
+Constraints baked into the prototype:
+- **Basemap is configuration** (`MapConfig { styleUrl?, pmtilesUrl?, attribution }`), never
+  hardcoded. Dev default = bundled vector world (Natural Earth 110m); production = self-hosted
+  PMTiles on OVH (range-requests/bandwidth/caching still need real prod testing).
+- **Route lines are great-circle arcs**, densified and split at ±180°; skip missing coords and
+  same-place hops. (Air-vs-overland styling is a later refinement.)
+- **Marker density adapts to zoom**: dot (far) → thumbnail (mid) → preview card (selected).

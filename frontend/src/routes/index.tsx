@@ -27,6 +27,9 @@ const JournalPage = lazy(() => import('../pages/JournalPage').then((m) => ({ def
 const GalleryPage = lazy(() => import('../pages/GalleryPage').then((m) => ({ default: m.GalleryPage })));
 const TripOverviewPage = lazy(() => import('../pages/TripOverviewPage').then((m) => ({ default: m.TripOverviewPage })));
 const AboutPage = lazy(() => import('../pages/AboutPage').then((m) => ({ default: m.AboutPage })));
+const GlobePrototypePage = lazy(() =>
+  import('../pages/GlobePrototypePage').then((m) => ({ default: m.GlobePrototypePage })),
+);
 
 const page = (element: ReactElement) => <Suspense fallback={fallback}>{element}</Suspense>;
 
@@ -48,6 +51,7 @@ export const router = createBrowserRouter([
       { path: 'journal', element: page(<JournalPage />) },
       { path: 'gallery', element: page(<GalleryPage />) },
       { path: 'about', element: page(<AboutPage />) },
+      { path: 'globe-prototype', element: page(<GlobePrototypePage />) },
       { path: 'trips/:tripSlug', element: page(<TripOverviewPage />) },
       { path: 'trips/:tripSlug/:destinationSlug', element: page(<DestinationPage />) },
     ],
