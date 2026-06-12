@@ -21,6 +21,9 @@ type Palette = {
   route: string;
   label: string;
   labelHalo: string;
+  markerActive: string; // selected-marker ring (route/gold accent)
+  markerHalo: string; // selected-marker halo fill
+  markerStroke: string; // base (status-colored) marker outline
   sky: string;
   horizon: string;
   fog: string;
@@ -35,23 +38,29 @@ const PALETTES: Record<Scheme, Palette> = {
     route: '#ffd27d',
     label: '#ffffff',
     labelHalo: 'rgba(0,0,0,0.85)',
+    markerActive: '#ffd27d',
+    markerHalo: 'rgba(255,210,125,0.18)',
+    markerStroke: '#ffffff',
     sky: '#0a1622',
     horizon: '#163047',
     fog: '#0a1622',
     space: '#05101a',
   },
-  light: {
-    ocean: '#b7d2e2',
-    land: '#eef3f5',
-    border: '#c4d3db',
-    route: '#d9722e',
-    label: '#15323f',
-    labelHalo: 'rgba(255,255,255,0.85)',
-    sky: '#dceaf3',
-    horizon: '#bcd6e6',
-    fog: '#eef3f5',
-    space: '#e6eef4',
-  },
+  light:{
+    ocean: '#AFC7C8',
+    land: '#EFE7D3',
+    border: '#D8C8A8',
+    route: '#B96A3C',
+    label: '#2D3A32',
+    labelHalo: 'rgba(251,247,239,0.88)',
+    markerActive: '#B96A3C',
+    markerHalo: 'rgba(185,106,60,0.18)',
+    markerStroke: '#FBF7EF',
+    sky: '#E8DED0',
+    horizon: '#C7D3CC',
+    fog: '#F6EFE2',
+    space: '#FBF7EF',
+  }
 };
 
 export function palette(scheme: Scheme): Palette {
@@ -103,6 +112,13 @@ export function applyPalette(map: MaplibreMap, scheme: Scheme): void {
   if (map.getLayer('land')) map.setPaintProperty('land', 'fill-color', p.land);
   if (map.getLayer('borders')) map.setPaintProperty('borders', 'line-color', p.border);
   if (map.getLayer('route')) map.setPaintProperty('route', 'line-color', p.route);
+  if (map.getLayer('markers-selected')) {
+    map.setPaintProperty('markers-selected', 'circle-color', p.markerHalo);
+    map.setPaintProperty('markers-selected', 'circle-stroke-color', p.markerActive);
+  }
+  if (map.getLayer('markers')) {
+    map.setPaintProperty('markers', 'circle-stroke-color', p.markerStroke);
+  }
   if (map.getLayer('marker-labels')) {
     map.setPaintProperty('marker-labels', 'text-color', p.label);
     map.setPaintProperty('marker-labels', 'text-halo-color', p.labelHalo);

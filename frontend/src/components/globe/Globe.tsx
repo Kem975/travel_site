@@ -14,7 +14,7 @@ registerPmtiles();
 
 const SPIN_SPEED = 0.06;
 const WORLD_VIEW: [number, number] = [10, 25];
-const WORLD_ZOOM = 3;
+const WORLD_ZOOM = 2.85;
 const NONE = '__none__';
 const reducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -132,8 +132,8 @@ export function Globe({ trips, interactive = true, onOpen }: Props) {
           filter: ['==', ['get', 'key'], NONE],
           paint: {
             'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 7, 5, 18],
-            'circle-color': 'rgba(255,210,125,0.18)',
-            'circle-stroke-color': '#ffd27d',
+            'circle-color': p.markerHalo,
+            'circle-stroke-color': p.markerActive,
             'circle-stroke-width': 2,
           },
         });
@@ -144,7 +144,7 @@ export function Globe({ trips, interactive = true, onOpen }: Props) {
           paint: {
             'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 2.5, 3, 5, 5, 8],
             'circle-color': ['get', 'color'],
-            'circle-stroke-color': '#ffffff',
+            'circle-stroke-color': p.markerStroke,
             'circle-stroke-width': 1.5,
           },
         });
