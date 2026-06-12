@@ -28,10 +28,11 @@ export function GlobePrototypePage() {
   return (
     <Box>
       <Text size="sm" c="dimmed" mb="xs">
-        Globe prototype — demo data across continents (Auckland→Honolulu crosses the date line).
+        Globe prototype — premium “atlas” style on demo data across continents
+        (Auckland→Honolulu crosses the date line). Toggle light/dark to compare.
       </Text>
       <Box style={{ height: 'calc(100dvh - 120px)', minHeight: 420, borderRadius: 10, overflow: 'hidden' }}>
-        <Globe trips={demoTrips} interactive />
+        <Globe trips={demoTrips} interactive stylePreset="atlas" />
       </Box>
     </Box>
   );

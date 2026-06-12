@@ -4,7 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Badge, Box, Button, Card, Group, Image, Text, useComputedColorScheme } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_MAP_CONFIG, registerPmtiles } from '../../lib/map/mapConfig';
-import { applyPalette, buildStyle, palette } from '../../lib/map/worldStyle';
+import { applyPalette, buildStyle, palette, type StylePreset } from '../../lib/map/worldStyle';
 import { routeFeature } from '../../lib/map/greatCircle';
 import { roundImage } from '../../lib/map/roundImage';
 import { statusColor } from './statusColors';
@@ -25,11 +25,13 @@ type Props = {
   trips: GlobeTrip[];
   interactive?: boolean;
   onOpen?: (place: GlobePlace) => void;
+  stylePreset?: StylePreset;
 };
 
-export function Globe({ trips, interactive = true, onOpen }: Props) {
+export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minimal' }: Props) {
   const { t } = useTranslation();
   const scheme = useComputedColorScheme('dark');
+  const atlas = stylePreset === 'atlas';
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const readyRef = useRef(false);
@@ -84,7 +86,7 @@ export function Globe({ trips, interactive = true, onOpen }: Props) {
     if (!containerRef.current) return;
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: buildStyle(DEFAULT_MAP_CONFIG, scheme),
+      style: buildStyle(DEFAULT_MAP_CONFIG, scheme, stylePreset),
       center: WORLD_VIEW,
       zoom: WORLD_ZOOM,
       attributionControl: false,
@@ -92,7 +94,7 @@ export function Globe({ trips, interactive = true, onOpen }: Props) {
     });
     mapRef.current = map;
     const byKey = new Map(places.map((p) => [keyOf(p), p]));
-    const p = palette(scheme);
+    const p = palette(scheme, stylePreset);
 
     map.on('load', async () => {
       map.setProjection({ type: 'globe' });
@@ -102,12 +104,30 @@ export function Globe({ trips, interactive = true, onOpen }: Props) {
           type: 'geojson',
           data: { type: 'FeatureCollection', features: trips.map((tr) => routeFeature(tr.places)) },
         });
+        if (atlas) {
+          map.addLayer({
+            id: 'route-glow',
+            type: 'line',
+            source: 'route',
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
+            paint: {
+              'line-color': p.route,
+              'line-width': ['interpolate', ['linear'], ['zoom'], 1, 4, 5, 9],
+              'line-blur': 4,
+              'line-opacity': 0.35,
+            },
+          });
+        }
         map.addLayer({
           id: 'route',
           type: 'line',
           source: 'route',
           layout: { 'line-cap': 'round', 'line-join': 'round' },
-          paint: { 'line-color': p.route, 'line-width': 2, 'line-opacity': 0.9 },
+          paint: {
+            'line-color': p.route,
+            'line-width': atlas ? ['interpolate', ['linear'], ['zoom'], 1, 2.4, 5, 3.4] : 2,
+            'line-opacity': atlas ? 1 : 0.9,
+          },
         });
 
         const markerData: GeoJSON.FeatureCollection = {
@@ -137,15 +157,30 @@ export function Globe({ trips, interactive = true, onOpen }: Props) {
             'circle-stroke-width': 2,
           },
         });
+        if (atlas) {
+          map.addLayer({
+            id: 'markers-glow',
+            type: 'circle',
+            source: 'markers',
+            paint: {
+              'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 5, 5, 16],
+              'circle-color': p.markerHalo,
+              'circle-blur': 0.6,
+              'circle-opacity': 0.9,
+            },
+          });
+        }
         map.addLayer({
           id: 'markers',
           type: 'circle',
           source: 'markers',
           paint: {
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 2.5, 3, 5, 5, 8],
+            'circle-radius': atlas
+              ? ['interpolate', ['linear'], ['zoom'], 1, 3.2, 3, 6.5, 5, 10]
+              : ['interpolate', ['linear'], ['zoom'], 1, 2.5, 3, 5, 5, 8],
             'circle-color': ['get', 'color'],
             'circle-stroke-color': p.markerStroke,
-            'circle-stroke-width': 1.5,
+            'circle-stroke-width': atlas ? 2 : 1.5,
           },
         });
         map.addLayer({
@@ -160,6 +195,7 @@ export function Globe({ trips, interactive = true, onOpen }: Props) {
             'text-offset': [0.9, 0],
             'text-allow-overlap': false,
             'text-optional': true,
+            ...(atlas ? { 'text-letter-spacing': 0.08, 'text-transform': 'uppercase' } : {}),
           },
           paint: { 'text-color': p.label, 'text-halo-color': p.labelHalo, 'text-halo-width': 1.4 },
         });
@@ -224,11 +260,16 @@ export function Globe({ trips, interactive = true, onOpen }: Props) {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (map && readyRef.current) applyPalette(map, scheme);
-  }, [scheme]);
+    if (map && readyRef.current) applyPalette(map, scheme, stylePreset);
+  }, [scheme, stylePreset]);
+
+  const space = palette(scheme, stylePreset).space;
+  const background = atlas
+    ? `radial-gradient(circle at 50% 45%, color-mix(in srgb, ${space} 82%, #fff 18%), ${space} 55%, color-mix(in srgb, ${space} 78%, #000 22%) 100%)`
+    : space;
 
   return (
-    <Box style={{ position: 'relative', height: '100%', width: '100%', background: palette(scheme).space }}>
+    <Box style={{ position: 'relative', height: '100%', width: '100%', background }}>
       <div
         ref={containerRef}
         role="application"

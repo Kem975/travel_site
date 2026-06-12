@@ -36,6 +36,7 @@ export function HomePage() {
         <LazyGlobe
           trips={trips ?? []}
           interactive
+          stylePreset="atlas"
           fallback={fallback}
           onOpen={(place) => navigate(`/trips/${place.trip_slug}/${place.slug}`)}
         />
