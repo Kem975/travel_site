@@ -1,0 +1,97 @@
+/* Global design tokens as CSS variables — one unified color system for Mantine,
+   CSS modules, and MapLibre. Mantine handles component colors; these power the
+   cinematic public layout and the globe.
+
+   NOTE: the --globe-* values mirror the PALETTES in src/lib/map/worldStyle.ts,
+   which remains the source of truth the globe reads from. Keep them in sync. */
+
+:root[data-mantine-color-scheme='light'] {
+  --app-bg: #F7F0E3;
+  --app-surface: #FFF9EE;
+  --app-surface-muted: #EFE3D0;
+  --app-text: #1F2A2E;
+  --app-muted: #6F665A;
+  --app-border: #D8C8AD;
+  --app-accent: #B8793A;
+
+  --globe-ocean: #AFC7C8;
+  --globe-land: #EFE7D3;
+  --globe-border: #D8C8A8;
+  --globe-route: #B96A3C;
+  --globe-label: #2D3A32;
+  --globe-marker-active: #B96A3C;
+  --globe-marker-halo: rgba(185, 106, 60, 0.18);
+  --globe-marker-stroke: #FBF7EF;
+  --globe-space: #FBF7EF;
+}
+
+:root[data-mantine-color-scheme='dark'] {
+  --app-bg: #05101A;
+  --app-surface: #0B1824;
+  --app-surface-muted: #102333;
+  --app-text: #F3EBDD;
+  --app-muted: #B9AA94;
+  --app-border: #213342;
+  --app-accent: #D6A15C;
+
+  --globe-ocean: #0B1F30;
+  --globe-land: #1D3B4B;
+  --globe-border: #2F5A6E;
+  --globe-route: #FFD27D;
+  --globe-label: #FFFFFF;
+  --globe-marker-active: #FFD27D;
+  --globe-marker-halo: rgba(255, 210, 125, 0.18);
+  --globe-marker-stroke: #FFFFFF;
+  --globe-space: #05101A;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+/* No global background here — Mantine manages the body background so admin pages
+   stay on stock surfaces. The warm backdrop is scoped to .public-shell. */
+body {
+  margin: 0;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--app-accent) 35%, transparent);
+}
+
+/* Public (cinematic) shell — applied to the public layout's main region. */
+.public-shell {
+  background:
+    radial-gradient(
+      circle at top,
+      color-mix(in srgb, var(--app-accent) 10%, transparent),
+      transparent 32rem
+    ),
+    var(--app-bg);
+  color: var(--app-text);
+}
+
+/* Editorial typography for rendered article HTML. Width is handled by the
+   renderer's Centered wrapper, so this only tunes rhythm and links. */
+.article-typography {
+  font-size: clamp(1.05rem, 1.2vw, 1.18rem);
+  line-height: 1.75;
+}
+
+.article-typography p {
+  margin-block: 1.2em;
+}
+
+.article-typography h2,
+.article-typography h3 {
+  margin-top: 2.4em;
+  margin-bottom: 0.7em;
+}
+
+.article-typography a {
+  color: var(--app-accent);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
