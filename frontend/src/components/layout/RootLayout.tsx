@@ -108,7 +108,7 @@ export function RootLayout() {
         </Collapse>
       </Box>
 
-      <AppShell.Main>
+      <AppShell.Main className="public-shell">
         <Outlet />
       </AppShell.Main>
     </AppShell>

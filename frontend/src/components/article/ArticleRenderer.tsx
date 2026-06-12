@@ -33,7 +33,7 @@ function BlockView({ block, photos }: { block: ArticleBlock; photos: PhotoMap })
     case 'richText':
       return (
         <Centered max={TEXT_WIDTH}>
-          <TypographyStylesProvider>
+          <TypographyStylesProvider className="article-typography">
             {/* Sanitized server-side (PLAN_REVIEW A3) */}
             <div dangerouslySetInnerHTML={{ __html: block.content.html }} />
           </TypographyStylesProvider>
@@ -99,7 +99,7 @@ function BlockView({ block, photos }: { block: ArticleBlock; photos: PhotoMap })
     case 'quote':
       return (
         <Centered max={TEXT_WIDTH}>
-          <Blockquote color="teal" cite={block.content.attribution ?? undefined}>
+          <Blockquote color="travelTeal" cite={block.content.attribution ?? undefined}>
             {block.content.text}
           </Blockquote>
         </Centered>
