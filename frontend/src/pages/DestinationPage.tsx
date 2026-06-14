@@ -40,38 +40,100 @@ export function DestinationPage() {
 
   return (
     <Stack gap="xl">
-      <Box style={{ position: 'relative', height: '52vh', minHeight: 300, overflow: 'hidden', background: '#0b1d2a' }}>
+      <Box
+        style={{
+          position: 'relative',
+          height: 'calc(100dvh - 60px)',
+          minHeight: 460,
+          overflow: 'hidden',
+          background: 'var(--app-surface-muted)',
+          // Full-bleed: cancel the AppShell main padding so the image reaches every edge.
+          marginInline: 'calc(var(--app-shell-padding, 1rem) * -1)',
+          marginTop: 'calc(var(--app-shell-padding, 1rem) * -1)',
+        }}
+      >
         {cover && (
           <img
             src={cover.full ?? undefined}
             srcSet={cover.srcset}
             sizes="100vw"
             alt={cover.alt_text ?? ''}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            className="vt-hero"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
         )}
-        <Box style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,.7), rgba(0,0,0,.05))' }} />
-        <Box style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: 24, color: '#fff' }}>
-          <Container size="md" p={0}>
+        {/* Grounding gradient — deep at the base, gone by the upper third. */}
+        <Box
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(to top, rgba(5,16,26,0.86) 0%, rgba(5,16,26,0.5) 20%, rgba(5,16,26,0.08) 46%, transparent 68%)',
+          }}
+        />
+        <Box
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            color: '#fff',
+            padding: 'clamp(1.75rem, 5.5vw, 5rem)',
+          }}
+        >
+          <Box style={{ maxWidth: '54rem' }}>
             {data.destination.country && (
-              <Text tt="uppercase" fz="sm" style={{ opacity: 0.85 }}>
+              <Text
+                style={{
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.2em',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  opacity: 0.85,
+                  marginBottom: '1rem',
+                }}
+              >
                 {data.destination.country}
               </Text>
             )}
-            <Title order={1} c="white">
+            <Title
+              order={1}
+              style={{
+                color: '#fff',
+                fontSize: 'clamp(2.7rem, 6.5vw, 5.25rem)',
+                lineHeight: 1.02,
+                textWrap: 'balance',
+                margin: 0,
+              }}
+            >
               {data.article.title ?? data.destination.title}
             </Title>
             {data.article.subtitle && (
-              <Text fz="lg" style={{ opacity: 0.9 }}>
+              <Text
+                style={{
+                  fontSize: 'clamp(1.05rem, 1.8vw, 1.4rem)',
+                  lineHeight: 1.5,
+                  opacity: 0.92,
+                  maxWidth: '42rem',
+                  marginTop: '1.1rem',
+                }}
+              >
                 {data.article.subtitle}
               </Text>
             )}
             {dates && (
-              <Text fz="sm" mt={4} style={{ opacity: 0.8 }}>
+              <Text
+                style={{
+                  fontSize: '0.82rem',
+                  letterSpacing: '0.03em',
+                  opacity: 0.72,
+                  marginTop: '1.5rem',
+                }}
+              >
                 {dates}
               </Text>
             )}
-          </Container>
+          </Box>
         </Box>
       </Box>
 

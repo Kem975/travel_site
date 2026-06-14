@@ -44,8 +44,8 @@ export function RootLayout() {
 
   return (
     <AppShell header={{ height: 60 }} padding="md">
-      <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+      <AppShell.Header style={{ borderBottom: '1px solid color-mix(in srgb, var(--app-border) 45%, transparent)' }}>
+        <Group h="100%" px="lg" justify="space-between" wrap="nowrap">
           <Group gap="sm" wrap="nowrap">
             <Burger opened={menuOpened} onClick={toggleMenu} hiddenFrom="sm" size="sm" aria-label={t('nav.menu')} />
             <Anchor component={Link} to="/" underline="never" c="inherit" onClick={closeMenu}>
@@ -64,7 +64,8 @@ export function RootLayout() {
             <ColorSchemeToggle />
             <Button
               visibleFrom="sm"
-              variant="default"
+              variant="subtle"
+              color="gray"
               size="xs"
               onClick={() => logoutMutation.mutate()}
               loading={logoutMutation.isPending}

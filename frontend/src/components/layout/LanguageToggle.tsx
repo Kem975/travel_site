@@ -9,6 +9,7 @@ export function LanguageToggle() {
   return (
     <SegmentedControl
       size="xs"
+      radius="xl"
       value={current}
       onChange={(value) => setLanguage(value === 'en' ? 'en' : 'fr')}
       data={[
