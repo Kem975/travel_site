@@ -17,7 +17,14 @@ final class Storage
     {
         $configured = Config::get('UPLOADS_DIR');
         if (is_string($configured) && $configured !== '') {
-            return rtrim($configured, '/');
+            // Absolute path is used verbatim; a relative path resolves against the
+            // backend root (where bootstrap.php lives) — so production can point
+            // uploads at the public docroot (e.g. ../voyage/uploads) without
+            // needing the host's absolute path. backend/src/Support -> backend.
+            if (str_starts_with($configured, '/')) {
+                return rtrim($configured, '/');
+            }
+            return rtrim(dirname(__DIR__, 2) . '/' . $configured, '/');
         }
         // backend/src/Support -> repo root
         return dirname(__DIR__, 3) . '/uploads';

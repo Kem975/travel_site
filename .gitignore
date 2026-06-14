@@ -8,6 +8,9 @@ frontend/dist/
 # Env & secrets — never commit
 backend/.env
 
+# Assembled production upload bundle (contains the filled prod .env). Local only.
+_deploy/
+
 # Local throwaway dev database (isolated MySQL 8.0 instance)
 .devdb/
 
