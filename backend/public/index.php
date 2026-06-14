@@ -7,6 +7,7 @@ use App\Controllers\ArticleController;
 use App\Controllers\AuthController;
 use App\Controllers\CommentController;
 use App\Controllers\DestinationController;
+use App\Controllers\GeocodeController;
 use App\Controllers\HealthController;
 use App\Controllers\PhotoController;
 use App\Controllers\PublicArticleController;
@@ -73,6 +74,7 @@ $router->get('/api/destinations/:slug', [$publicDestinations, 'show']);
 $adminTrips = new TripController();
 $adminDestinations = new DestinationController();
 $router->get('/api/admin/stats', [new AdminStatsController(), 'index']);
+$router->get('/api/admin/geocode', [new GeocodeController(), 'search']);
 
 $router->get('/api/admin/trips', [$adminTrips, 'index']);
 $router->post('/api/admin/trips', [$adminTrips, 'store']);

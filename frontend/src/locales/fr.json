@@ -88,6 +88,8 @@
       "coords": "Coordonnées",
       "latitude": "Latitude",
       "longitude": "Longitude",
+      "placeSearch": "Trouver un lieu",
+      "placeSearchPlaceholder": "Rechercher une ville ou une adresse…",
       "excerpt": "Extrait"
     },
     "actions": {

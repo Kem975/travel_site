@@ -7,6 +7,7 @@ import { adminApi, type Destination, type DestinationInput, type DestinationStat
 import { fieldErrors } from '../../api/client';
 import { DESTINATION_STATUSES } from './status';
 import { CoverPhotoField } from './CoverPhotoField';
+import { PlaceSearchField } from './PlaceSearchField';
 
 type Props = { opened: boolean; onClose: () => void; tripId: number; destination: Destination | null };
 
@@ -85,6 +86,17 @@ export function DestinationFormModal({ opened, onClose, tripId, destination }: P
               {...form.getInputProps('slug')}
             />
           </Group>
+          <PlaceSearchField
+            label={t('admin.fields.placeSearch')}
+            placeholder={t('admin.fields.placeSearchPlaceholder')}
+            onPick={(r) => {
+              form.setFieldValue('latitude', String(r.lat));
+              form.setFieldValue('longitude', String(r.lng));
+              if (r.country && !form.values.country) {
+                form.setFieldValue('country', r.country);
+              }
+            }}
+          />
           <Group grow>
             <TextInput label={t('admin.fields.latitude')} inputMode="decimal" {...form.getInputProps('latitude')} />
             <TextInput label={t('admin.fields.longitude')} inputMode="decimal" {...form.getInputProps('longitude')} />

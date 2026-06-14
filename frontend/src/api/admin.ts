@@ -68,8 +68,13 @@ export type DestinationInput = {
   status: DestinationStatus;
 };
 
+export type GeoResult = { label: string; lat: number; lng: number; country: string };
+
 export const adminApi = {
   stats: () => api.get<{ stats: Stats }>('/admin/stats').then((r) => r.stats),
+
+  geocode: (q: string) =>
+    api.get<{ results: GeoResult[] }>(`/admin/geocode?q=${encodeURIComponent(q)}`).then((r) => r.results),
 
   getDestination: (id: number) =>
     api.get<{ destination: Destination }>(`/admin/destinations/${id}`).then((r) => r.destination),
