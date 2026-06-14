@@ -35,40 +35,19 @@ export const theme = createTheme({
     'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
 
   headings: {
-    fontFamily: '"Playfair Display", Georgia, "Times New Roman", serif',
+    fontFamily: '"Anthropic Serif", Georgia, "Times New Roman", serif',
     fontWeight: '600',
     textWrap: 'balance',
-    sizes: {
-      h1: { fontSize: 'clamp(2.4rem, 6vw, 5.5rem)', lineHeight: '1.02' },
-      h2: { fontSize: 'clamp(1.9rem, 4vw, 3.4rem)', lineHeight: '1.08' },
-      h3: { fontSize: 'clamp(1.45rem, 2.5vw, 2.2rem)', lineHeight: '1.15' },
-    },
-  },
-
-  fontSizes: {
-    xs: '0.75rem',
-    sm: '0.875rem',
-    md: '1rem',
-    lg: '1.125rem',
-    xl: '1.35rem',
-  },
-
-  lineHeights: {
-    xs: '1.35',
-    sm: '1.45',
-    md: '1.6',
-    lg: '1.7',
-    xl: '1.75',
   },
 
   defaultRadius: 'lg',
-  radius: {
-    xs: '0.25rem',
-    sm: '0.45rem',
-    md: '0.7rem',
-    lg: '1rem',
-    xl: '1.4rem',
-  },
+  // radius: {
+  //   xs: '0.25rem',
+  //   sm: '0.45rem',
+  //   md: '0.7rem',
+  //   lg: '1rem',
+  //   xl: '1.4rem',
+  // },
 
   shadows: {
     xs: '0 1px 2px rgba(5, 16, 26, 0.08)',

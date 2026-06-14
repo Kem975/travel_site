@@ -5,6 +5,29 @@
    NOTE: the --globe-* values mirror the PALETTES in src/lib/map/worldStyle.ts,
    which remains the source of truth the globe reads from. Keep them in sync. */
 
+/* Anthropic Serif (Display cut) — self-hosted heading typeface. */
+@font-face {
+  font-family: 'Anthropic Serif';
+  src: url('/fonts/AnthropicSerif-Display-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Anthropic Serif';
+  src: url('/fonts/AnthropicSerif-Display-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Anthropic Serif';
+  src: url('/fonts/AnthropicSerif-Display-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root[data-mantine-color-scheme='light'] {
   --app-bg: #F7F0E3;
   --app-surface: #FFF9EE;
