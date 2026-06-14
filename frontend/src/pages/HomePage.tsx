@@ -38,7 +38,7 @@ export function HomePage() {
           interactive
           stylePreset="atlas"
           fallback={fallback}
-          onOpen={(place) => navigate(`/trips/${place.trip_slug}/${place.slug}`)}
+          onOpen={(place) => navigate(`/trips/${place.trip_slug}/${place.slug}`, { viewTransition: true })}
         />
       )}
     </Box>

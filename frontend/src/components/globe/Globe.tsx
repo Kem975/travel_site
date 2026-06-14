@@ -294,7 +294,7 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
         <Card style={{ position: 'absolute', bottom: 16, left: 16, width: 280 }} withBorder shadow="md" radius="md" padding="sm">
           {selected.cover_thumb ? (
             <Card.Section>
-              <Image src={selected.cover_thumb} alt="" h={120} fit="cover" />
+              <Image src={selected.cover_thumb} alt="" h={120} fit="cover" className="vt-hero" />
             </Card.Section>
           ) : (
             <Box mb="xs" style={{ height: 80, borderRadius: 6, background: `linear-gradient(135deg, ${statusColor(selected.status)}, #1c3a4a)` }} />

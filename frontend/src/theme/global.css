@@ -118,3 +118,26 @@ body {
   text-decoration-thickness: 0.08em;
   text-underline-offset: 0.18em;
 }
+
+/* Shared-element morph: the globe preview-card photo grows into the article hero
+   (View Transitions API). The browser pairs the two images by name and animates
+   between them across the route change; the rest of the page crossfades. Browsers
+   without support just navigate normally. */
+.vt-hero {
+  view-transition-name: dest-hero;
+}
+::view-transition-group(dest-hero) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 300ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
