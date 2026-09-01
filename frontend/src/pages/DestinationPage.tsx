@@ -3,13 +3,14 @@ import { Box, Button, Center, Container, Group, Loader, Stack, Text, Title } fro
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { formatDateRange } from '../lib/date';
 import { publicArticleApi } from '../api/article';
 import { ApiError } from '../api/client';
 import { ArticleRenderer } from '../components/article/ArticleRenderer';
 import { CommentThread } from '../components/comments/CommentThread';
 
 export function DestinationPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { tripSlug, destinationSlug } = useParams();
 
   const { data, isLoading, error } = useQuery({
@@ -36,7 +37,7 @@ export function DestinationPage() {
   }
 
   const cover = data.destination.cover;
-  const dates = [data.destination.arrival_date, data.destination.departure_date].filter(Boolean).join(' → ');
+  const dates = formatDateRange(data.destination.arrival_date, data.destination.departure_date, i18n.language);
 
   return (
     <Stack gap="xl">
@@ -142,14 +143,14 @@ export function DestinationPage() {
 
         <Group justify="space-between" mt="xl" pt="xl" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
           {data.prev ? (
-            <Button component={Link} to={`/trips/${tripSlug}/${data.prev.slug}`} variant="subtle" leftSection={<IconArrowLeft size={16} />}>
+            <Button component={Link} to={`/pays/${tripSlug}/${data.prev.slug}`} variant="subtle" leftSection={<IconArrowLeft size={16} />}>
               {data.prev.title}
             </Button>
           ) : (
             <span />
           )}
           {data.next ? (
-            <Button component={Link} to={`/trips/${tripSlug}/${data.next.slug}`} variant="subtle" rightSection={<IconArrowRight size={16} />}>
+            <Button component={Link} to={`/pays/${tripSlug}/${data.next.slug}`} variant="subtle" rightSection={<IconArrowRight size={16} />}>
               {data.next.title}
             </Button>
           ) : (

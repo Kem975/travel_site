@@ -53,8 +53,6 @@ final class PublicTripController
         $includePlanned = $this->settings->get('future_destinations_visible') === '1';
         $destinations = $this->destinations->forTripPublic((int) $trip['id'], $includePlanned);
 
-        $countries = array_values(array_unique(array_filter(array_map(static fn ($d) => $d['country'], $destinations))));
-
         Response::json([
             'trip' => $trip + ['cover' => $this->cover($trip['cover_photo_id'])],
             'destinations' => array_map(
@@ -62,7 +60,6 @@ final class PublicTripController
                 $destinations,
             ),
             'stats' => [
-                'countries' => count($countries),
                 'destinations' => count($destinations),
                 'days' => $this->days($trip['start_date'], $trip['end_date']),
                 'photos' => $this->photos->countPublicForTrip((int) $trip['id'], $includePlanned),

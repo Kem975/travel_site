@@ -7,6 +7,8 @@ import { ColorSchemeToggle } from './ColorSchemeToggle';
 import { LanguageToggle } from './LanguageToggle';
 import { SESSION_KEY, useSession } from '../../hooks/useSession';
 import { PasswordGate } from '../auth/PasswordGate';
+import { VisitorNamePrompt } from '../auth/VisitorNamePrompt';
+import { JourneyTimeline } from '../journey/JourneyTimeline';
 import { logout as logoutRequest } from '../../api/auth';
 import { setCsrfToken } from '../../api/client';
 
@@ -45,7 +47,13 @@ export function RootLayout() {
   return (
     <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header style={{ borderBottom: '1px solid color-mix(in srgb, var(--app-border) 45%, transparent)' }}>
-        <Group h="100%" px="lg" justify="space-between" wrap="nowrap">
+        {/* Grid, not space-between: the nav and the toggles have different widths, so
+            only equal side columns put the timeline in the middle of the header. */}
+        <Box
+          h="100%"
+          px="lg"
+          style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 'var(--mantine-spacing-sm)' }}
+        >
           <Group gap="sm" wrap="nowrap">
             <Burger opened={menuOpened} onClick={toggleMenu} hiddenFrom="sm" size="sm" aria-label={t('nav.menu')} />
             <Anchor component={Link} to="/" underline="never" c="inherit" onClick={closeMenu}>
@@ -59,7 +67,11 @@ export function RootLayout() {
               ))}
             </Group>
           </Group>
-          <Group gap="sm" wrap="nowrap">
+          {/* Wrapper holds the middle column open even when the timeline renders nothing. */}
+          <Box style={{ minWidth: 0 }}>
+            <JourneyTimeline />
+          </Box>
+          <Group gap="sm" wrap="nowrap" justify="flex-end">
             <LanguageToggle />
             <ColorSchemeToggle />
             <Button
@@ -73,7 +85,7 @@ export function RootLayout() {
               {t('auth.logout')}
             </Button>
           </Group>
-        </Group>
+        </Box>
       </AppShell.Header>
 
       {/* Lightweight mobile menu (no Modal/Drawer weight). */}
@@ -112,6 +124,8 @@ export function RootLayout() {
       <AppShell.Main className="public-shell">
         <Outlet />
       </AppShell.Main>
+
+      <VisitorNamePrompt />
     </AppShell>
   );
 }

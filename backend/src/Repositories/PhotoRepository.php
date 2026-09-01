@@ -149,7 +149,7 @@ final class PhotoRepository
 
     /**
      * Public gallery: photos whose destination is visible in a published trip.
-     * @param array{trip?:?string,country?:?string,destination?:?string,category?:?string} $filters
+     * @param array{trip?:?string,destination?:?string,category?:?string} $filters
      * @return list<array<string,mixed>>
      */
     public function publicGallery(array $filters, bool $includePlanned): array
@@ -159,7 +159,7 @@ final class PhotoRepository
         if (!$includePlanned) {
             $where[] = "d.status <> 'planned'";
         }
-        foreach (['trip' => 't.slug', 'country' => 'd.country', 'destination' => 'd.slug', 'category' => 'p.category'] as $key => $col) {
+        foreach (['trip' => 't.slug', 'destination' => 'd.slug', 'category' => 'p.category'] as $key => $col) {
             if (!empty($filters[$key])) {
                 $where[] = "{$col} = ?";
                 $params[] = $filters[$key];
@@ -175,7 +175,7 @@ final class PhotoRepository
         return $stmt->fetchAll();
     }
 
-    /** @return array{trips:list<array{slug:string,title:string}>,countries:list<string>,categories:list<string>} */
+    /** @return array{trips:list<array{slug:string,title:string}>,categories:list<string>} */
     public function galleryFilters(bool $includePlanned): array
     {
         $planned = $includePlanned ? '' : " AND d.status <> 'planned'";
@@ -183,9 +183,7 @@ final class PhotoRepository
                  WHERE t.status = 'published' AND d.status NOT IN ('hidden','cancelled')" . $planned;
         $pdo = Database::connection();
         return [
-            'trips' => $pdo->query("SELECT DISTINCT t.slug, t.title {$base} ORDER BY t.title")->fetchAll(),
-            'countries' => $pdo->query("SELECT DISTINCT d.country {$base} AND d.country IS NOT NULL ORDER BY d.country")
-                ->fetchAll(\PDO::FETCH_COLUMN),
+            'trips' => $pdo->query("SELECT DISTINCT t.slug, t.title, t.sort_order {$base} ORDER BY t.sort_order")->fetchAll(),
             'categories' => $pdo->query("SELECT DISTINCT p.category {$base} AND p.category IS NOT NULL ORDER BY p.category")
                 ->fetchAll(\PDO::FETCH_COLUMN),
         ];

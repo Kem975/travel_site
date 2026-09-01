@@ -30,7 +30,7 @@ export function ArticleEditorPage() {
       <Group justify="space-between" mb="md" align="flex-end">
         <div>
           {destination && trip && (
-            <Anchor component={Link} to={`/admin/trips/${destination.trip_id}`} size="sm">
+            <Anchor component={Link} to={`/admin/pays/${destination.trip_id}`} size="sm">
               ← {trip.title}
             </Anchor>
           )}
@@ -39,7 +39,7 @@ export function ArticleEditorPage() {
         {destination && trip && (
           <Button
             component="a"
-            href={`/trips/${trip.slug}/${destination.slug}`}
+            href={`/pays/${trip.slug}/${destination.slug}`}
             target="_blank"
             variant="default"
             size="xs"

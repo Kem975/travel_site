@@ -118,18 +118,32 @@ function cutAntimeridian(fc: FeatureCollection): FeatureCollection {
   return { type: 'FeatureCollection', features };
 }
 
-const atlasLand = cutAntimeridian(feature(atlasTopo, atlasObjects.countries) as unknown as FeatureCollection);
-const atlasCoast = splitMultiLine(
-  mesh(atlasTopo, atlasObjects.countries, (a: unknown, b: unknown) => a === b) as unknown as MultiLineString,
+// Built on first use, not at module load: cutting the 50m land polygons is the most
+// expensive work in this file, and the minimal and terrain presets never need it.
+function once<T>(build: () => T): () => T {
+  let value: T | undefined;
+  return () => (value ??= build());
+}
+
+const atlasLand = once(() =>
+  cutAntimeridian(feature(atlasTopo, atlasObjects.countries) as unknown as FeatureCollection),
 );
-const atlasBorders = splitMultiLine(
-  mesh(atlasTopo, atlasObjects.countries, (a: unknown, b: unknown) => a !== b) as unknown as MultiLineString,
+const atlasCoast = once(() =>
+  splitMultiLine(
+    mesh(atlasTopo, atlasObjects.countries, (a: unknown, b: unknown) => a === b) as unknown as MultiLineString,
+  ),
+);
+const atlasBorders = once(() =>
+  splitMultiLine(
+    mesh(atlasTopo, atlasObjects.countries, (a: unknown, b: unknown) => a !== b) as unknown as MultiLineString,
+  ),
 );
 
 export type Scheme = 'light' | 'dark';
-export type StylePreset = 'minimal' | 'atlas';
+/** 'terrain' is the Natural Earth II raster: land cover, bathymetry and shaded relief. */
+export type StylePreset = 'minimal' | 'atlas' | 'terrain';
 
-type Palette = {
+export type Palette = {
   ocean: string;
   land: string;
   border: string;
@@ -220,12 +234,49 @@ const ATLAS_PALETTES: Record<Scheme, Palette> = {
   },
 };
 
+// Terrain preset: the raster supplies land and ocean, so these values only govern
+// what sits *on* the texture (route, markers, labels) plus the surrounding sky.
+// Blues are sampled from the raster itself so the atmosphere meets the ocean seamlessly.
+const TERRAIN_PALETTES: Record<Scheme, Palette> = {
+  dark: {
+    ocean: '#2E4C61',
+    land: '#4E6B57',
+    border: 'rgba(255,255,255,0.28)',
+    route: '#FFD27D',
+    label: '#FFFFFF',
+    labelHalo: 'rgba(0,0,0,0.8)',
+    markerActive: '#FFD27D',
+    markerHalo: 'rgba(255,210,125,0.22)',
+    markerStroke: '#0B1F31',
+    sky: '#08131D',
+    horizon: '#25455C',
+    fog: '#12283A',
+    space: '#05101A',
+  },
+  light: {
+    ocean: '#74A5C9',
+    land: '#87B98F',
+    border: 'rgba(45,40,30,0.32)',
+    route: '#A8321F',
+    label: '#22303A',
+    labelHalo: 'rgba(255,255,255,0.92)',
+    markerActive: '#A8321F',
+    markerHalo: 'rgba(168,50,31,0.20)',
+    markerStroke: '#FFFFFF',
+    sky: '#C6DCEA',
+    horizon: '#93B8D4',
+    fog: '#DDEAF2',
+    space: '#FBF7EF',
+  },
+};
+
 export function palette(scheme: Scheme, preset: StylePreset = 'minimal'): Palette {
+  if (preset === 'terrain') return TERRAIN_PALETTES[scheme];
   return (preset === 'atlas' ? ATLAS_PALETTES : PALETTES)[scheme];
 }
 
 function skySpec(p: Palette, preset: StylePreset) {
-  const richer = preset === 'atlas';
+  const richer = preset !== 'minimal';
   return {
     'sky-color': p.sky,
     'horizon-color': p.horizon,
@@ -260,10 +311,44 @@ export function buildStyle(
 
   if (config.pmtilesUrl) {
     sources.basemap = { type: 'vector', url: `pmtiles://${config.pmtilesUrl}` };
+  } else if (preset === 'terrain') {
+    // Static Natural Earth texture: land cover, bathymetry and shaded relief are all
+    // baked into the image, so no land/coastline geometry is needed — only borders.
+    sources.terrain = {
+      type: 'raster',
+      tiles: [`${import.meta.env.BASE_URL}tiles/${preset}/{z}/{x}/{y}.webp`],
+      tileSize: 512,
+      minzoom: 0,
+      maxzoom: 4,
+      attribution: 'Natural Earth',
+    };
+    sources.borders = { type: 'geojson', data: atlasBorders() };
+    layers.push(
+      {
+        id: 'terrain',
+        type: 'raster',
+        source: 'terrain',
+        paint:
+          scheme === 'dark'
+            ? // The texture is daylight imagery; dim it so it sits in a night sky.
+              { 'raster-brightness-max': 0.72, 'raster-saturation': -0.25, 'raster-contrast': 0.05 }
+            : {},
+      },
+      {
+        id: 'borders',
+        type: 'line',
+        source: 'borders',
+        paint: {
+          'line-color': p.border,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.4, 5, 1],
+          'line-dasharray': [2, 1.5],
+        },
+      },
+    );
   } else if (preset === 'atlas') {
-    sources.land = { type: 'geojson', data: atlasLand };
-    sources.coastline = { type: 'geojson', data: atlasCoast };
-    sources.borders = { type: 'geojson', data: atlasBorders };
+    sources.land = { type: 'geojson', data: atlasLand() };
+    sources.coastline = { type: 'geojson', data: atlasCoast() };
+    sources.borders = { type: 'geojson', data: atlasBorders() };
     layers.push(
       // Soft halo bleeding off the coast (drawn under land so the blur sits in the ocean).
       {
@@ -313,6 +398,12 @@ export function buildStyle(
 export function applyPalette(map: MaplibreMap, scheme: Scheme, preset: StylePreset = 'minimal'): void {
   const p = palette(scheme, preset);
   if (map.getLayer('ocean')) map.setPaintProperty('ocean', 'background-color', p.ocean);
+  if (map.getLayer('terrain')) {
+    const dark = scheme === 'dark';
+    map.setPaintProperty('terrain', 'raster-brightness-max', dark ? 0.72 : 1);
+    map.setPaintProperty('terrain', 'raster-saturation', dark ? -0.25 : 0);
+    map.setPaintProperty('terrain', 'raster-contrast', dark ? 0.05 : 0);
+  }
   if (map.getLayer('coastline-halo')) map.setPaintProperty('coastline-halo', 'line-color', p.coastlineHalo!);
   if (map.getLayer('land')) map.setPaintProperty('land', 'fill-color', p.land);
   if (map.getLayer('coastline')) map.setPaintProperty('coastline', 'line-color', p.coastline!);

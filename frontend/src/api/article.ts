@@ -11,6 +11,7 @@ export type ArticleBlock =
   | { type: 'richText'; content: { html: string } }
   | { type: 'image'; content: { photoId: number; layout: ImageLayout; caption: string | null } }
   | { type: 'gallery'; content: { photoIds: number[]; layout: GalleryLayout } }
+  | { type: 'video'; content: { videoId: string; caption: string | null } }
   | { type: 'quote'; content: { text: string; attribution: string | null } }
   | { type: 'practicalInfo'; content: { items: PracticalItem[] } }
   | { type: 'divider'; content: Record<string, never> };
@@ -60,7 +61,7 @@ export type PublicArticle = {
   next: { slug: string; title: string } | null;
 };
 
-export const BLOCK_TYPES: BlockType[] = ['richText', 'image', 'gallery', 'quote', 'practicalInfo', 'divider'];
+export const BLOCK_TYPES: BlockType[] = ['richText', 'image', 'gallery', 'video', 'quote', 'practicalInfo', 'divider'];
 
 export function emptyBlock(type: BlockType): ArticleBlock {
   switch (type) {
@@ -70,6 +71,8 @@ export function emptyBlock(type: BlockType): ArticleBlock {
       return { type, content: { photoId: 0, layout: 'normal', caption: null } };
     case 'gallery':
       return { type, content: { photoIds: [], layout: 'grid' } };
+    case 'video':
+      return { type, content: { videoId: '', caption: null } };
     case 'quote':
       return { type, content: { text: '', attribution: null } };
     case 'practicalInfo':

@@ -4,6 +4,7 @@ import type { Photo } from '../../../api/media';
 import { RichTextBlock } from './RichTextBlock';
 import { ImageBlock } from './ImageBlock';
 import { GalleryBlock } from './GalleryBlock';
+import { VideoBlock } from './VideoBlock';
 import { QuoteBlock } from './QuoteBlock';
 import { PracticalInfoBlock } from './PracticalInfoBlock';
 
@@ -36,6 +37,8 @@ export function BlockEditor({ block, photos, onChange, onPhoto }: Props) {
           onChange={(content) => onChange({ type: 'gallery', content })}
         />
       );
+    case 'video':
+      return <VideoBlock content={block.content} onChange={(content) => onChange({ type: 'video', content })} />;
     case 'quote':
       return <QuoteBlock content={block.content} onChange={(content) => onChange({ type: 'quote', content })} />;
     case 'practicalInfo':

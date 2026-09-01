@@ -31,7 +31,6 @@ final class PublicGalleryController
 
         $filters = [
             'trip' => $this->str($_GET['trip'] ?? null),
-            'country' => $this->str($_GET['country'] ?? null),
             'destination' => $this->str($_GET['destination'] ?? null),
             'category' => $this->str($_GET['category'] ?? null),
         ];

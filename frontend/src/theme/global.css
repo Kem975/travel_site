@@ -96,6 +96,14 @@ body {
   color: var(--app-text);
 }
 
+/* Scrollable-but-chromeless strip (navbar timeline): the chevrons are the affordance. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Editorial typography for rendered article HTML. Width is handled by the
    renderer's Centered wrapper, so this only tunes rhythm and links. */
 .article-typography {

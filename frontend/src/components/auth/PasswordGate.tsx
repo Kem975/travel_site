@@ -33,7 +33,7 @@ export function PasswordGate() {
   return (
     <Box style={{ position: 'relative', minHeight: '100dvh', background: 'linear-gradient(160deg,#0b1d2a,#13303f 55%,#1c4351)' }}>
       <Box style={{ position: 'absolute', inset: 0 }}>
-        <LazyGlobe trips={[]} interactive={false} stylePreset="atlas" />
+        <LazyGlobe trips={[]} interactive={false} stylePreset="terrain" />
       </Box>
       <Box style={{ position: 'absolute', inset: 0, background: 'rgba(4,12,20,0.45)', backdropFilter: 'blur(2px)' }} />
 

@@ -9,8 +9,9 @@ use App\Database;
 final class TripRepository
 {
     private const COLUMNS = 'id, title, slug, description, cover_photo_id, start_date, end_date, '
-        . 'status, visibility, created_at, updated_at';
-    private const ORDER = ' ORDER BY COALESCE(start_date, created_at) DESC, id DESC';
+        . 'status, visibility, sort_order, created_at, updated_at';
+    // Route order, not recency: the globe draws one continuous line through these.
+    private const ORDER = ' ORDER BY sort_order ASC, id ASC';
 
     /** @return list<array<string,mixed>> */
     public function all(): array
@@ -62,12 +63,19 @@ final class TripRepository
         return $stmt->fetchColumn() !== false;
     }
 
+    public function maxSortOrder(): int
+    {
+        return (int) Database::connection()
+            ->query('SELECT COALESCE(MAX(sort_order), -1) FROM trips')
+            ->fetchColumn();
+    }
+
     /** @param array<string,mixed> $data */
     public function create(array $data): int
     {
         $stmt = Database::connection()->prepare(
-            'INSERT INTO trips (title, slug, description, start_date, end_date, status, visibility)
-             VALUES (:title, :slug, :description, :start_date, :end_date, :status, :visibility)',
+            'INSERT INTO trips (title, slug, description, start_date, end_date, status, visibility, sort_order)
+             VALUES (:title, :slug, :description, :start_date, :end_date, :status, :visibility, :sort_order)',
         );
         $stmt->execute($this->bindable($data));
         return (int) Database::connection()->lastInsertId();
@@ -80,7 +88,8 @@ final class TripRepository
         $params['id'] = $id;
         $stmt = Database::connection()->prepare(
             'UPDATE trips SET title = :title, slug = :slug, description = :description,
-             start_date = :start_date, end_date = :end_date, status = :status, visibility = :visibility
+             start_date = :start_date, end_date = :end_date, status = :status, visibility = :visibility,
+             sort_order = :sort_order
              WHERE id = :id',
         );
         $stmt->execute($params);
@@ -98,6 +107,12 @@ final class TripRepository
         $stmt->execute([$photoId, $id]);
     }
 
+    public function setSortOrder(int $id, int $order): void
+    {
+        $stmt = Database::connection()->prepare('UPDATE trips SET sort_order = ? WHERE id = ?');
+        $stmt->execute([$order, $id]);
+    }
+
     /**
      * @param array<string,mixed> $data
      * @return array<string,mixed>
@@ -112,6 +127,7 @@ final class TripRepository
             'end_date' => $data['end_date'] ?? null,
             'status' => $data['status'] ?? 'draft',
             'visibility' => $data['visibility'] ?? 'password_protected',
+            'sort_order' => $data['sort_order'] ?? 0,
         ];
     }
 }

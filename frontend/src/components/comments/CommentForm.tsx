@@ -5,6 +5,7 @@ import { Alert, Button, Group, Stack, Textarea, TextInput } from '@mantine/core'
 import { useTranslation } from 'react-i18next';
 import { publicCommentApi } from '../../api/comments';
 import { ApiError, fieldErrors } from '../../api/client';
+import { useSession } from '../../hooks/useSession';
 
 type Props = { slug: string; formToken: string; parentId?: number; onPosted: () => void };
 
@@ -12,7 +13,11 @@ type Values = { author_name: string; author_email: string; body: string; website
 
 export function CommentForm({ slug, formToken, parentId, onPosted }: Props) {
   const { t } = useTranslation();
-  const form = useForm<Values>({ initialValues: { author_name: '', author_email: '', body: '', website: '' } });
+  const { data: session } = useSession();
+  // RootLayout only renders children once the session resolves, so this is set on
+  // first render. It stays in initialValues so form.reset() keeps the name after posting.
+  const knownName = session?.visitor_name ?? session?.user?.display_name ?? '';
+  const form = useForm<Values>({ initialValues: { author_name: knownName, author_email: '', body: '', website: '' } });
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

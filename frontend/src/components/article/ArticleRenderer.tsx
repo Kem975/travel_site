@@ -1,5 +1,8 @@
-import type { ReactNode } from 'react';
-import { Blockquote, Box, Divider, Group, ScrollArea, SimpleGrid, Stack, Table, Text, TypographyStylesProvider } from '@mantine/core';
+import { useState, type ReactNode } from 'react';
+import { Blockquote, Box, Divider, Group, ScrollArea, SimpleGrid, Stack, Table, Text, TypographyStylesProvider, UnstyledButton } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
+import { Lightbox } from '../gallery/Lightbox';
+import { YoutubeEmbed } from './YoutubeEmbed';
 import type { ArticleBlock, PhotoMap } from '../../api/article';
 import type { Photo } from '../../api/media';
 
@@ -13,22 +16,49 @@ function Centered({ max, children }: { max: number | string; children: ReactNode
   );
 }
 
-function ResponsiveImg({ photo, rounded = true, height }: { photo: Photo; rounded?: boolean; height?: number }) {
+function ResponsiveImg({
+  photo,
+  rounded = true,
+  height,
+  onOpen,
+}: {
+  photo: Photo;
+  rounded?: boolean;
+  height?: number;
+  onOpen: () => void;
+}) {
+  const { t } = useTranslation();
   return (
-    <img
-      src={photo.full ?? undefined}
-      srcSet={photo.srcset}
-      sizes="(max-width: 1200px) 100vw, 1200px"
-      alt={photo.alt_text ?? ''}
-      width={photo.width}
-      height={photo.height}
-      loading="lazy"
-      style={{ width: '100%', height: height ? height : 'auto', objectFit: 'cover', borderRadius: rounded ? 8 : 0, display: 'block' }}
-    />
+    <UnstyledButton
+      onClick={onOpen}
+      aria-label={t('gallery.viewPhoto')}
+      style={{ display: 'block', width: '100%', cursor: 'zoom-in' }}
+    >
+      <img
+        src={photo.full ?? undefined}
+        srcSet={photo.srcset}
+        sizes="(max-width: 1200px) 100vw, 1200px"
+        alt={photo.alt_text ?? ''}
+        width={photo.width}
+        height={photo.height}
+        loading="lazy"
+        style={{ width: '100%', height: height ? height : 'auto', objectFit: 'cover', borderRadius: rounded ? 8 : 0, display: 'block' }}
+      />
+    </UnstyledButton>
   );
 }
 
-function BlockView({ block, photos }: { block: ArticleBlock; photos: PhotoMap }) {
+function BlockView({
+  block,
+  photos,
+  offset,
+  onOpen,
+}: {
+  block: ArticleBlock;
+  photos: PhotoMap;
+  offset: number;
+  onOpen: (index: number) => void;
+}) {
   switch (block.type) {
     case 'richText':
       return (
@@ -46,7 +76,7 @@ function BlockView({ block, photos }: { block: ArticleBlock; photos: PhotoMap })
       const max = block.content.layout === 'fullBleed' ? '100%' : block.content.layout === 'wide' ? 1200 : 900;
       return (
         <Box component="figure" mx="auto" w="100%" m={0} style={{ maxWidth: max }}>
-          <ResponsiveImg photo={photo} rounded={block.content.layout !== 'fullBleed'} />
+          <ResponsiveImg photo={photo} rounded={block.content.layout !== 'fullBleed'} onOpen={() => onOpen(offset)} />
           {block.content.caption && (
             <Text component="figcaption" size="sm" c="dimmed" ta="center" mt={6}>
               {block.content.caption}
@@ -65,7 +95,7 @@ function BlockView({ block, photos }: { block: ArticleBlock; photos: PhotoMap })
             <Group wrap="nowrap" gap="sm" align="stretch">
               {list.map((photo, i) => (
                 <Box key={`${photo.id}-${i}`} w={280} style={{ flexShrink: 0 }}>
-                  <ResponsiveImg photo={photo} height={200} />
+                  <ResponsiveImg photo={photo} height={200} onOpen={() => onOpen(offset + i)} />
                 </Box>
               ))}
             </Group>
@@ -78,7 +108,7 @@ function BlockView({ block, photos }: { block: ArticleBlock; photos: PhotoMap })
             <Box style={{ columnCount: 3, columnGap: 12 }}>
               {list.map((photo, i) => (
                 <Box key={`${photo.id}-${i}`} mb={12} style={{ breakInside: 'avoid' }}>
-                  <ResponsiveImg photo={photo} />
+                  <ResponsiveImg photo={photo} onOpen={() => onOpen(offset + i)} />
                 </Box>
               ))}
             </Box>
@@ -89,12 +119,27 @@ function BlockView({ block, photos }: { block: ArticleBlock; photos: PhotoMap })
         <Centered max={1200}>
           <SimpleGrid cols={{ base: 2, sm: 3 }}>
             {list.map((photo, i) => (
-              <ResponsiveImg key={`${photo.id}-${i}`} photo={photo} height={180} />
+              <ResponsiveImg key={`${photo.id}-${i}`} photo={photo} height={180} onOpen={() => onOpen(offset + i)} />
             ))}
           </SimpleGrid>
         </Centered>
       );
     }
+
+    case 'video':
+      if (block.content.videoId === '') return null;
+      return (
+        <Centered max={900}>
+          <Box component="figure" m={0}>
+            <YoutubeEmbed videoId={block.content.videoId} title={block.content.caption ?? undefined} />
+            {block.content.caption && (
+              <Text component="figcaption" size="sm" c="dimmed" ta="center" mt={6}>
+                {block.content.caption}
+              </Text>
+            )}
+          </Box>
+        </Centered>
+      );
 
     case 'quote':
       return (
@@ -130,12 +175,41 @@ function BlockView({ block, photos }: { block: ArticleBlock; photos: PhotoMap })
   }
 }
 
+/**
+ * Every article photo in reading order, so the lightbox arrows walk the whole
+ * article rather than stopping at the block boundary. Must skip the same missing
+ * photos BlockView skips, or the indices drift.
+ */
+function collectPhotos(blocks: ArticleBlock[], photos: PhotoMap) {
+  const flat: Photo[] = [];
+  const offsets = blocks.map((block) => {
+    const offset = flat.length;
+    if (block.type === 'image') {
+      const photo = photos[String(block.content.photoId)];
+      if (photo) flat.push(photo);
+    } else if (block.type === 'gallery') {
+      for (const id of block.content.photoIds) {
+        const photo = photos[String(id)];
+        if (photo) flat.push(photo);
+      }
+    }
+    return offset;
+  });
+  return { flat, offsets };
+}
+
 export function ArticleRenderer({ blocks, photos }: { blocks: ArticleBlock[]; photos: PhotoMap }) {
+  const [lightbox, setLightbox] = useState<number | null>(null);
+  const { flat, offsets } = collectPhotos(blocks, photos);
+
   return (
-    <Stack gap="xl">
-      {blocks.map((block, i) => (
-        <BlockView key={i} block={block} photos={photos} />
-      ))}
-    </Stack>
+    <>
+      <Stack gap="xl">
+        {blocks.map((block, i) => (
+          <BlockView key={i} block={block} photos={photos} offset={offsets[i]} onOpen={setLightbox} />
+        ))}
+      </Stack>
+      <Lightbox photos={flat} index={lightbox} onClose={() => setLightbox(null)} onIndex={setLightbox} />
+    </>
   );
 }

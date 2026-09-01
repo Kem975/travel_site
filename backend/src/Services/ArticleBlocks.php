@@ -14,9 +14,11 @@ use App\Support\HtmlSanitizer;
  */
 final class ArticleBlocks
 {
-    public const TYPES = ['richText', 'image', 'gallery', 'quote', 'practicalInfo', 'divider'];
+    public const TYPES = ['richText', 'image', 'gallery', 'video', 'quote', 'practicalInfo', 'divider'];
     private const IMAGE_LAYOUTS = ['normal', 'wide', 'fullBleed'];
     private const GALLERY_LAYOUTS = ['grid', 'masonry', 'carousel'];
+    // Only an id is ever stored: it lands in an iframe src, so it must not be free text.
+    private const YOUTUBE_ID = '/^[A-Za-z0-9_-]{11}$/';
 
     /**
      * @param array<int,mixed> $blocks
@@ -88,6 +90,19 @@ final class ArticleBlocks
                     $out[] = ['type' => 'gallery', 'content' => [
                         'photoIds' => $ids,
                         'layout' => in_array($content['layout'] ?? '', self::GALLERY_LAYOUTS, true) ? $content['layout'] : 'grid',
+                    ]];
+                    break;
+
+                case 'video':
+                    $videoId = trim((string) ($content['videoId'] ?? ''));
+                    if (preg_match(self::YOUTUBE_ID, $videoId) !== 1) {
+                        $errors[] = "Video block {$position}: invalid YouTube video.";
+                        break;
+                    }
+                    $caption = trim((string) ($content['caption'] ?? ''));
+                    $out[] = ['type' => 'video', 'content' => [
+                        'videoId' => $videoId,
+                        'caption' => $caption === '' ? null : mb_substr($caption, 0, 500),
                     ]];
                     break;
 

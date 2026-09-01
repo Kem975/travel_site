@@ -14,6 +14,7 @@ export type Trip = {
   end_date: string | null;
   status: TripStatus;
   visibility: Visibility;
+  sort_order: number;
   created_at: string;
   updated_at: string;
 };
@@ -70,8 +71,12 @@ export type DestinationInput = {
 
 export type GeoResult = { label: string; lat: number; lng: number; country: string };
 
+export type Visitor = { visitor_name: string; created_at: string; last_used_at: string | null };
+
 export const adminApi = {
   stats: () => api.get<{ stats: Stats }>('/admin/stats').then((r) => r.stats),
+
+  visitors: () => api.get<{ visitors: Visitor[] }>('/admin/visitors').then((r) => r.visitors),
 
   geocode: (q: string) =>
     api.get<{ results: GeoResult[] }>(`/admin/geocode?q=${encodeURIComponent(q)}`).then((r) => r.results),
@@ -85,6 +90,8 @@ export const adminApi = {
   updateTrip: (id: number, data: TripInput) =>
     api.put<{ trip: Trip }>(`/admin/trips/${id}`, data).then((r) => r.trip),
   deleteTrip: (id: number) => api.del<{ deleted: boolean }>(`/admin/trips/${id}`),
+  reorderTrips: (orderedIds: number[]) =>
+    api.post<{ trips: Trip[] }>('/admin/trips/reorder', { ordered_ids: orderedIds }).then((r) => r.trips),
 
   listDestinations: (tripId: number) =>
     api.get<{ destinations: Destination[] }>(`/admin/trips/${tripId}/destinations`).then((r) => r.destinations),

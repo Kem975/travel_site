@@ -8,13 +8,12 @@ import { Lightbox } from '../components/gallery/Lightbox';
 export function GalleryPage() {
   const { t } = useTranslation();
   const [trip, setTrip] = useState<string | null>(null);
-  const [country, setCountry] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['public', 'gallery', trip, country, category],
-    queryFn: () => publicApi.gallery({ trip: trip ?? undefined, country: country ?? undefined, category: category ?? undefined }),
+    queryKey: ['public', 'gallery', trip, category],
+    queryFn: () => publicApi.gallery({ trip: trip ?? undefined, category: category ?? undefined }),
   });
   const photos = data?.photos ?? [];
 
@@ -33,7 +32,6 @@ export function GalleryPage() {
           onChange={setTrip}
           w={200}
         />
-        <Select placeholder={t('gallery.allCountries')} clearable data={data?.filters.countries ?? []} value={country} onChange={setCountry} w={170} />
         <Select
           placeholder={t('gallery.allCategories')}
           clearable

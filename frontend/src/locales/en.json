@@ -42,6 +42,14 @@
       "genericError": "Something went wrong. Please try again."
     },
     "logout": "Log out",
+    "name": {
+      "title": "Welcome!",
+      "intro": "Tell us who you are — we love knowing who's following along.",
+      "label": "Your name",
+      "placeholder": "Grandma, Paul, the neighbours…",
+      "submit": "Let's go",
+      "skip": "Maybe later"
+    },
     "admin": {
       "title": "Administration",
       "email": "Email",
@@ -49,20 +57,27 @@
       "signIn": "Sign in",
       "dashboard": "Dashboard",
       "signedInAs": "Signed in as {{name}}.",
-      "placeholder": "Trip and content management arrives in Phase 3."
+      "placeholder": "Country and content management arrives in Phase 3."
     }
   },
   "home": {
-    "empty": "No published trips yet. Create one in the admin area."
+    "empty": "No published countries yet. Create one in the admin area."
+  },
+  "journey": {
+    "timeline": "Journey route"
   },
   "admin": {
+    "visitors": {
+      "title": "Who's following along",
+      "empty": "Nobody has introduced themselves yet."
+    },
     "trips": {
-      "title": "Trips",
-      "new": "New trip",
-      "edit": "Edit trip",
-      "empty": "No trips yet. Create your first one.",
-      "manageDestinations": "Manage destinations",
-      "confirmDelete": "Delete \"{{title}}\" and all of its destinations?"
+      "title": "Countries",
+      "new": "New country",
+      "edit": "Edit country",
+      "empty": "No countries yet. Add your first one.",
+      "manageDestinations": "Manage stops",
+      "confirmDelete": "Delete \"{{title}}\" and all of its stops?"
     },
     "destinations": {
       "title": "Destinations",
@@ -97,7 +112,7 @@
       "cancel": "Cancel"
     },
     "stats": {
-      "trips": "Trips",
+      "trips": "Countries",
       "destinations": "Destinations",
       "published_articles": "Published articles",
       "draft_articles": "Drafts",
@@ -124,17 +139,32 @@
   },
   "media": {
     "nav": "Media",
-    "library": { "title": "Media library" },
+    "library": {
+      "title": "Media library"
+    },
     "dropzone": {
       "title": "Drop photos here or click to browse",
       "hint": "JPEG, PNG or WebP — resized in your browser before upload"
     },
-    "status": { "queued": "Queued", "done": "Uploaded", "error": "Failed" },
+    "status": {
+      "queued": "Queued",
+      "done": "Uploaded",
+      "error": "Failed"
+    },
     "retry": "Retry",
-    "picker": { "title": "Choose a photo" },
+    "picker": {
+      "title": "Choose a photo"
+    },
     "empty": "No photos yet.",
-    "edit": { "title": "Photo details" },
-    "fields": { "caption": "Caption", "altText": "Alt text", "category": "Category", "featured": "Featured" },
+    "edit": {
+      "title": "Photo details"
+    },
+    "fields": {
+      "caption": "Caption",
+      "altText": "Alt text",
+      "category": "Category",
+      "featured": "Featured"
+    },
     "categories": {
       "none": "— none —",
       "landscapes": "Landscapes",
@@ -162,25 +192,66 @@
     "addBlock": "Add block",
     "save": "Save article",
     "saved": "Saved",
-    "fields": { "title": "Title", "subtitle": "Subtitle", "status": "Status" },
-    "status": { "draft": "Draft", "published": "Published" },
+    "fields": {
+      "title": "Title",
+      "subtitle": "Subtitle",
+      "status": "Status"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published"
+    },
     "types": {
       "richText": "Text",
       "image": "Image",
       "gallery": "Gallery",
+      "video": "Video",
       "quote": "Quote",
       "practicalInfo": "Practical info",
       "divider": "Divider"
     },
-    "layouts": { "normal": "Normal", "wide": "Wide", "fullBleed": "Full bleed" },
-    "galleryLayouts": { "grid": "Grid", "masonry": "Masonry", "carousel": "Carousel" },
-    "blocks": {
-      "image": { "none": "No image selected", "choose": "Choose image", "change": "Change image", "caption": "Caption (optional)" },
-      "gallery": { "add": "Add photo", "empty": "No photos in this gallery yet." },
-      "quote": { "text": "Quote text", "attribution": "Attribution (optional)" },
-      "practical": { "label": "Label", "value": "Value", "add": "Add item" }
+    "layouts": {
+      "normal": "Normal",
+      "wide": "Wide",
+      "fullBleed": "Full bleed"
     },
-    "public": { "notFound": "This story isn't published yet.", "error": "Could not load this story." },
+    "galleryLayouts": {
+      "grid": "Grid",
+      "masonry": "Masonry",
+      "carousel": "Carousel"
+    },
+    "blocks": {
+      "image": {
+        "none": "No image selected",
+        "choose": "Choose image",
+        "change": "Change image",
+        "caption": "Caption (optional)"
+      },
+      "gallery": {
+        "add": "Add photo",
+        "empty": "No photos in this gallery yet."
+      },
+      "video": {
+        "url": "YouTube URL or video ID",
+        "invalid": "Not a valid YouTube link.",
+        "none": "No video yet — paste a YouTube link.",
+        "caption": "Caption (optional)",
+        "play": "Play video"
+      },
+      "quote": {
+        "text": "Quote text",
+        "attribution": "Attribution (optional)"
+      },
+      "practical": {
+        "label": "Label",
+        "value": "Value",
+        "add": "Add item"
+      }
+    },
+    "public": {
+      "notFound": "This story isn't published yet.",
+      "error": "Could not load this story."
+    },
     "autosave": {
       "saving": "Saving…",
       "saved": "All changes saved",
@@ -203,7 +274,12 @@
     "replyTo": "Reply",
     "pending": "Thanks! Your comment is awaiting moderation.",
     "error": "Something went wrong. Please try again.",
-    "status": { "pending": "Pending", "published": "Published", "rejected": "Rejected", "spam": "Spam" },
+    "status": {
+      "pending": "Pending",
+      "published": "Published",
+      "rejected": "Rejected",
+      "spam": "Spam"
+    },
     "admin": {
       "nav": "Comments",
       "title": "Comment moderation",
@@ -221,8 +297,7 @@
   },
   "gallery": {
     "title": "Gallery",
-    "allTrips": "All trips",
-    "allCountries": "All countries",
+    "allTrips": "All countries",
     "allCategories": "All categories",
     "empty": "No photos match these filters.",
     "viewPhoto": "View photo"
@@ -234,22 +309,32 @@
     "empty": "No published destinations yet."
   },
   "trip": {
-    "notFound": "Trip not found.",
-    "destinations": "Destinations",
-    "stats": { "countries": "Countries", "destinations": "Destinations", "days": "Days", "photos": "Photos" }
+    "notFound": "Country not found.",
+    "destinations": "Stops",
+    "stats": {
+      "destinations": "Stops",
+      "days": "Days",
+      "photos": "Photos"
+    }
   },
   "about": {
     "title": "About the journey",
-    "body": "A private travel journal for friends and family — stories, photographs, and the route, one destination at a time.",
-    "trips": "Trips"
+    "body": "A private travel journal for friends and family — stories, photographs, and the route, one stop at a time.",
+    "trips": "Countries"
   },
   "globe": {
-    "rotate": "Rotate",
-    "pause": "Pause",
-    "reset": "Reset view",
+    "rotate": "Spin the globe",
+    "pause": "Stop spinning",
+    "reset": "Back to the journey",
     "read": "Read the story",
     "noStory": "No story yet",
-    "ariaLabel": "Interactive globe of the journey. Prefer a text list? Open the Journal."
+    "ariaLabel": "Interactive globe of the journey. Prefer a text list? Open the Journal.",
+    "hud": {
+      "day": "Day {{n}}",
+      "countdown_one": "{{count}} day to go",
+      "countdown_other": "{{count}} days to go",
+      "distance": "{{km}} km from {{origin}}"
+    }
   },
   "notFound": {
     "body": "We couldn't find that page.",

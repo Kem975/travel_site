@@ -16,6 +16,7 @@ use App\Controllers\PublicDestinationController;
 use App\Controllers\PublicGalleryController;
 use App\Controllers\PublicGlobeController;
 use App\Controllers\PublicJournalController;
+use App\Controllers\PublicJourneyController;
 use App\Controllers\PublicTripController;
 use App\Controllers\TripController;
 use App\Http\Response;
@@ -53,6 +54,7 @@ $auth = new AuthController();
 $router->post('/api/auth/login', [$auth, 'login']);        // visitor shared password
 $router->post('/api/auth/admin/login', [$auth, 'adminLogin']); // separate admin credentials
 $router->get('/api/auth/session', [$auth, 'session']);     // current auth state (+ CSRF token)
+$router->post('/api/auth/name', [$auth, 'setVisitorName']); // self-declared, asked after the gate
 $router->post('/api/auth/logout', [$auth, 'logout']);
 
 // --- Public content (visitor-gated, Phase 3) ---
@@ -62,6 +64,7 @@ $router->get('/api/trips', [$publicTrips, 'index']);
 $router->get('/api/journal', [new PublicJournalController(), 'index']);
 $router->get('/api/gallery', [new PublicGalleryController(), 'index']);
 $router->get('/api/globe', [new PublicGlobeController(), 'index']);
+$router->get('/api/journey/timeline', [new PublicJourneyController(), 'timeline']);
 $router->get('/api/trips/:tripSlug/destinations', [$publicDestinations, 'forTrip']);
 $router->get('/api/trips/:slug', [$publicTrips, 'show']);
 $router->get('/api/destinations/:slug/article', [new PublicArticleController(), 'show']);
@@ -73,10 +76,13 @@ $router->get('/api/destinations/:slug', [$publicDestinations, 'show']);
 // --- Admin content management (admin + CSRF, Phase 3) ---
 $adminTrips = new TripController();
 $adminDestinations = new DestinationController();
-$router->get('/api/admin/stats', [new AdminStatsController(), 'index']);
+$adminStats = new AdminStatsController();
+$router->get('/api/admin/stats', [$adminStats, 'index']);
+$router->get('/api/admin/visitors', [$adminStats, 'visitors']);
 $router->get('/api/admin/geocode', [new GeocodeController(), 'search']);
 
 $router->get('/api/admin/trips', [$adminTrips, 'index']);
+$router->post('/api/admin/trips/reorder', [$adminTrips, 'reorder']);
 $router->post('/api/admin/trips', [$adminTrips, 'store']);
 $router->get('/api/admin/trips/:id', [$adminTrips, 'show']);
 $router->put('/api/admin/trips/:id', [$adminTrips, 'update']);

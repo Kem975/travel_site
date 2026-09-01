@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Anchor, Badge, Card, Container, Group, Image, Loader, Stack, Text, Title } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { formatMonth } from '../lib/date';
 import { publicApi, type JournalEntry } from '../api/public';
 
 function monthKey(date: string | null): string {
@@ -23,9 +24,7 @@ export function JournalPage() {
   }, [entries]);
 
   const monthLabel = (key: string) =>
-    key === 'undated'
-      ? t('journal.undated')
-      : new Date(`${key}-01T00:00:00`).toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' });
+    key === 'undated' ? t('journal.undated') : formatMonth(key, i18n.language);
 
   return (
     <Container size="md" py="md">
@@ -68,7 +67,7 @@ export function JournalPage() {
                           </Text>
                         )}
                         {entry.has_article && (
-                          <Anchor component={Link} to={`/trips/${entry.trip_slug}/${entry.slug}`} size="sm" mt={2}>
+                          <Anchor component={Link} to={`/pays/${entry.trip_slug}/${entry.slug}`} size="sm" mt={2}>
                             {t('journal.read')} →
                           </Anchor>
                         )}

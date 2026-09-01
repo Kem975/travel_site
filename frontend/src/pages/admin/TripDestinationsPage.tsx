@@ -66,7 +66,7 @@ export function TripDestinationsPage() {
 
   return (
     <Container size="lg" py="md">
-      <Anchor component={Link} to="/admin/trips" size="sm">
+      <Anchor component={Link} to="/admin/pays" size="sm">
         ← {t('admin.trips.title')}
       </Anchor>
       <Group justify="space-between" mt="xs" mb="lg">
@@ -168,7 +168,15 @@ export function TripDestinationsPage() {
         <Text c="dimmed">{t('admin.destinations.empty')}</Text>
       )}
 
-      {valid && <DestinationFormModal opened={opened} onClose={close} tripId={tripId} destination={editing} />}
+      {valid && (
+        <DestinationFormModal
+          opened={opened}
+          onClose={close}
+          tripId={tripId}
+          tripTitle={tripQuery.data?.title ?? ''}
+          destination={editing}
+        />
+      )}
     </Container>
   );
 }

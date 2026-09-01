@@ -9,7 +9,13 @@ import { DESTINATION_STATUSES } from './status';
 import { CoverPhotoField } from './CoverPhotoField';
 import { PlaceSearchField } from './PlaceSearchField';
 
-type Props = { opened: boolean; onClose: () => void; tripId: number; destination: Destination | null };
+type Props = {
+  opened: boolean;
+  onClose: () => void;
+  tripId: number;
+  tripTitle: string;
+  destination: Destination | null;
+};
 
 const EMPTY: DestinationInput = {
   title: '',
@@ -23,7 +29,7 @@ const EMPTY: DestinationInput = {
   status: 'planned',
 };
 
-export function DestinationFormModal({ opened, onClose, tripId, destination }: Props) {
+export function DestinationFormModal({ opened, onClose, tripId, tripTitle, destination }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const form = useForm<DestinationInput>({ initialValues: EMPTY });
@@ -45,10 +51,10 @@ export function DestinationFormModal({ opened, onClose, tripId, destination }: P
             excerpt: destination.excerpt ?? '',
             status: destination.status,
           }
-        : EMPTY,
+        : { ...EMPTY, country: tripTitle },
     );
     form.clearErrors();
-  }, [opened, destination]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [opened, destination, tripTitle]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const mutation = useMutation({
     mutationFn: (values: DestinationInput) =>

@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Database;
 use App\Http\Response;
 use App\Middleware\AuthMiddleware;
+use App\Repositories\SessionRepository;
 
 /** Dashboard counts (plan §10.1). Articles/comments/photos land in later phases. */
 final class AdminStatsController
@@ -32,5 +33,12 @@ final class AdminStatsController
             'pending_comments' => $count("SELECT COUNT(*) FROM comments WHERE status = 'pending'"),
             'photos' => $count('SELECT COUNT(*) FROM photos'),
         ]]);
+    }
+
+    /** Who is reading: named visitor sessions, most recently active first. */
+    public function visitors(): void
+    {
+        $this->guard->requireAdmin();
+        Response::json(['visitors' => (new SessionRepository())->namedVisitors()]);
     }
 }

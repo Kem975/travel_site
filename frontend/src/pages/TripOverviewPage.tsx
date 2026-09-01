@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { Badge, Box, Card, Center, Container, Group, Image, Loader, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Box, Card, Center, Container, Group, Image, Loader, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { formatDate, formatDateRange } from '../lib/date';
 import { publicApi, type TripStats } from '../api/public';
 
 function Stat({ value, label }: { value: string | number; label: string }) {
@@ -18,7 +19,7 @@ function Stat({ value, label }: { value: string | number; label: string }) {
 }
 
 export function TripOverviewPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { tripSlug } = useParams();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['public', 'trip', tripSlug],
@@ -43,9 +44,8 @@ export function TripOverviewPage() {
   }
 
   const { trip, destinations, stats } = data;
-  const dates = [trip.start_date, trip.end_date].filter(Boolean).join(' → ');
+  const dates = formatDateRange(trip.start_date, trip.end_date, i18n.language);
   const statEntries: [keyof TripStats, string | number][] = [
-    ['countries', stats.countries],
     ['destinations', stats.destinations],
     ['days', stats.days ?? '—'],
     ['photos', stats.photos],
@@ -88,7 +88,7 @@ export function TripOverviewPage() {
             </Title>
             <SimpleGrid cols={{ base: 1, xs: 2, sm: 3 }}>
               {destinations.map((d) => (
-                <Card key={d.id} component={Link} to={`/trips/${trip.slug}/${d.slug}`} withBorder radius="md" padding="0">
+                <Card key={d.id} component={Link} to={`/pays/${trip.slug}/${d.slug}`} withBorder radius="md" padding="0">
                   <Card.Section>
                     {d.cover ? (
                       <Image src={d.cover.thumb ?? undefined} alt="" h={150} fit="cover" />
@@ -98,10 +98,10 @@ export function TripOverviewPage() {
                   </Card.Section>
                   <Group justify="space-between" p="sm" wrap="nowrap">
                     <Text fw={600}>{d.title}</Text>
-                    {d.country && (
-                      <Badge variant="light" size="sm">
-                        {d.country}
-                      </Badge>
+                    {d.arrival_date && (
+                      <Text size="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+                        {formatDate(d.arrival_date, i18n.language)}
+                      </Text>
                     )}
                   </Group>
                 </Card>

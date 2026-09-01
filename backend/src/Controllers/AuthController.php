@@ -47,15 +47,34 @@ final class AuthController
     {
         $ctx = $this->auth->current();
         if ($ctx === null) {
-            Response::json(['authenticated' => false, 'scope' => null, 'user' => null, 'csrf_token' => null]);
+            Response::json(['authenticated' => false, 'scope' => null, 'user' => null, 'visitor_name' => null, 'csrf_token' => null]);
             return;
         }
         Response::json([
             'authenticated' => true,
             'scope' => $ctx['scope'],
             'user' => $ctx['user'],
+            'visitor_name' => $ctx['visitor_name'],
             'csrf_token' => $ctx['csrf'],
         ]);
+    }
+
+    public function setVisitorName(): void
+    {
+        $ctx = $this->auth->current();
+        if ($ctx === null) {
+            Response::error('Not authenticated.', 401);
+            return;
+        }
+        (new AuthMiddleware())->requireCsrf($ctx);
+
+        $data = Request::json();
+        $name = isset($data['name']) && is_string($data['name']) ? trim($data['name']) : '';
+        if ($name === '') {
+            Response::error('Name is required.', 422);
+            return;
+        }
+        Response::json(['visitor_name' => $this->auth->nameVisitor($ctx['id'], $name)]);
     }
 
     public function logout(): void
@@ -65,6 +84,6 @@ final class AuthController
             (new AuthMiddleware())->requireCsrf($ctx);
         }
         $this->auth->logout();
-        Response::json(['authenticated' => false, 'scope' => null, 'user' => null, 'csrf_token' => null]);
+        Response::json(['authenticated' => false, 'scope' => null, 'user' => null, 'visitor_name' => null, 'csrf_token' => null]);
     }
 }

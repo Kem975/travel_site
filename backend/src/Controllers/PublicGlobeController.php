@@ -54,6 +54,8 @@ final class PublicGlobeController
                     'lat' => $d['latitude'] !== null ? (float) $d['latitude'] : null,
                     'lng' => $d['longitude'] !== null ? (float) $d['longitude'] : null,
                     'status' => $d['status'],
+                    'arrival_date' => $d['arrival_date'],
+                    'departure_date' => $d['departure_date'],
                     'has_article' => isset($hasArticle[(int) $d['id']]),
                     'cover_thumb' => $cover['thumb'] ?? null,
                 ];

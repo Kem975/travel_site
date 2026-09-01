@@ -18,6 +18,8 @@ const demoTrips: GlobeTrip[] = [
       lat: d.lat,
       lng: d.lng,
       status: d.status,
+      arrival_date: d.arrival ?? null,
+      departure_date: d.departure ?? null,
       has_article: false,
       cover_thumb: null,
     })),

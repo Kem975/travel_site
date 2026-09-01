@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Badge, Box, Button, Card, Group, Image, Text, useComputedColorScheme } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_MAP_CONFIG, registerPmtiles } from '../../lib/map/mapConfig';
-import { applyPalette, buildStyle, palette, type StylePreset } from '../../lib/map/worldStyle';
+import { applyPalette, buildStyle, palette, type Palette, type StylePreset } from '../../lib/map/worldStyle';
 import { routeFeature } from '../../lib/map/greatCircle';
 import { roundImage } from '../../lib/map/roundImage';
+import { journeyStats } from '../../lib/journeyStats';
+import { formatDateRange } from '../../lib/date';
 import { statusColor } from './statusColors';
+import { GlobeHud } from './GlobeHud';
 import type { GlobePlace, GlobeTrip } from '../../api/public';
 
 registerPmtiles();
@@ -20,6 +23,33 @@ const reducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const keyOf = (p: GlobePlace) => `${p.trip_slug}/${p.slug}`;
+const numberOf = (index: number) => String(index + 1).padStart(2, '0');
+
+/**
+ * Stops reached are filled discs, stops still ahead are hollow rings — the ● / ○ the
+ * route reads by at a glance. These stay functions rather than literals because
+ * applyPalette() rewrites circle-stroke-color on every scheme change and would
+ * otherwise flatten the expression back to one flat colour.
+ */
+const AHEAD: maplibregl.ExpressionSpecification = ['==', ['get', 'status'], 'planned'];
+const markerFill = (p: Palette): maplibregl.ExpressionSpecification => [
+  'case',
+  AHEAD,
+  p.markerStroke,
+  ['get', 'color'],
+];
+const markerStroke = (p: Palette): maplibregl.ExpressionSpecification => [
+  'case',
+  AHEAD,
+  ['get', 'color'],
+  p.markerStroke,
+];
+
+function paintMarkers(map: maplibregl.Map, p: Palette): void {
+  if (!map.getLayer('markers')) return;
+  map.setPaintProperty('markers', 'circle-color', markerFill(p));
+  map.setPaintProperty('markers', 'circle-stroke-color', markerStroke(p));
+}
 
 type Props = {
   trips: GlobeTrip[];
@@ -29,9 +59,11 @@ type Props = {
 };
 
 export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minimal' }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const scheme = useComputedColorScheme('dark');
-  const atlas = stylePreset === 'atlas';
+  // The generous treatment (route glow, marker halo, larger type) belongs to every
+  // preset except 'minimal', terrain included — it needs it most, over a busy texture.
+  const rich = stylePreset !== 'minimal';
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const readyRef = useRef(false);
@@ -43,6 +75,7 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
 
   const places = trips.flatMap((tr) => tr.places).filter((p) => p.lng != null && p.lat != null);
   const showData = interactive && places.length > 0;
+  const stats = useMemo(() => journeyStats(trips), [trips]);
 
   const stopSpin = () => {
     spinningRef.current = false;
@@ -100,11 +133,13 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
       map.setProjection({ type: 'globe' });
 
       if (showData) {
+        // One polyline across every country: the journey is continuous, so the hop
+        // from one country's last stop to the next country's first is a leg like any other.
         map.addSource('route', {
           type: 'geojson',
-          data: { type: 'FeatureCollection', features: trips.map((tr) => routeFeature(tr.places)) },
+          data: { type: 'FeatureCollection', features: [routeFeature(places)] },
         });
-        if (atlas) {
+        if (rich) {
           map.addLayer({
             id: 'route-glow',
             type: 'line',
@@ -125,18 +160,20 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
           layout: { 'line-cap': 'round', 'line-join': 'round' },
           paint: {
             'line-color': p.route,
-            'line-width': atlas ? ['interpolate', ['linear'], ['zoom'], 1, 2.4, 5, 3.4] : 2,
-            'line-opacity': atlas ? 1 : 0.9,
+            'line-width': rich ? ['interpolate', ['linear'], ['zoom'], 1, 2.4, 5, 3.4] : 2,
+            'line-opacity': rich ? 1 : 0.9,
           },
         });
 
         const markerData: GeoJSON.FeatureCollection = {
           type: 'FeatureCollection',
-          features: places.map((place) => ({
+          features: places.map((place, index) => ({
             type: 'Feature',
             properties: {
               key: keyOf(place),
               title: place.title,
+              num: numberOf(index),
+              status: place.status,
               color: statusColor(place.status),
               icon: place.cover_thumb ? `cv:${keyOf(place)}` : '',
             },
@@ -157,7 +194,7 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
             'circle-stroke-width': 2,
           },
         });
-        if (atlas) {
+        if (rich) {
           map.addLayer({
             id: 'markers-glow',
             type: 'circle',
@@ -170,17 +207,31 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
             },
           });
         }
+        // Where we are now, ringed so it reads differently from every stop behind it.
+        map.addLayer({
+          id: 'markers-current',
+          type: 'circle',
+          source: 'markers',
+          filter: ['==', ['get', 'status'], 'current'],
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 7, 5, 19],
+            'circle-opacity': 0,
+            'circle-stroke-color': ['get', 'color'],
+            'circle-stroke-width': rich ? 2 : 1.5,
+            'circle-stroke-opacity': 0.85,
+          },
+        });
         map.addLayer({
           id: 'markers',
           type: 'circle',
           source: 'markers',
           paint: {
-            'circle-radius': atlas
+            'circle-radius': rich
               ? ['interpolate', ['linear'], ['zoom'], 1, 3.2, 3, 6.5, 5, 10]
               : ['interpolate', ['linear'], ['zoom'], 1, 2.5, 3, 5, 5, 8],
-            'circle-color': ['get', 'color'],
-            'circle-stroke-color': p.markerStroke,
-            'circle-stroke-width': atlas ? 2 : 1.5,
+            'circle-color': markerFill(p),
+            'circle-stroke-color': markerStroke(p),
+            'circle-stroke-width': rich ? 2 : 1.5,
           },
         });
         map.addLayer({
@@ -188,14 +239,15 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
           type: 'symbol',
           source: 'markers',
           layout: {
-            'text-field': ['get', 'title'],
+            // Numbered in route order: the globe reads as an itinerary, not a scatter.
+            'text-field': ['concat', ['get', 'num'], '  ', ['get', 'title']],
             'text-font': ['Noto Sans Regular'],
             'text-size': ['interpolate', ['linear'], ['zoom'], 2.4, 0, 3.2, 12],
             'text-anchor': 'left',
             'text-offset': [0.9, 0],
             'text-allow-overlap': false,
             'text-optional': true,
-            ...(atlas ? { 'text-letter-spacing': 0.08, 'text-transform': 'uppercase' } : {}),
+            ...(rich ? { 'text-letter-spacing': 0.08, 'text-transform': 'uppercase' } : {}),
           },
           paint: { 'text-color': p.label, 'text-halo-color': p.labelHalo, 'text-halo-width': 1.4 },
         });
@@ -260,11 +312,16 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
 
   useEffect(() => {
     const map = mapRef.current;
-    if (map && readyRef.current) applyPalette(map, scheme, stylePreset);
+    if (!map || !readyRef.current) return;
+    applyPalette(map, scheme, stylePreset);
+    paintMarkers(map, palette(scheme, stylePreset));
   }, [scheme, stylePreset]);
 
   const space = palette(scheme, stylePreset).space;
-  const background = atlas
+  const selectedDates = selected
+    ? formatDateRange(selected.arrival_date, selected.departure_date, i18n.language)
+    : null;
+  const background = rich
     ? `radial-gradient(circle at 50% 45%, color-mix(in srgb, ${space} 82%, #fff 18%), ${space} 55%, color-mix(in srgb, ${space} 78%, #000 22%) 100%)`
     : space;
 
@@ -277,17 +334,32 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
         style={{ position: 'absolute', inset: 0 }}
       />
 
+      {showData && <GlobeHud stats={stats} scrim={space} />}
+
+      {/* Controls sit opposite the journey line, on the same vignette so they stay
+          readable over terrain without needing a panel of their own. */}
       {showData && (
-        <Group style={{ position: 'absolute', top: 12, left: 12 }} gap="xs">
-          <Button size="xs" variant="white" color="dark" onClick={spinning ? stopSpin : startSpin}>
-            {spinning ? `⏸ ${t('globe.pause')}` : `▶ ${t('globe.rotate')}`}
-          </Button>
-          {selected && (
-            <Button size="xs" variant="default" onClick={resetView}>
-              {t('globe.reset')}
+        <Box
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            padding: '12px 12px 44px 44px',
+            pointerEvents: 'none',
+            background: `radial-gradient(110% 120% at 100% 0%, color-mix(in srgb, ${space} 72%, transparent), transparent 70%)`,
+          }}
+        >
+          <Group gap="xs" style={{ pointerEvents: 'auto' }}>
+            <Button size="xs" variant="subtle" color="gray" onClick={spinning ? stopSpin : startSpin}>
+              {spinning ? t('globe.pause') : t('globe.rotate')}
             </Button>
-          )}
-        </Group>
+            {selected && (
+              <Button size="xs" variant="subtle" color="gray" onClick={resetView}>
+                {t('globe.reset')}
+              </Button>
+            )}
+          </Group>
+        </Box>
       )}
 
       {selected && (
@@ -308,6 +380,11 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
           {selected.country && (
             <Text size="sm" c="dimmed">
               {selected.country}
+            </Text>
+          )}
+          {selectedDates && (
+            <Text size="xs" c="dimmed" mt={2}>
+              {selectedDates}
             </Text>
           )}
           <Button

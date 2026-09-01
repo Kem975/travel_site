@@ -19,7 +19,7 @@ export type JournalEntry = {
   has_article: boolean;
 };
 
-export type TripStats = { countries: number; destinations: number; days: number | null; photos: number };
+export type TripStats = { destinations: number; days: number | null; photos: number };
 
 export type TripOverview = {
   trip: WithCover<Trip>;
@@ -29,11 +29,10 @@ export type TripOverview = {
 
 export type GalleryFilterOptions = {
   trips: { slug: string; title: string }[];
-  countries: string[];
   categories: string[];
 };
 export type GalleryData = { photos: Photo[]; filters: GalleryFilterOptions };
-export type GalleryQuery = { trip?: string; country?: string; destination?: string; category?: string };
+export type GalleryQuery = { trip?: string; destination?: string; category?: string };
 
 export type GlobeStatusName = 'planned' | 'visited' | 'current' | 'cancelled' | 'hidden';
 export type GlobePlace = {
@@ -45,14 +44,26 @@ export type GlobePlace = {
   lat: number | null;
   lng: number | null;
   status: GlobeStatusName;
+  arrival_date: string | null;
+  departure_date: string | null;
   has_article: boolean;
   cover_thumb: string | null;
 };
 export type GlobeTrip = { slug: string; title: string; places: GlobePlace[] };
 
+/** Only stops already reached, so the list always ends on the current one. */
+export type JourneyStop = {
+  title: string;
+  state: 'visited' | 'current';
+  slug: string;
+  trip_slug: string;
+};
+export type JourneyTimeline = { stops: JourneyStop[] };
+
 export const publicApi = {
   trips: () => api.get<{ trips: WithCover<Trip>[] }>('/trips').then((r) => r.trips),
   globe: () => api.get<{ trips: GlobeTrip[] }>('/globe').then((r) => r.trips),
+  journeyTimeline: () => api.get<JourneyTimeline>('/journey/timeline'),
   trip: (slug: string) => api.get<TripOverview>(`/trips/${slug}`),
   journal: () => api.get<{ entries: JournalEntry[] }>('/journal').then((r) => r.entries),
   gallery: (query: GalleryQuery = {}) => {

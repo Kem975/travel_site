@@ -1,6 +1,6 @@
 import { lazy, Suspense, type ReactElement } from 'react';
 import { Center, Loader } from '@mantine/core';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate, useLocation } from 'react-router-dom';
 import { RootLayout } from '../components/layout/RootLayout';
 import { HomePage } from '../pages/HomePage';
 import { NotFoundPage } from '../pages/NotFoundPage';
@@ -34,6 +34,13 @@ const GlobePrototypePage = lazy(() =>
 
 const page = (element: ReactElement) => <Suspense fallback={fallback}>{element}</Suspense>;
 
+// /trips/* was the public URL shape before the route became one journey through
+// countries. Links to it are already out in the wild, so keep them working.
+function LegacyTripRedirect() {
+  const { pathname, search } = useLocation();
+  return <Navigate to={pathname.replace(/^\/trips/, '/pays') + search} replace />;
+}
+
 const fallback = (
   <Center style={{ minHeight: '100dvh' }}>
     <Loader />
@@ -42,7 +49,7 @@ const fallback = (
 
 // Public site ('/') sits behind the visitor gate (in RootLayout). The /admin
 // tree is a separate entrance behind admin-scope auth (plan §15.2).
-// Public route groups grow here: /journal, /gallery, /trips/:slug, /about.
+// Public route groups grow here: /journal, /gallery, /pays/:slug, /about.
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -53,8 +60,9 @@ export const router = createBrowserRouter([
       { path: 'gallery', element: page(<GalleryPage />) },
       { path: 'about', element: page(<AboutPage />) },
       { path: 'globe-prototype', element: page(<GlobePrototypePage />) },
-      { path: 'trips/:tripSlug', element: page(<TripOverviewPage />) },
-      { path: 'trips/:tripSlug/:destinationSlug', element: page(<DestinationPage />) },
+      { path: 'pays/:tripSlug', element: page(<TripOverviewPage />) },
+      { path: 'pays/:tripSlug/:destinationSlug', element: page(<DestinationPage />) },
+      { path: 'trips/*', element: <LegacyTripRedirect /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
@@ -77,8 +85,8 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <AdminDashboardPage /> },
-      { path: 'trips', element: <TripsListPage /> },
-      { path: 'trips/:tripId', element: <TripDestinationsPage /> },
+      { path: 'pays', element: <TripsListPage /> },
+      { path: 'pays/:tripId', element: <TripDestinationsPage /> },
       { path: 'destinations/:destinationId/article', element: <ArticleEditorPage /> },
       { path: 'media', element: <MediaLibraryPage /> },
       { path: 'comments', element: <CommentsPage /> },

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActionIcon, Anchor, Badge, Button, Container, Group, Loader, Table, Text, Title } from '@mantine/core';
-import { IconEdit, IconMapPin, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconArrowDown, IconArrowUp, IconEdit, IconMapPin, IconPlus, IconTrash } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { adminApi, type Trip } from '../../api/admin';
@@ -16,6 +16,10 @@ export function TripsListPage() {
   const [opened, { open, close }] = useDisclosure(false);
   const [editing, setEditing] = useState<Trip | null>(null);
 
+  const reorderMutation = useMutation({
+    mutationFn: (ids: number[]) => adminApi.reorderTrips(ids),
+    onSuccess: (next) => queryClient.setQueryData(['admin', 'trips'], next),
+  });
   const deleteMutation = useMutation({
     mutationFn: (id: number) => adminApi.deleteTrip(id),
     onSuccess: () => {
@@ -23,6 +27,18 @@ export function TripsListPage() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
     },
   });
+
+  const list = trips ?? [];
+
+  const move = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= list.length) {
+      return;
+    }
+    const next = [...list];
+    [next[index], next[target]] = [next[target], next[index]];
+    reorderMutation.mutate(next.map((tr) => tr.id));
+  };
 
   const openNew = () => {
     setEditing(null);
@@ -49,7 +65,7 @@ export function TripsListPage() {
 
       {isLoading ? (
         <Loader />
-      ) : trips && trips.length > 0 ? (
+      ) : list.length > 0 ? (
         <Table.ScrollContainer minWidth={560}>
           <Table verticalSpacing="sm" highlightOnHover>
             <Table.Thead>
@@ -61,10 +77,10 @@ export function TripsListPage() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {trips.map((trip) => (
+            {list.map((trip, index) => (
               <Table.Tr key={trip.id}>
                 <Table.Td>
-                  <Anchor component={Link} to={`/admin/trips/${trip.id}`} fw={600}>
+                  <Anchor component={Link} to={`/admin/pays/${trip.id}`} fw={600}>
                     {trip.title}
                   </Anchor>
                   <Text size="xs" c="dimmed">
@@ -85,8 +101,24 @@ export function TripsListPage() {
                   <Group gap="xs" justify="flex-end" wrap="nowrap">
                     <ActionIcon
                       variant="subtle"
+                      disabled={index === 0 || reorderMutation.isPending}
+                      onClick={() => move(index, -1)}
+                      aria-label={t('common.moveUp')}
+                    >
+                      <IconArrowUp size={14} />
+                    </ActionIcon>
+                    <ActionIcon
+                      variant="subtle"
+                      disabled={index === list.length - 1 || reorderMutation.isPending}
+                      onClick={() => move(index, 1)}
+                      aria-label={t('common.moveDown')}
+                    >
+                      <IconArrowDown size={14} />
+                    </ActionIcon>
+                    <ActionIcon
+                      variant="subtle"
                       component={Link}
-                      to={`/admin/trips/${trip.id}`}
+                      to={`/admin/pays/${trip.id}`}
                       title={t('admin.trips.manageDestinations')}
                       aria-label={t('admin.trips.manageDestinations')}
                     >

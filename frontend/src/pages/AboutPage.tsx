@@ -20,7 +20,7 @@ export function AboutPage() {
         <Stack mt="xl" gap="xs">
           <Title order={4}>{t('about.trips')}</Title>
           {trips.map((trip) => (
-            <Anchor key={trip.id} component={Link} to={`/trips/${trip.slug}`}>
+            <Anchor key={trip.id} component={Link} to={`/pays/${trip.slug}`}>
               {trip.title}
             </Anchor>
           ))}

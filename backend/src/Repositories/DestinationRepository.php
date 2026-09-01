@@ -38,6 +38,24 @@ final class DestinationRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * The whole journey as one flat list in travel order, across every published
+     * country. Same visibility rules as forTripPublic. @return list<array<string,mixed>>
+     */
+    public function publicRoute(bool $includePlanned): array
+    {
+        $sql = "SELECT d.id, d.title, d.slug, d.country, d.arrival_date, d.departure_date, d.status,
+                       t.slug AS trip_slug, t.title AS trip_title
+                FROM destinations d
+                JOIN trips t ON t.id = d.trip_id
+                WHERE t.status = 'published' AND d.status NOT IN ('hidden','cancelled')";
+        if (!$includePlanned) {
+            $sql .= " AND d.status <> 'planned'";
+        }
+        $sql .= ' ORDER BY t.sort_order ASC, t.id ASC, d.sort_order ASC, d.id ASC';
+        return Database::connection()->query($sql)->fetchAll();
+    }
+
     /** @return array<string,mixed>|null */
     public function find(int $id): ?array
     {

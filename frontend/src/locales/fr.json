@@ -42,6 +42,14 @@
       "genericError": "Une erreur est survenue. Veuillez réessayer."
     },
     "logout": "Se déconnecter",
+    "name": {
+      "title": "Bienvenue !",
+      "intro": "Dites-nous qui vous êtes, ça nous fait toujours plaisir de savoir qui nous suit.",
+      "label": "Votre prénom",
+      "placeholder": "Mamie, Paul, les voisins…",
+      "submit": "C'est parti",
+      "skip": "Plus tard"
+    },
     "admin": {
       "title": "Administration",
       "email": "E-mail",
@@ -49,20 +57,27 @@
       "signIn": "Se connecter",
       "dashboard": "Tableau de bord",
       "signedInAs": "Connecté·e en tant que {{name}}.",
-      "placeholder": "La gestion des voyages et du contenu arrive en phase 3."
+      "placeholder": "La gestion des pays et du contenu arrive en phase 3."
     }
   },
   "home": {
-    "empty": "Aucun voyage publié pour l'instant. Créez-en un dans l'administration."
+    "empty": "Aucun pays publié pour l'instant. Créez-en un dans l'administration."
+  },
+  "journey": {
+    "timeline": "Itinéraire du voyage"
   },
   "admin": {
+    "visitors": {
+      "title": "Qui nous suit",
+      "empty": "Personne ne s'est encore présenté."
+    },
     "trips": {
-      "title": "Voyages",
-      "new": "Nouveau voyage",
-      "edit": "Modifier le voyage",
-      "empty": "Aucun voyage. Créez le premier.",
-      "manageDestinations": "Gérer les destinations",
-      "confirmDelete": "Supprimer « {{title}} » et toutes ses destinations ?"
+      "title": "Pays",
+      "new": "Nouveau pays",
+      "edit": "Modifier le pays",
+      "empty": "Aucun pays. Ajoutez le premier.",
+      "manageDestinations": "Gérer les étapes",
+      "confirmDelete": "Supprimer « {{title}} » et toutes ses étapes ?"
     },
     "destinations": {
       "title": "Destinations",
@@ -97,7 +112,7 @@
       "cancel": "Annuler"
     },
     "stats": {
-      "trips": "Voyages",
+      "trips": "Pays",
       "destinations": "Destinations",
       "published_articles": "Articles publiés",
       "draft_articles": "Brouillons",
@@ -124,17 +139,32 @@
   },
   "media": {
     "nav": "Médias",
-    "library": { "title": "Médiathèque" },
+    "library": {
+      "title": "Médiathèque"
+    },
     "dropzone": {
       "title": "Déposez des photos ici ou cliquez pour parcourir",
       "hint": "JPEG, PNG ou WebP — redimensionnées dans le navigateur avant l'envoi"
     },
-    "status": { "queued": "En attente", "done": "Envoyée", "error": "Échec" },
+    "status": {
+      "queued": "En attente",
+      "done": "Envoyée",
+      "error": "Échec"
+    },
     "retry": "Réessayer",
-    "picker": { "title": "Choisir une photo" },
+    "picker": {
+      "title": "Choisir une photo"
+    },
     "empty": "Aucune photo.",
-    "edit": { "title": "Détails de la photo" },
-    "fields": { "caption": "Légende", "altText": "Texte alternatif", "category": "Catégorie", "featured": "Mise en avant" },
+    "edit": {
+      "title": "Détails de la photo"
+    },
+    "fields": {
+      "caption": "Légende",
+      "altText": "Texte alternatif",
+      "category": "Catégorie",
+      "featured": "Mise en avant"
+    },
     "categories": {
       "none": "— aucune —",
       "landscapes": "Paysages",
@@ -162,25 +192,66 @@
     "addBlock": "Ajouter un bloc",
     "save": "Enregistrer l'article",
     "saved": "Enregistré",
-    "fields": { "title": "Titre", "subtitle": "Sous-titre", "status": "Statut" },
-    "status": { "draft": "Brouillon", "published": "Publié" },
+    "fields": {
+      "title": "Titre",
+      "subtitle": "Sous-titre",
+      "status": "Statut"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "published": "Publié"
+    },
     "types": {
       "richText": "Texte",
       "image": "Image",
       "gallery": "Galerie",
+      "video": "Vidéo",
       "quote": "Citation",
       "practicalInfo": "Infos pratiques",
       "divider": "Séparateur"
     },
-    "layouts": { "normal": "Normal", "wide": "Large", "fullBleed": "Pleine largeur" },
-    "galleryLayouts": { "grid": "Grille", "masonry": "Mosaïque", "carousel": "Carrousel" },
-    "blocks": {
-      "image": { "none": "Aucune image sélectionnée", "choose": "Choisir une image", "change": "Changer l'image", "caption": "Légende (facultatif)" },
-      "gallery": { "add": "Ajouter une photo", "empty": "Aucune photo dans cette galerie." },
-      "quote": { "text": "Texte de la citation", "attribution": "Attribution (facultatif)" },
-      "practical": { "label": "Libellé", "value": "Valeur", "add": "Ajouter une ligne" }
+    "layouts": {
+      "normal": "Normal",
+      "wide": "Large",
+      "fullBleed": "Pleine largeur"
     },
-    "public": { "notFound": "Ce récit n'est pas encore publié.", "error": "Impossible de charger ce récit." },
+    "galleryLayouts": {
+      "grid": "Grille",
+      "masonry": "Mosaïque",
+      "carousel": "Carrousel"
+    },
+    "blocks": {
+      "image": {
+        "none": "Aucune image sélectionnée",
+        "choose": "Choisir une image",
+        "change": "Changer l'image",
+        "caption": "Légende (facultatif)"
+      },
+      "gallery": {
+        "add": "Ajouter une photo",
+        "empty": "Aucune photo dans cette galerie."
+      },
+      "video": {
+        "url": "URL YouTube ou identifiant de la vidéo",
+        "invalid": "Lien YouTube invalide.",
+        "none": "Aucune vidéo — collez un lien YouTube.",
+        "caption": "Légende (facultatif)",
+        "play": "Lire la vidéo"
+      },
+      "quote": {
+        "text": "Texte de la citation",
+        "attribution": "Attribution (facultatif)"
+      },
+      "practical": {
+        "label": "Libellé",
+        "value": "Valeur",
+        "add": "Ajouter une ligne"
+      }
+    },
+    "public": {
+      "notFound": "Ce récit n'est pas encore publié.",
+      "error": "Impossible de charger ce récit."
+    },
     "autosave": {
       "saving": "Enregistrement…",
       "saved": "Modifications enregistrées",
@@ -203,7 +274,12 @@
     "replyTo": "Répondre",
     "pending": "Merci ! Votre commentaire est en attente de modération.",
     "error": "Une erreur est survenue. Veuillez réessayer.",
-    "status": { "pending": "En attente", "published": "Publié", "rejected": "Rejeté", "spam": "Spam" },
+    "status": {
+      "pending": "En attente",
+      "published": "Publié",
+      "rejected": "Rejeté",
+      "spam": "Spam"
+    },
     "admin": {
       "nav": "Commentaires",
       "title": "Modération des commentaires",
@@ -221,8 +297,7 @@
   },
   "gallery": {
     "title": "Galerie",
-    "allTrips": "Tous les voyages",
-    "allCountries": "Tous les pays",
+    "allTrips": "Tous les pays",
     "allCategories": "Toutes les catégories",
     "empty": "Aucune photo ne correspond à ces filtres.",
     "viewPhoto": "Voir la photo"
@@ -234,22 +309,32 @@
     "empty": "Aucune destination publiée pour l'instant."
   },
   "trip": {
-    "notFound": "Voyage introuvable.",
-    "destinations": "Destinations",
-    "stats": { "countries": "Pays", "destinations": "Destinations", "days": "Jours", "photos": "Photos" }
+    "notFound": "Pays introuvable.",
+    "destinations": "Étapes",
+    "stats": {
+      "destinations": "Étapes",
+      "days": "Jours",
+      "photos": "Photos"
+    }
   },
   "about": {
     "title": "À propos du voyage",
-    "body": "Un journal de voyage privé pour les proches — récits, photographies et itinéraire, une destination à la fois.",
-    "trips": "Voyages"
+    "body": "Un journal de voyage privé pour les proches — récits, photographies et itinéraire, une étape à la fois.",
+    "trips": "Pays"
   },
   "globe": {
-    "rotate": "Tourner",
-    "pause": "Pause",
-    "reset": "Réinitialiser la vue",
+    "rotate": "Faire tourner le globe",
+    "pause": "Arrêter la rotation",
+    "reset": "Retour au voyage",
     "read": "Lire le récit",
     "noStory": "Pas encore de récit",
-    "ariaLabel": "Globe interactif du voyage. Vous préférez une liste ? Ouvrez le Journal."
+    "ariaLabel": "Globe interactif du voyage. Vous préférez une liste ? Ouvrez le Journal.",
+    "hud": {
+      "day": "Jour {{n}}",
+      "countdown_one": "J-{{count}} avant le départ",
+      "countdown_other": "J-{{count}} avant le départ",
+      "distance": "{{km}} km depuis {{origin}}"
+    }
   },
   "notFound": {
     "body": "Cette page est introuvable.",

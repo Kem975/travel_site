@@ -6,6 +6,49 @@ export type RoutePoint = { lng: number | null; lat: number | null };
 const toRad = (d: number) => (d * Math.PI) / 180;
 const toDeg = (r: number) => (r * 180) / Math.PI;
 
+const EARTH_RADIUS_KM = 6371;
+
+/** Central angle between two points, in radians (haversine). */
+function angularDistance(a: Coord, b: Coord): number {
+  const lat1 = toRad(a[1]);
+  const lat2 = toRad(b[1]);
+  return (
+    2 *
+    Math.asin(
+      Math.sqrt(
+        Math.sin((lat2 - lat1) / 2) ** 2 +
+          Math.cos(lat1) * Math.cos(lat2) * Math.sin((toRad(b[0]) - toRad(a[0])) / 2) ** 2,
+      ),
+    )
+  );
+}
+
+/** Coordinates of the points that have any, in order — the rest can't be routed through. */
+function placed(points: RoutePoint[]): Coord[] {
+  return points
+    .filter((p): p is { lng: number; lat: number } => p.lng != null && p.lat != null)
+    .map((p) => [p.lng, p.lat] as Coord);
+}
+
+/** Surface distance between two points, in kilometres. */
+export function distanceKm(a: Coord, b: Coord): number {
+  return angularDistance(a, b) * EARTH_RADIUS_KM;
+}
+
+/**
+ * Length of the route through every point that has coordinates, in kilometres. The
+ * legs are great circles, so this is the distance as flown, not as travelled — near
+ * enough for a journey counter, and it needs no data we don't already have.
+ */
+export function pathLengthKm(points: RoutePoint[]): number {
+  const coords = placed(points);
+  let total = 0;
+  for (let i = 1; i < coords.length; i++) {
+    total += distanceKm(coords[i - 1], coords[i]);
+  }
+  return total;
+}
+
 /**
  * Densified great-circle arc between two points (slerp on the unit sphere).
  * A straight LineString looks wrong on a globe between distant points; this
@@ -17,14 +60,7 @@ export function greatCircle(a: Coord, b: Coord, steps = 64): Coord[] {
   const lon2 = toRad(b[0]);
   const lat2 = toRad(b[1]);
 
-  const d =
-    2 *
-    Math.asin(
-      Math.sqrt(
-        Math.sin((lat2 - lat1) / 2) ** 2 +
-          Math.cos(lat1) * Math.cos(lat2) * Math.sin((lon2 - lon1) / 2) ** 2,
-      ),
-    );
+  const d = angularDistance(a, b);
   if (!Number.isFinite(d) || d === 0) {
     return [a, b];
   }
@@ -67,9 +103,7 @@ export function splitAntimeridian(points: Coord[]): Coord[][] {
  * and splits at the date line so it never streaks across the map.
  */
 export function routeFeature(points: RoutePoint[]): Feature<MultiLineString> {
-  const coords = points
-    .filter((p): p is { lng: number; lat: number } => p.lng != null && p.lat != null)
-    .map((p) => [p.lng, p.lat] as Coord);
+  const coords = placed(points);
 
   const lines: Coord[][] = [];
   for (let i = 1; i < coords.length; i++) {

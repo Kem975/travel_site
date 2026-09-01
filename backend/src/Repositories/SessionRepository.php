@@ -28,6 +28,27 @@ final class SessionRepository
         return is_array($row) ? $row : null;
     }
 
+    public function setVisitorName(int $id, string $name): void
+    {
+        $stmt = Database::connection()->prepare('UPDATE sessions SET visitor_name = ? WHERE id = ?');
+        $stmt->execute([$name, $id]);
+    }
+
+    /**
+     * Visitor sessions that have a name, most recently active first.
+     * @return list<array<string,mixed>>
+     */
+    public function namedVisitors(): array
+    {
+        $stmt = Database::connection()->query(
+            "SELECT visitor_name, created_at, last_used_at
+             FROM sessions
+             WHERE scope = 'visitor' AND visitor_name IS NOT NULL AND expires_at > NOW()
+             ORDER BY last_used_at DESC",
+        );
+        return $stmt->fetchAll();
+    }
+
     public function touch(int $id): void
     {
         $stmt = Database::connection()->prepare('UPDATE sessions SET last_used_at = NOW() WHERE id = ?');

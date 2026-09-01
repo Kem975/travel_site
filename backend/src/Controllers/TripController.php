@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Database;
 use App\Http\Request;
 use App\Http\Response;
 use App\Middleware\AuthMiddleware;
@@ -11,6 +12,7 @@ use App\Repositories\PhotoRepository;
 use App\Repositories\TripRepository;
 use App\Support\Slug;
 use App\Validation\Validator;
+use Throwable;
 
 /** Admin trip management (plan §10.2, §14.2). All actions require admin + CSRF. */
 final class TripController
@@ -82,6 +84,7 @@ final class TripController
         }
         $payload = $this->normalize($data);
         $payload['slug'] = $this->uniqueSlug($payload['slug'] !== '' ? $payload['slug'] : $payload['title'], null);
+        $payload['sort_order'] = $this->trips->maxSortOrder() + 1;
         $id = $this->trips->create($payload);
         Response::json(['trip' => $this->trips->find($id)], 201);
     }
@@ -93,7 +96,8 @@ final class TripController
         $this->guard->requireCsrf($ctx);
 
         $id = (int) $params['id'];
-        if ($this->trips->find($id) === null) {
+        $existing = $this->trips->find($id);
+        if ($existing === null) {
             Response::error('Trip not found.', 404);
             return;
         }
@@ -104,6 +108,7 @@ final class TripController
         }
         $payload = $this->normalize($data);
         $payload['slug'] = $this->uniqueSlug($payload['slug'] !== '' ? $payload['slug'] : $payload['title'], $id);
+        $payload['sort_order'] = (int) $existing['sort_order'];
         $this->trips->update($id, $payload);
         Response::json(['trip' => $this->trips->find($id)]);
     }
@@ -121,6 +126,34 @@ final class TripController
         }
         $this->trips->delete($id);
         Response::json(['deleted' => true]);
+    }
+
+    /** Reorder the route across countries: body { ordered_ids: number[] }. */
+    public function reorder(): void
+    {
+        $ctx = $this->guard->requireAdmin();
+        $this->guard->requireCsrf($ctx);
+
+        $ids = Request::json()['ordered_ids'] ?? null;
+        if (!is_array($ids)) {
+            Response::error('ordered_ids must be an array.', 422);
+            return;
+        }
+
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+        try {
+            foreach (array_values($ids) as $index => $id) {
+                $this->trips->setSortOrder((int) $id, $index);
+            }
+            $pdo->commit();
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+        Response::json(['trips' => $this->trips->all()]);
     }
 
     /**

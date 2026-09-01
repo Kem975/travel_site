@@ -53,6 +53,7 @@ final class AuthService
             'authenticated' => true,
             'scope' => 'visitor',
             'user' => null,
+            'visitor_name' => null,
             'csrf_token' => $csrf,
         ]];
     }
@@ -78,13 +79,14 @@ final class AuthService
             'authenticated' => true,
             'scope' => 'admin',
             'user' => $this->publicUser($user),
+            'visitor_name' => null,
             'csrf_token' => $csrf,
         ]];
     }
 
     /**
      * Resolve the current session from the cookie.
-     * @return array{scope:string,user:array<string,mixed>|null,token_hash:string,csrf:string}|null
+     * @return array{id:int,scope:string,user:array<string,mixed>|null,visitor_name:string|null,token_hash:string,csrf:string}|null
      */
     public function current(): ?array
     {
@@ -107,11 +109,21 @@ final class AuthService
         }
 
         return [
+            'id' => (int) $session['id'],
             'scope' => (string) $session['scope'],
             'user' => $user,
+            'visitor_name' => $session['visitor_name'] !== null ? (string) $session['visitor_name'] : null,
             'token_hash' => $tokenHash,
             'csrf' => Csrf::tokenFor($tokenHash),
         ];
+    }
+
+    /** Self-declared visitor name, asked for after the gate. Returns the stored value. */
+    public function nameVisitor(int $sessionId, string $name): string
+    {
+        $clean = mb_substr(trim($name), 0, 60);
+        $this->sessions->setVisitorName($sessionId, $clean);
+        return $clean;
     }
 
     public function logout(): void

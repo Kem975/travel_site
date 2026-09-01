@@ -1,0 +1,10 @@
+# Terrain tiles are frozen content: a given URL always holds the same image, since
+# each texture variant lives under its own folder. Cache hard so the globe costs a
+# network round-trip only on a visitor's very first view.
+# Regenerating tiles at a different quality would need a hard refresh to show up.
+<IfModule mod_mime.c>
+    AddType image/webp .webp
+</IfModule>
+<IfModule mod_headers.c>
+    Header set Cache-Control "public, max-age=31536000, immutable"
+</IfModule>
