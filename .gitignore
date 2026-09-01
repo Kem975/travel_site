@@ -21,3 +21,9 @@ _deploy/
 # OS / editor noise
 .DS_Store
 *.log
+
+# Claude Code worktree scratch space (launch.json is committed, this is not)
+.claude/worktrees/
+
+# Vendor font download — only the three cuts in frontend/public/fonts/ are used
+Anthropic Serif-fontiko/
