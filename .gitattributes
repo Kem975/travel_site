@@ -1,0 +1,12 @@
+# Normalise line endings. Git for Windows checks out CRLF by default, and a shell
+# script with CRLF fails under WSL with "bad interpreter: /usr/bin/env bash^M" —
+# so the scripts are pinned to LF on every platform.
+* text=auto eol=lf
+
+# Binary: never touched, never diffed as text.
+*.otf     binary
+*.webp    binary
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.ico     binary
