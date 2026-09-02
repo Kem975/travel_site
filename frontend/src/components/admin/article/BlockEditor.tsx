@@ -18,7 +18,7 @@ type Props = {
 export function BlockEditor({ block, photos, onChange, onPhoto }: Props) {
   switch (block.type) {
     case 'richText':
-      return <RichTextBlock html={block.content.html} onChange={(html) => onChange({ type: 'richText', content: { html } })} />;
+      return <RichTextBlock content={block.content} onChange={(content) => onChange({ type: 'richText', content })} />;
     case 'image':
       return (
         <ImageBlock

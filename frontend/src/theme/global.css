@@ -111,14 +111,28 @@ body {
   line-height: 1.75;
 }
 
+/* The quieter cut of the same scale, for asides and captions set as their own
+   block. Everything below is in em, so headings and margins follow it down. */
+.article-typography--small {
+  font-size: clamp(0.9rem, 0.95vw, 1rem);
+  line-height: 1.65;
+}
+
 .article-typography p {
   margin-block: 1.2em;
 }
 
 .article-typography h2,
-.article-typography h3 {
+.article-typography h3,
+.article-typography h4 {
   margin-top: 2.4em;
   margin-bottom: 0.7em;
+}
+
+/* A centred block is usually a standalone line — a title, an epigraph — so the
+   run-in space above the first heading would leave it stranded. */
+.article-typography[style*='center'] > :first-child {
+  margin-top: 0;
 }
 
 .article-typography a {

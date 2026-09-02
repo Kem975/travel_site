@@ -10,35 +10,59 @@ use Throwable;
 
 final class ArticleRepository
 {
-    private const COLUMNS = 'id, destination_id, title, subtitle, status, version, published_at, created_at, updated_at';
+    private const COLUMNS = 'id, destination_id, lang, title, subtitle, status, version, published_at, created_at, updated_at';
+
+    /** The languages an article can be written in. 'fr' is the original. */
+    public const LANGS = ['fr', 'en'];
+
+    public static function lang(mixed $value): string
+    {
+        return in_array($value, self::LANGS, true) ? (string) $value : 'fr';
+    }
 
     /** @return array<string,mixed>|null */
-    public function findByDestinationId(int $destinationId): ?array
+    public function findByDestinationId(int $destinationId, string $lang = 'fr'): ?array
     {
         $stmt = Database::connection()->prepare(
-            'SELECT ' . self::COLUMNS . ' FROM articles WHERE destination_id = ? LIMIT 1',
+            'SELECT ' . self::COLUMNS . ' FROM articles WHERE destination_id = ? AND lang = ? LIMIT 1',
         );
-        $stmt->execute([$destinationId]);
+        $stmt->execute([$destinationId, $lang]);
         $row = $stmt->fetch();
         return is_array($row) ? $row : null;
     }
 
     /** @return array<string,mixed>|null */
-    public function findPublishedByDestinationId(int $destinationId): ?array
+    public function findPublishedByDestinationId(int $destinationId, string $lang = 'fr'): ?array
     {
         $stmt = Database::connection()->prepare(
-            'SELECT ' . self::COLUMNS . " FROM articles WHERE destination_id = ? AND status = 'published' LIMIT 1",
+            'SELECT ' . self::COLUMNS . " FROM articles WHERE destination_id = ? AND lang = ? AND status = 'published' LIMIT 1",
         );
-        $stmt->execute([$destinationId]);
+        $stmt->execute([$destinationId, $lang]);
         $row = $stmt->fetch();
         return is_array($row) ? $row : null;
     }
 
-    /** Destination ids that have a published article (for the journal's "Read" links). @return list<int> */
+    /** Which languages this destination is readable in, in LANGS order. @return list<string> */
+    public function publishedLangs(int $destinationId): array
+    {
+        $stmt = Database::connection()->prepare(
+            "SELECT lang FROM articles WHERE destination_id = ? AND status = 'published'",
+        );
+        $stmt->execute([$destinationId]);
+        $found = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        return array_values(array_filter(self::LANGS, static fn (string $l): bool => in_array($l, $found, true)));
+    }
+
+    /**
+     * Destination ids readable in *any* language — the journal and globe show a
+     * "Read" link either way, and a visitor reading in English still gets there
+     * (the article page is what explains the version is missing).
+     * @return list<int>
+     */
     public function publishedDestinationIds(): array
     {
         $ids = Database::connection()
-            ->query("SELECT destination_id FROM articles WHERE status = 'published'")
+            ->query("SELECT DISTINCT destination_id FROM articles WHERE status = 'published'")
             ->fetchAll(\PDO::FETCH_COLUMN);
         return array_map('intval', $ids);
     }
@@ -68,13 +92,13 @@ final class ArticleRepository
      * @param list<array{type:string,content:mixed}> $blocks
      * @return int the new version
      */
-    public function save(int $destinationId, array $meta, array $blocks, ?int $expectedVersion): int
+    public function save(int $destinationId, string $lang, array $meta, array $blocks, ?int $expectedVersion): int
     {
         $pdo = Database::connection();
         $pdo->beginTransaction();
         try {
-            $find = $pdo->prepare('SELECT id, version FROM articles WHERE destination_id = ? FOR UPDATE');
-            $find->execute([$destinationId]);
+            $find = $pdo->prepare('SELECT id, version FROM articles WHERE destination_id = ? AND lang = ? FOR UPDATE');
+            $find->execute([$destinationId, $lang]);
             $existing = $find->fetch();
 
             if ($existing !== false) {
@@ -87,8 +111,8 @@ final class ArticleRepository
                 $id = (int) $existing['id'];
                 $newVersion = $currentVersion + 1;
             } else {
-                $create = $pdo->prepare('INSERT INTO articles (destination_id) VALUES (?)');
-                $create->execute([$destinationId]);
+                $create = $pdo->prepare('INSERT INTO articles (destination_id, lang) VALUES (?, ?)');
+                $create->execute([$destinationId, $lang]);
                 $id = (int) $pdo->lastInsertId();
                 $newVersion = 1;
             }

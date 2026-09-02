@@ -63,7 +63,10 @@ function BlockView({
     case 'richText':
       return (
         <Centered max={TEXT_WIDTH}>
-          <TypographyStylesProvider className="article-typography">
+          <TypographyStylesProvider
+            className={`article-typography${block.content.size === 'small' ? ' article-typography--small' : ''}`}
+            style={{ textAlign: block.content.align === 'center' ? 'center' : undefined }}
+          >
             {/* Sanitized server-side (PLAN_REVIEW A3) */}
             <div dangerouslySetInnerHTML={{ __html: block.content.html }} />
           </TypographyStylesProvider>

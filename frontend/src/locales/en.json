@@ -32,7 +32,15 @@
     "moveRight": "Move right",
     "previous": "Previous",
     "next": "Next",
-    "close": "Close"
+    "close": "Close",
+    "languages": {
+      "fr": "French",
+      "en": "English"
+    },
+    "langNames": {
+      "fr": "French",
+      "en": "English"
+    }
   },
   "auth": {
     "gate": {
@@ -250,11 +258,20 @@
         "label": "Label",
         "value": "Value",
         "add": "Add item"
+      },
+      "text": {
+        "align": "Alignment",
+        "size": "Size"
       }
     },
     "public": {
       "notFound": "This story isn't published yet.",
-      "error": "Could not load this story."
+      "error": "Could not load this story.",
+      "missingTranslation": {
+        "title": "No {{language}} version yet",
+        "body": "This story hasn't been translated yet. The original is available and you can read it right now.",
+        "action": "Read the {{language}} version"
+      }
     },
     "autosave": {
       "saving": "Saving…",
@@ -264,6 +281,14 @@
       "conflictTitle": "Edited elsewhere",
       "conflictBody": "This article was changed in another session. Reload to get the latest version — unsaved changes here will be lost.",
       "reload": "Reload"
+    },
+    "aligns": {
+      "left": "Left",
+      "center": "Centred"
+    },
+    "sizes": {
+      "normal": "Normal",
+      "small": "Small"
     }
   },
   "comments": {

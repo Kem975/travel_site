@@ -22,6 +22,7 @@ import {
   BLOCK_TYPES,
   emptyBlock,
   type ArticleBlock,
+  type ArticleLang,
   type ArticleStatus,
   type BlockType,
   type PhotoMap,
@@ -37,11 +38,14 @@ const AUTOSAVE_MS = 2000;
 const snapshotOf = (title: string, subtitle: string, status: ArticleStatus, blocks: ArticleBlock[]) =>
   JSON.stringify({ title, subtitle, status, blocks });
 
-export function ArticleEditor({ destinationId }: { destinationId: number }) {
+// One language at a time. The page remounts this on a language switch (key={lang}),
+// so every piece of per-article state below — rows, version, autosave snapshot —
+// starts clean rather than carrying the other language's over.
+export function ArticleEditor({ destinationId, lang }: { destinationId: number; lang: ArticleLang }) {
   const { t } = useTranslation();
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['admin', 'article', destinationId],
-    queryFn: () => articleApi.get(destinationId),
+    queryKey: ['admin', 'article', destinationId, lang],
+    queryFn: () => articleApi.get(destinationId, lang),
   });
 
   const [title, setTitle] = useState('');
@@ -75,7 +79,8 @@ export function ArticleEditor({ destinationId }: { destinationId: number }) {
   const dirty = currentSnapshot !== savedSnapshot;
 
   const save = useMutation({
-    mutationFn: () => articleApi.save(destinationId, { title, subtitle, status, version: version ?? undefined, blocks }),
+    mutationFn: () =>
+      articleApi.save(destinationId, { lang, title, subtitle, status, version: version ?? undefined, blocks }),
     onMutate: () => {
       inFlight.current = currentSnapshot;
     },

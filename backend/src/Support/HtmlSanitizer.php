@@ -18,7 +18,7 @@ use DOMText;
  */
 final class HtmlSanitizer
 {
-    private const ALLOWED = ['p', 'br', 'strong', 'em', 'b', 'i', 'u', 's', 'a', 'ul', 'ol', 'li', 'h2', 'h3', 'blockquote', 'code', 'pre'];
+    private const ALLOWED = ['p', 'br', 'strong', 'em', 'b', 'i', 'u', 's', 'a', 'ul', 'ol', 'li', 'h2', 'h3', 'h4', 'blockquote', 'code', 'pre'];
 
     public static function clean(string $html): string
     {

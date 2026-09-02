@@ -14,7 +14,14 @@ use App\Repositories\TripRepository;
 use App\Services\ArticleBlocks;
 use App\Support\PhotoPresenter;
 
-/** Public destination-article reading (visitor-gated). Resolves photo IDs and prev/next. */
+/**
+ * Public destination-article reading (visitor-gated). Resolves photo IDs and prev/next.
+ *
+ * The requested language is answered with that version or with nothing at all —
+ * never with a silent fall back to French. A reader who asked for English and got
+ * French without being told would think that *is* the English version; the page
+ * says the translation is missing and offers the original instead.
+ */
 final class PublicArticleController
 {
     private AuthMiddleware $guard;
@@ -45,13 +52,20 @@ final class PublicArticleController
             Response::error('Destination not found.', 404);
             return;
         }
-        $article = $this->articles->findPublishedByDestinationId((int) $destination['id']);
-        if ($article === null) {
+        $lang = ArticleRepository::lang($_GET['lang'] ?? null);
+        $available = $this->articles->publishedLangs((int) $destination['id']);
+        if ($available === []) {
             Response::error('Article not found.', 404);
             return;
         }
 
-        $blocks = $this->articles->blocks((int) $article['id']);
+        // Missing in the requested language but readable in another: 200 with a null
+        // article, so the page can name the language and link to the one that exists.
+        $article = in_array($lang, $available, true)
+            ? $this->articles->findPublishedByDestinationId((int) $destination['id'], $lang)
+            : null;
+
+        $blocks = $article !== null ? $this->articles->blocks((int) $article['id']) : [];
         $photos = [];
         foreach (ArticleBlocks::referencedPhotoIds($blocks) as $photoId) {
             $photo = $this->photos->find($photoId);
@@ -75,7 +89,9 @@ final class PublicArticleController
                 'cover' => $this->presentPhoto($destination['cover_photo_id']),
             ],
             'trip' => $trip !== null ? ['title' => $trip['title'], 'slug' => $trip['slug']] : null,
-            'article' => [
+            'lang' => $lang,
+            'available_langs' => $available,
+            'article' => $article === null ? null : [
                 'title' => $article['title'],
                 'subtitle' => $article['subtitle'],
                 'published_at' => $article['published_at'],

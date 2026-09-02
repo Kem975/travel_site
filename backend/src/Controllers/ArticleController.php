@@ -14,7 +14,11 @@ use App\Repositories\PhotoRepository;
 use App\Services\ArticleBlocks;
 use App\Support\PhotoPresenter;
 
-/** Admin block-editor backend: one article per destination (plan §7, §10.4). */
+/**
+ * Admin block-editor backend: one article per destination *and language*. The
+ * language rides on the request (?lang= to read, "lang" in the body to write) so
+ * the editor is the same screen twice, not two screens.
+ */
 final class ArticleController
 {
     private const STATUSES = ['draft', 'scheduled', 'published', 'archived'];
@@ -41,9 +45,16 @@ final class ArticleController
             Response::error('Destination not found.', 404);
             return;
         }
-        $article = $this->articles->findByDestinationId($destinationId);
+        $lang = ArticleRepository::lang($_GET['lang'] ?? null);
+        $article = $this->articles->findByDestinationId($destinationId, $lang);
         $blocks = $article !== null ? $this->articles->blocks((int) $article['id']) : [];
-        Response::json(['article' => $article, 'blocks' => $blocks, 'photos' => $this->photosFor($blocks)]);
+        Response::json([
+            'article' => $article,
+            'blocks' => $blocks,
+            'photos' => $this->photosFor($blocks),
+            'lang' => $lang,
+            'langs' => ArticleRepository::LANGS,
+        ]);
     }
 
     /** @param array<string,string> $params */
@@ -58,6 +69,7 @@ final class ArticleController
             return;
         }
         $data = Request::json();
+        $lang = ArticleRepository::lang($data['lang'] ?? null);
 
         [$blocks, $errors] = ArticleBlocks::normalize(
             is_array($data['blocks'] ?? null) ? $data['blocks'] : [],
@@ -68,7 +80,7 @@ final class ArticleController
             return;
         }
 
-        $existing = $this->articles->findByDestinationId($destinationId);
+        $existing = $this->articles->findByDestinationId($destinationId, $lang);
         $status = in_array($data['status'] ?? '', self::STATUSES, true) ? $data['status'] : 'draft';
         $publishedAt = $existing !== null ? ($existing['published_at'] ?? null) : null;
         if ($status === 'published' && ($publishedAt === null || $publishedAt === '')) {
@@ -78,7 +90,7 @@ final class ArticleController
         $expectedVersion = isset($data['version']) && is_numeric($data['version']) ? (int) $data['version'] : null;
 
         try {
-            $this->articles->save($destinationId, [
+            $this->articles->save($destinationId, $lang, [
                 'title' => $this->strOrNull($data['title'] ?? null),
                 'subtitle' => $this->strOrNull($data['subtitle'] ?? null),
                 'status' => $status,
@@ -86,7 +98,7 @@ final class ArticleController
             ], $blocks, $expectedVersion);
         } catch (VersionConflictException) {
             // Hand back the current server state so the client can reconcile.
-            $current = $this->articles->findByDestinationId($destinationId);
+            $current = $this->articles->findByDestinationId($destinationId, $lang);
             $currentBlocks = $current !== null ? $this->articles->blocks((int) $current['id']) : [];
             Response::json([
                 'error' => 'This article was changed elsewhere. Reload to get the latest version.',
@@ -94,13 +106,21 @@ final class ArticleController
                 'article' => $current,
                 'blocks' => $currentBlocks,
                 'photos' => $this->photosFor($currentBlocks),
+                'lang' => $lang,
+                'langs' => ArticleRepository::LANGS,
             ], 409);
             return;
         }
 
-        $saved = $this->articles->findByDestinationId($destinationId);
+        $saved = $this->articles->findByDestinationId($destinationId, $lang);
         $savedBlocks = $saved !== null ? $this->articles->blocks((int) $saved['id']) : [];
-        Response::json(['article' => $saved, 'blocks' => $savedBlocks, 'photos' => $this->photosFor($savedBlocks)]);
+        Response::json([
+            'article' => $saved,
+            'blocks' => $savedBlocks,
+            'photos' => $this->photosFor($savedBlocks),
+            'lang' => $lang,
+            'langs' => ArticleRepository::LANGS,
+        ]);
     }
 
     /**

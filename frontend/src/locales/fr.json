@@ -32,7 +32,15 @@
     "moveRight": "Déplacer à droite",
     "previous": "Précédent",
     "next": "Suivant",
-    "close": "Fermer"
+    "close": "Fermer",
+    "languages": {
+      "fr": "française",
+      "en": "anglaise"
+    },
+    "langNames": {
+      "fr": "Français",
+      "en": "English"
+    }
   },
   "auth": {
     "gate": {
@@ -250,11 +258,20 @@
         "label": "Libellé",
         "value": "Valeur",
         "add": "Ajouter une ligne"
+      },
+      "text": {
+        "align": "Alignement",
+        "size": "Taille"
       }
     },
     "public": {
       "notFound": "Ce récit n'est pas encore publié.",
-      "error": "Impossible de charger ce récit."
+      "error": "Impossible de charger ce récit.",
+      "missingTranslation": {
+        "title": "Pas encore de version {{language}}",
+        "body": "Ce récit n'a pas encore été traduit. La version originale est disponible et vous pouvez la lire dès maintenant.",
+        "action": "Lire la version {{language}}"
+      }
     },
     "autosave": {
       "saving": "Enregistrement…",
@@ -264,6 +281,14 @@
       "conflictTitle": "Modifié ailleurs",
       "conflictBody": "Cet article a été modifié dans une autre session. Rechargez pour obtenir la dernière version — les modifications non enregistrées seront perdues.",
       "reload": "Recharger"
+    },
+    "aligns": {
+      "left": "Gauche",
+      "center": "Centré"
+    },
+    "sizes": {
+      "normal": "Normal",
+      "small": "Petit"
     }
   },
   "comments": {

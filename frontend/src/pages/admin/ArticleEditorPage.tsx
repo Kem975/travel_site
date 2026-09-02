@@ -1,13 +1,18 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Anchor, Button, Container, Group, Loader, Title } from '@mantine/core';
+import { Anchor, Button, Container, Group, Loader, SegmentedControl, Title } from '@mantine/core';
 import { IconExternalLink } from '@tabler/icons-react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { adminApi } from '../../api/admin';
 import { ArticleEditor } from '../../components/admin/article/ArticleEditor';
+import type { ArticleLang } from '../../api/article';
+
+const LANGS: ArticleLang[] = ['fr', 'en'];
 
 export function ArticleEditorPage() {
   const { t } = useTranslation();
+  const [lang, setLang] = useState<ArticleLang>('fr');
   const { destinationId: param } = useParams();
   const destinationId = Number(param);
   const valid = Number.isFinite(destinationId);
@@ -49,7 +54,15 @@ export function ArticleEditorPage() {
           </Button>
         )}
       </Group>
-      {valid ? <ArticleEditor destinationId={destinationId} /> : <Loader />}
+      <SegmentedControl
+        mb="md"
+        value={lang}
+        onChange={(value) => setLang(value as ArticleLang)}
+        data={LANGS.map((code) => ({ value: code, label: t(`common.langNames.${code}`) }))}
+      />
+      {/* key: a language switch is a different article, so remount rather than
+          leak the previous one's blocks and version into the new editor. */}
+      {valid ? <ArticleEditor key={lang} destinationId={destinationId} lang={lang} /> : <Loader />}
     </Container>
   );
 }

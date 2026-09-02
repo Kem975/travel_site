@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Box, Button, Center, Container, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { Alert, Box, Button, Center, Container, Group, Loader, Stack, Text, Title } from '@mantine/core';
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatDateRange } from '../lib/date';
-import { publicArticleApi } from '../api/article';
+import { publicArticleApi, type ArticleLang } from '../api/article';
+import { useUiLang } from '../lib/uiLang';
 import { ApiError } from '../api/client';
 import { ArticleRenderer } from '../components/article/ArticleRenderer';
 import { CommentThread } from '../components/comments/CommentThread';
@@ -13,9 +15,16 @@ export function DestinationPage() {
   const { t, i18n } = useTranslation();
   const { tripSlug, destinationSlug } = useParams();
 
+  // Normally the article follows the interface language. `override` is set only when
+  // the reader accepts the original from the missing-translation notice, and is not
+  // persisted: switching the interface language again should ask for that one.
+  const [override, setOverride] = useState<ArticleLang | null>(null);
+  const uiLang = useUiLang();
+  const lang = override ?? uiLang;
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ['public', 'article', destinationSlug],
-    queryFn: () => publicArticleApi.get(destinationSlug as string),
+    queryKey: ['public', 'article', destinationSlug, lang],
+    queryFn: () => publicArticleApi.get(destinationSlug as string, lang),
     enabled: Boolean(destinationSlug),
     retry: false,
   });
@@ -107,9 +116,9 @@ export function DestinationPage() {
                 margin: 0,
               }}
             >
-              {data.article.title ?? data.destination.title}
+              {data.article?.title ?? data.destination.title}
             </Title>
-            {data.article.subtitle && (
+            {data.article?.subtitle && (
               <Text
                 style={{
                   fontSize: 'clamp(1.05rem, 1.8vw, 1.4rem)',
@@ -139,7 +148,27 @@ export function DestinationPage() {
       </Box>
 
       <Container size="lg" pb="xl" w="100%">
-        <ArticleRenderer blocks={data.blocks} photos={data.photos} />
+        {data.article === null ? (
+          <Container size="sm" px={0} py="xl">
+            <Alert
+              variant="light"
+              title={t('article.public.missingTranslation.title', {
+                language: t(`common.languages.${data.lang}`),
+              })}
+            >
+              <Stack align="flex-start" gap="md">
+                <Text size="sm">{t('article.public.missingTranslation.body')}</Text>
+                <Button variant="light" onClick={() => setOverride(data.available_langs[0])}>
+                  {t('article.public.missingTranslation.action', {
+                    language: t(`common.languages.${data.available_langs[0]}`),
+                  })}
+                </Button>
+              </Stack>
+            </Alert>
+          </Container>
+        ) : (
+          <ArticleRenderer blocks={data.blocks} photos={data.photos} />
+        )}
 
         <Group justify="space-between" mt="xl" pt="xl" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
           {data.prev ? (

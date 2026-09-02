@@ -15,6 +15,11 @@ use App\Support\HtmlSanitizer;
 final class ArticleBlocks
 {
     public const TYPES = ['richText', 'image', 'gallery', 'video', 'quote', 'practicalInfo', 'divider'];
+    // Presentation of a text block is stored beside its html rather than inside it:
+    // the sanitizer strips every attribute, so alignment written into the markup
+    // would not survive a save — and keeping it out means no attribute allowlist.
+    private const ALIGNS = ['left', 'center'];
+    private const SIZES = ['normal', 'small'];
     private const IMAGE_LAYOUTS = ['normal', 'wide', 'fullBleed'];
     private const GALLERY_LAYOUTS = ['grid', 'masonry', 'carousel'];
     // Only an id is ever stored: it lands in an iframe src, so it must not be free text.
@@ -44,7 +49,11 @@ final class ArticleBlocks
                     if ($html === '') {
                         break; // drop empty paragraphs silently
                     }
-                    $out[] = ['type' => 'richText', 'content' => ['html' => $html]];
+                    $out[] = ['type' => 'richText', 'content' => [
+                        'html' => $html,
+                        'align' => in_array($content['align'] ?? '', self::ALIGNS, true) ? $content['align'] : 'left',
+                        'size' => in_array($content['size'] ?? '', self::SIZES, true) ? $content['size'] : 'normal',
+                    ]];
                     break;
 
                 case 'quote':
