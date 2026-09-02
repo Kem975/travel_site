@@ -14,7 +14,11 @@ export function RichTextBlock({ html, onChange }: { html: string; onChange: (htm
 
   return (
     <RichTextEditor editor={editor}>
-      <RichTextEditor.Toolbar sticky stickyOffset={60}>
+      {/* Not sticky: an article is a list of blocks, so a sticky toolbar would stick
+          every block's toolbar at the same offset — each one floating over its own
+          first line of text, and over the neighbouring blocks. In flow it can't
+          overlap anything. */}
+      <RichTextEditor.Toolbar>
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.Bold />
           <RichTextEditor.Italic />

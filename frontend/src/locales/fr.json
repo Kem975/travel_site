@@ -47,8 +47,7 @@
       "intro": "Dites-nous qui vous êtes, ça nous fait toujours plaisir de savoir qui nous suit.",
       "label": "Votre prénom",
       "placeholder": "Mamie, Paul, les voisins…",
-      "submit": "C'est parti",
-      "skip": "Plus tard"
+      "submit": "C'est parti"
     },
     "admin": {
       "title": "Administration",
@@ -58,6 +57,11 @@
       "dashboard": "Tableau de bord",
       "signedInAs": "Connecté·e en tant que {{name}}.",
       "placeholder": "La gestion des pays et du contenu arrive en phase 3."
+    },
+    "privacy": {
+      "title": "Ce site est privé",
+      "body": "Merci de garder le lien et le mot de passe pour vous.",
+      "confirm": "J'ai compris"
     }
   },
   "home": {

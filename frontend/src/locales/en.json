@@ -47,8 +47,7 @@
       "intro": "Tell us who you are — we love knowing who's following along.",
       "label": "Your name",
       "placeholder": "Grandma, Paul, the neighbours…",
-      "submit": "Let's go",
-      "skip": "Maybe later"
+      "submit": "Let's go"
     },
     "admin": {
       "title": "Administration",
@@ -58,6 +57,11 @@
       "dashboard": "Dashboard",
       "signedInAs": "Signed in as {{name}}.",
       "placeholder": "Country and content management arrives in Phase 3."
+    },
+    "privacy": {
+      "title": "This site is private",
+      "body": "Please keep the link and the password to yourself.",
+      "confirm": "Got it"
     }
   },
   "home": {
