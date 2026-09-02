@@ -9,6 +9,7 @@ use App\Middleware\AuthMiddleware;
 use App\Repositories\ArticleRepository;
 use App\Repositories\DestinationRepository;
 use App\Repositories\PhotoRepository;
+use App\Repositories\RecipeRepository;
 use App\Repositories\SettingsRepository;
 use App\Repositories\TripRepository;
 use App\Services\ArticleBlocks;
@@ -29,6 +30,7 @@ final class PublicArticleController
     private TripRepository $trips;
     private ArticleRepository $articles;
     private PhotoRepository $photos;
+    private RecipeRepository $recipes;
     private SettingsRepository $settings;
 
     public function __construct()
@@ -38,6 +40,7 @@ final class PublicArticleController
         $this->trips = new TripRepository();
         $this->articles = new ArticleRepository();
         $this->photos = new PhotoRepository();
+        $this->recipes = new RecipeRepository();
         $this->settings = new SettingsRepository();
     }
 
@@ -91,6 +94,12 @@ final class PublicArticleController
             'trip' => $trip !== null ? ['title' => $trip['title'], 'slug' => $trip['slug']] : null,
             'lang' => $lang,
             'available_langs' => $available,
+            // Recipes pinned to this stop, in the language being read — an
+            // untranslated one is simply absent rather than listed in French.
+            'recipes' => array_map(
+                static fn (array $row): array => ['slug' => $row['slug'], 'title' => $row['title']],
+                $this->recipes->publishedForDestination((int) $destination['id'], $lang),
+            ),
             'article' => $article === null ? null : [
                 'title' => $article['title'],
                 'subtitle' => $article['subtitle'],

@@ -17,6 +17,8 @@ use App\Controllers\PublicGalleryController;
 use App\Controllers\PublicGlobeController;
 use App\Controllers\PublicJournalController;
 use App\Controllers\PublicJourneyController;
+use App\Controllers\PublicRecipeController;
+use App\Controllers\RecipeController;
 use App\Controllers\PublicTripController;
 use App\Controllers\TripController;
 use App\Http\Response;
@@ -65,6 +67,10 @@ $router->get('/api/journal', [new PublicJournalController(), 'index']);
 $router->get('/api/gallery', [new PublicGalleryController(), 'index']);
 $router->get('/api/globe', [new PublicGlobeController(), 'index']);
 $router->get('/api/journey/timeline', [new PublicJourneyController(), 'timeline']);
+
+$publicRecipes = new PublicRecipeController();
+$router->get('/api/recipes', [$publicRecipes, 'index']);
+$router->get('/api/recipes/:slug', [$publicRecipes, 'show']);
 $router->get('/api/trips/:tripSlug/destinations', [$publicDestinations, 'forTrip']);
 $router->get('/api/trips/:slug', [$publicTrips, 'show']);
 $router->get('/api/destinations/:slug/article', [new PublicArticleController(), 'show']);
@@ -80,6 +86,15 @@ $adminStats = new AdminStatsController();
 $router->get('/api/admin/stats', [$adminStats, 'index']);
 $router->get('/api/admin/visitors', [$adminStats, 'visitors']);
 $router->get('/api/admin/geocode', [new GeocodeController(), 'search']);
+
+$adminRecipes = new RecipeController();
+$router->get('/api/admin/recipes', [$adminRecipes, 'index']);
+$router->post('/api/admin/recipes', [$adminRecipes, 'store']);
+$router->get('/api/admin/recipes/:id', [$adminRecipes, 'show']);
+$router->put('/api/admin/recipes/:id', [$adminRecipes, 'update']);
+$router->put('/api/admin/recipes/:id/translation', [$adminRecipes, 'saveTranslation']);
+$router->put('/api/admin/recipes/:id/cover', [$adminRecipes, 'setCover']);
+$router->delete('/api/admin/recipes/:id', [$adminRecipes, 'destroy']);
 
 $router->get('/api/admin/trips', [$adminTrips, 'index']);
 $router->post('/api/admin/trips/reorder', [$adminTrips, 'reorder']);

@@ -25,6 +25,14 @@ const ArticleEditorPage = lazy(() =>
 const DestinationPage = lazy(() => import('../pages/DestinationPage').then((m) => ({ default: m.DestinationPage })));
 const CommentsPage = lazy(() => import('../pages/admin/CommentsPage').then((m) => ({ default: m.CommentsPage })));
 const JournalPage = lazy(() => import('../pages/JournalPage').then((m) => ({ default: m.JournalPage })));
+const RecipesPage = lazy(() => import('../pages/RecipesPage').then((m) => ({ default: m.RecipesPage })));
+const RecipePage = lazy(() => import('../pages/RecipePage').then((m) => ({ default: m.RecipePage })));
+const RecipesListPage = lazy(() =>
+  import('../pages/admin/RecipesListPage').then((m) => ({ default: m.RecipesListPage })),
+);
+const RecipeEditorPage = lazy(() =>
+  import('../pages/admin/RecipeEditorPage').then((m) => ({ default: m.RecipeEditorPage })),
+);
 const GalleryPage = lazy(() => import('../pages/GalleryPage').then((m) => ({ default: m.GalleryPage })));
 const TripOverviewPage = lazy(() => import('../pages/TripOverviewPage').then((m) => ({ default: m.TripOverviewPage })));
 const AboutPage = lazy(() => import('../pages/AboutPage').then((m) => ({ default: m.AboutPage })));
@@ -57,6 +65,8 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'journal', element: page(<JournalPage />) },
+      { path: 'recettes', element: page(<RecipesPage />) },
+      { path: 'recettes/:recipeSlug', element: page(<RecipePage />) },
       { path: 'gallery', element: page(<GalleryPage />) },
       { path: 'about', element: page(<AboutPage />) },
       { path: 'globe-prototype', element: page(<GlobePrototypePage />) },
@@ -87,6 +97,8 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboardPage /> },
       { path: 'pays', element: <TripsListPage /> },
       { path: 'pays/:tripId', element: <TripDestinationsPage /> },
+      { path: 'recettes', element: <RecipesListPage /> },
+      { path: 'recettes/:recipeId', element: <RecipeEditorPage /> },
       { path: 'destinations/:destinationId/article', element: <ArticleEditorPage /> },
       { path: 'media', element: <MediaLibraryPage /> },
       { path: 'comments', element: <CommentsPage /> },

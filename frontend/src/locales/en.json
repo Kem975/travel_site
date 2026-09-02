@@ -8,7 +8,8 @@
     "journal": "Journal",
     "gallery": "Gallery",
     "about": "About",
-    "menu": "Menu"
+    "menu": "Menu",
+    "recipes": "Recipes"
   },
   "health": {
     "heading": "System status",
@@ -147,6 +148,35 @@
       "current": "Current",
       "cancelled": "Cancelled",
       "hidden": "Hidden"
+    },
+    "recipes": {
+      "title": "Recipes",
+      "new": "New recipe",
+      "create": "Create",
+      "empty": "No recipes yet. Add the first one.",
+      "save": "Save this version",
+      "saveIdentity": "Save",
+      "confirmDelete": "Delete “{{title}}” and all its versions?",
+      "addIngredient": "Add an ingredient",
+      "addStep": "Add a step",
+      "ingredientPlaceholder": "200 g flour",
+      "stepPlaceholder": "Mix the flour and water…",
+      "noCover": "No cover photo",
+      "chooseCover": "Choose a photo",
+      "changeCover": "Change the photo",
+      "columns": {
+        "title": "Title",
+        "trip": "Country",
+        "langs": "Versions"
+      },
+      "fields": {
+        "title": "Title",
+        "subtitle": "Subtitle",
+        "trip": "Country",
+        "destination": "Stop",
+        "destinationHint": "Optional — the recipe will appear on that stop's page.",
+        "slug": "URL identifier"
+      }
     }
   },
   "media": {
@@ -368,5 +398,17 @@
   "notFound": {
     "body": "We couldn't find that page.",
     "home": "Back to the globe"
+  },
+  "recipes": {
+    "title": "Recipes",
+    "empty": "No recipes published yet.",
+    "read": "See the recipe",
+    "notFound": "This recipe doesn't exist.",
+    "ingredients": "Ingredients",
+    "steps": "Method",
+    "noIngredients": "No ingredients listed.",
+    "noSteps": "No steps listed.",
+    "missingTranslation": "This recipe hasn't been translated yet. The original is available.",
+    "onDestination": "Recipes from this stop"
   }
 }

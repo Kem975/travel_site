@@ -28,6 +28,7 @@ export function AdminLayout() {
   const navItems: [string, string][] = [
     ['/admin', t('auth.admin.dashboard')],
     ['/admin/pays', t('admin.trips.title')],
+    ['/admin/recettes', t('admin.recipes.title')],
     ['/admin/media', t('media.nav')],
     ['/admin/comments', t('comments.admin.nav')],
   ];

@@ -8,7 +8,8 @@
     "journal": "Journal",
     "gallery": "Galerie",
     "about": "À propos",
-    "menu": "Menu"
+    "menu": "Menu",
+    "recipes": "Recettes"
   },
   "health": {
     "heading": "État du système",
@@ -147,6 +148,35 @@
       "current": "Actuel",
       "cancelled": "Annulé",
       "hidden": "Masqué"
+    },
+    "recipes": {
+      "title": "Recettes",
+      "new": "Nouvelle recette",
+      "create": "Créer",
+      "empty": "Aucune recette. Ajoutez la première.",
+      "save": "Enregistrer cette version",
+      "saveIdentity": "Enregistrer",
+      "confirmDelete": "Supprimer « {{title}} » et toutes ses versions ?",
+      "addIngredient": "Ajouter un ingrédient",
+      "addStep": "Ajouter une étape",
+      "ingredientPlaceholder": "200 g de farine",
+      "stepPlaceholder": "Mélanger la farine et l'eau…",
+      "noCover": "Aucune photo de couverture",
+      "chooseCover": "Choisir une photo",
+      "changeCover": "Changer la photo",
+      "columns": {
+        "title": "Titre",
+        "trip": "Pays",
+        "langs": "Versions"
+      },
+      "fields": {
+        "title": "Titre",
+        "subtitle": "Sous-titre",
+        "trip": "Pays",
+        "destination": "Étape",
+        "destinationHint": "Facultatif — la recette apparaîtra sur la page de cette étape.",
+        "slug": "Identifiant d'URL"
+      }
     }
   },
   "media": {
@@ -368,5 +398,17 @@
   "notFound": {
     "body": "Cette page est introuvable.",
     "home": "Retour au globe"
+  },
+  "recipes": {
+    "title": "Recettes",
+    "empty": "Aucune recette publiée pour l'instant.",
+    "read": "Voir la recette",
+    "notFound": "Cette recette n'existe pas.",
+    "ingredients": "Ingrédients",
+    "steps": "Préparation",
+    "noIngredients": "Aucun ingrédient renseigné.",
+    "noSteps": "Aucune étape renseignée.",
+    "missingTranslation": "Cette recette n'a pas encore été traduite. La version originale est disponible.",
+    "onDestination": "Recettes de cette étape"
   }
 }

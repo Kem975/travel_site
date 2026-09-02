@@ -170,6 +170,21 @@ export function DestinationPage() {
           <ArticleRenderer blocks={data.blocks} photos={data.photos} />
         )}
 
+        {data.recipes.length > 0 && (
+          <Box mt="xl">
+            <Title order={3} mb="sm">
+              {t('recipes.onDestination')}
+            </Title>
+            <Group gap="sm">
+              {data.recipes.map((recipe) => (
+                <Button key={recipe.slug} component={Link} to={`/recettes/${recipe.slug}`} variant="light" size="sm">
+                  {recipe.title}
+                </Button>
+              ))}
+            </Group>
+          </Box>
+        )}
+
         <Group justify="space-between" mt="xl" pt="xl" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
           {data.prev ? (
             <Button component={Link} to={`/pays/${tripSlug}/${data.prev.slug}`} variant="subtle" leftSection={<IconArrowLeft size={16} />}>

@@ -40,6 +40,7 @@ export function RootLayout() {
 
   const navItems: [string, string][] = [
     ['/journal', t('nav.journal')],
+    ['/recettes', t('nav.recipes')],
     ['/gallery', t('nav.gallery')],
     ['/about', t('nav.about')],
   ];

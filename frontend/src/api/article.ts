@@ -74,6 +74,8 @@ export type PublicArticle = {
   article: { title: string | null; subtitle: string | null; published_at: string | null } | null;
   blocks: ArticleBlock[];
   photos: PhotoMap;
+  /** Recipes pinned to this stop, already filtered to `lang`. */
+  recipes: { slug: string; title: string }[];
   prev: { slug: string; title: string } | null;
   next: { slug: string; title: string } | null;
 };
