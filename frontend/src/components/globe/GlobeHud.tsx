@@ -25,7 +25,7 @@ type Props = {
  */
 export function GlobeHud({ stats, scrim }: Props) {
   const { t, i18n } = useTranslation();
-  const { day, countdown, current, origin, km, mission } = stats;
+  const { day, countdown, current, origin, km, country } = stats;
 
   const headline =
     day !== null
@@ -34,9 +34,9 @@ export function GlobeHud({ stats, scrim }: Props) {
         ? t('globe.hud.countdown', { count: countdown })
         : null;
 
-  // A log entry's header: which leg, and the date it is being read on.
+  // A log entry's header: which country of the route, and the date it is read on.
   const stamp = [
-    mission !== null ? t('globe.hud.mission', { n: String(mission).padStart(2, '0') }) : null,
+    country !== null ? t('globe.hud.country', { n: String(country).padStart(2, '0') }) : null,
     new Date().toLocaleDateString(i18n.language, { day: 'numeric', month: 'short', year: 'numeric' }),
   ]
     .filter(Boolean)

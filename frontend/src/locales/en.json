@@ -389,7 +389,7 @@
     "noStory": "No story yet",
     "ariaLabel": "Interactive globe of the journey. Prefer a text list? Open the Journal.",
     "hud": {
-      "mission": "Mission {{n}}",
+      "country": "Country {{n}}",
       "day": "Day {{n}}",
       "countdown_one": "{{count}} day to go",
       "countdown_other": "{{count}} days to go",
