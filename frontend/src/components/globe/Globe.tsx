@@ -4,7 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Badge, Box, Button, Card, Group, Image, Text, useComputedColorScheme } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_MAP_CONFIG, registerPmtiles } from '../../lib/map/mapConfig';
-import { applyPalette, buildStyle, palette, type Palette, type StylePreset } from '../../lib/map/worldStyle';
+import { applyPalette, buildStyle, palette, type Palette, type Scheme, type StylePreset } from '../../lib/map/worldStyle';
 import { routeFeature } from '../../lib/map/greatCircle';
 import { roundImage } from '../../lib/map/roundImage';
 import { journeyStats } from '../../lib/journeyStats';
@@ -56,11 +56,18 @@ type Props = {
   interactive?: boolean;
   onOpen?: (place: GlobePlace) => void;
   stylePreset?: StylePreset;
+  /**
+   * Pin the globe to one palette regardless of the interface theme. The password
+   * gate is a night scene whatever the user's setting, and a daylight globe on it
+   * left the two fighting — the warm land against a dark scrim came out grey.
+   */
+  forceScheme?: Scheme;
 };
 
-export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minimal' }: Props) {
+export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minimal', forceScheme }: Props) {
   const { t, i18n } = useTranslation();
-  const scheme = useComputedColorScheme('dark');
+  const themeScheme = useComputedColorScheme('dark');
+  const scheme = forceScheme ?? themeScheme;
   // The generous treatment (route glow, marker halo, larger type) belongs to every
   // preset except 'minimal', terrain included — it needs it most, over a busy texture.
   const rich = stylePreset !== 'minimal';
@@ -318,11 +325,15 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
   }, [scheme, stylePreset]);
 
   const space = palette(scheme, stylePreset).space;
+  // Darkening cream with pure black turns it grey, which is exactly the note the
+  // warm light theme does not have. In daylight the vignette closes toward the
+  // palette's own brown instead; at night black is still the right shadow.
+  const shade = scheme === 'dark' ? '#000' : '#6E431E';
   const selectedDates = selected
     ? formatDateRange(selected.arrival_date, selected.departure_date, i18n.language)
     : null;
   const background = rich
-    ? `radial-gradient(circle at 50% 45%, color-mix(in srgb, ${space} 82%, #fff 18%), ${space} 55%, color-mix(in srgb, ${space} 78%, #000 22%) 100%)`
+    ? `radial-gradient(circle at 50% 45%, color-mix(in srgb, ${space} 82%, #fff 18%), ${space} 55%, color-mix(in srgb, ${space} 82%, ${shade} 18%) 100%)`
     : space;
 
   return (

@@ -9,7 +9,6 @@ import { SESSION_KEY, useSession } from '../../hooks/useSession';
 import { PasswordGate } from '../auth/PasswordGate';
 import { VisitorNamePrompt } from '../auth/VisitorNamePrompt';
 import { JourneyTimeline } from '../journey/JourneyTimeline';
-import { RocketMark } from './RocketMark';
 import { logout as logoutRequest } from '../../api/auth';
 import { setCsrfToken } from '../../api/client';
 
@@ -59,10 +58,7 @@ export function RootLayout() {
           <Group gap="sm" wrap="nowrap">
             <Burger opened={menuOpened} onClick={toggleMenu} hiddenFrom="sm" size="sm" aria-label={t('nav.menu')} />
             <Anchor component={Link} to="/" underline="never" c="inherit" onClick={closeMenu}>
-              <Group gap={6} wrap="nowrap" align="baseline">
-                <Title order={4}>{t('app.title')}</Title>
-                <RocketMark height="1.15em" />
-              </Group>
+              <Title order={4}>{t('app.title')}</Title>
             </Anchor>
             <Group gap={4} visibleFrom="sm">
               {navItems.map(([to, label]) => (

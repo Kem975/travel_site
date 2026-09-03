@@ -1,6 +1,7 @@
 import { Box, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import type { JourneyStats } from '../../lib/journeyStats';
+import { Typewriter } from './Typewriter';
 
 type Props = {
   stats: JourneyStats;
@@ -19,9 +20,11 @@ export function GlobeHud({ stats, scrim }: Props) {
   const { t, i18n } = useTranslation();
   const { day, countdown, current, origin, km } = stats;
 
+  // Zero-padded to three digits: a mission counter reads 003, not 3, and the
+  // width stops the line from jumping as the journey moves into double figures.
   const headline =
     day !== null
-      ? t('globe.hud.day', { n: day })
+      ? t('globe.hud.day', { n: String(day).padStart(3, '0') })
       : countdown !== null
         ? t('globe.hud.countdown', { count: countdown })
         : null;
@@ -55,8 +58,17 @@ export function GlobeHud({ stats, scrim }: Props) {
       }}
     >
       {headline && (
-        <Text ff="heading" fw={600} lh={1.05} fz="clamp(1.5rem, 3.2vw, 2.15rem)">
-          {headline}
+        <Text
+          ff="monospace"
+          fw={600}
+          lh={1.05}
+          tt="uppercase"
+          fz="clamp(1.15rem, 2.4vw, 1.65rem)"
+          style={{ letterSpacing: '0.1em' }}
+        >
+          {/* Keyed on the text so a language switch retypes rather than freezing
+              half-written. */}
+          <Typewriter key={headline} text={headline} />
         </Text>
       )}
       {where && (
