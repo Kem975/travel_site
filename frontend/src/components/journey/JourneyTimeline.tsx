@@ -106,10 +106,14 @@ function Stop({ stop, innerRef }: { stop: JourneyStop; innerRef?: Ref<HTMLDivEle
       <span aria-hidden> {GLYPH[stop.state]}</span>
     </>
   );
+  // --app-accent, not --globe-marker-active: the marker amber is tuned to sit on
+  // satellite imagery and is too light to carry text on the header. Same hue,
+  // the value that clears AA.
   const style = {
     fontSize: 'var(--mantine-font-size-xs)',
     fontWeight: isCurrent ? 600 : 400,
-    color: isCurrent ? 'var(--globe-marker-active)' : undefined,
+    color: isCurrent ? 'var(--app-accent)' : undefined,
+    letterSpacing: isCurrent ? '0.01em' : undefined,
   };
 
   return (

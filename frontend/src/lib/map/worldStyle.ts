@@ -182,16 +182,16 @@ const PALETTES: Record<Scheme, Palette> = {
     ocean: '#AFC7C8',
     land: '#EFE7D3',
     border: '#D8C8A8',
-    route: '#B96A3C',
+    route: '#E08A00',
     label: '#2D3A32',
     labelHalo: 'rgba(251,247,239,0.88)',
-    markerActive: '#B96A3C',
-    markerHalo: 'rgba(185,106,60,0.18)',
+    markerActive: '#E08A00',
+    markerHalo: 'rgba(224,138,0,0.20)',
     markerStroke: '#FBF7EF',
     sky: '#E8DED0',
     horizon: '#C7D3CC',
     fog: '#F6EFE2',
-    space: '#FBF7EF',
+    space: '#F2F4F6',
   }
 };
 
@@ -228,7 +228,7 @@ const ATLAS_PALETTES: Record<Scheme, Palette> = {
     sky: '#DCEAF0',
     horizon: '#BBD3DF',
     fog: '#EAF0EC',
-    space: '#EFE6D3',
+    space: '#F2F4F6',
     coastline: '#C0A982',
     coastlineHalo: 'rgba(251,244,226,0.85)',
   },
@@ -257,16 +257,16 @@ const TERRAIN_PALETTES: Record<Scheme, Palette> = {
     ocean: '#74A5C9',
     land: '#87B98F',
     border: 'rgba(45,40,30,0.32)',
-    route: '#A8321F',
+    route: '#E08A00',
     label: '#22303A',
     labelHalo: 'rgba(255,255,255,0.92)',
-    markerActive: '#A8321F',
-    markerHalo: 'rgba(168,50,31,0.20)',
+    markerActive: '#E08A00',
+    markerHalo: 'rgba(224,138,0,0.22)',
     markerStroke: '#FFFFFF',
     sky: '#C6DCEA',
     horizon: '#93B8D4',
     fog: '#DDEAF2',
-    space: '#FBF7EF',
+    space: '#F2F4F6',
   },
 };
 
@@ -332,7 +332,8 @@ export function buildStyle(
           scheme === 'dark'
             ? // The texture is daylight imagery; dim it so it sits in a night sky.
               { 'raster-brightness-max': 0.72, 'raster-saturation': -0.25, 'raster-contrast': 0.05 }
-            : {},
+            : // Untouched, the raster reads washed out against a cool off-white.
+              { 'raster-saturation': 0.14, 'raster-contrast': 0.06 },
       },
       {
         id: 'borders',
@@ -400,9 +401,12 @@ export function applyPalette(map: MaplibreMap, scheme: Scheme, preset: StylePres
   if (map.getLayer('ocean')) map.setPaintProperty('ocean', 'background-color', p.ocean);
   if (map.getLayer('terrain')) {
     const dark = scheme === 'dark';
+    // Daylight gets a nudge of saturation rather than none: on the cool off-white
+    // the untouched raster read as washed out. Night still pulls colour back so
+    // the route and markers stay the brightest things on the sphere.
     map.setPaintProperty('terrain', 'raster-brightness-max', dark ? 0.72 : 1);
-    map.setPaintProperty('terrain', 'raster-saturation', dark ? -0.25 : 0);
-    map.setPaintProperty('terrain', 'raster-contrast', dark ? 0.05 : 0);
+    map.setPaintProperty('terrain', 'raster-saturation', dark ? -0.25 : 0.14);
+    map.setPaintProperty('terrain', 'raster-contrast', dark ? 0.05 : 0.06);
   }
   if (map.getLayer('coastline-halo')) map.setPaintProperty('coastline-halo', 'line-color', p.coastlineHalo!);
   if (map.getLayer('land')) map.setPaintProperty('land', 'fill-color', p.land);

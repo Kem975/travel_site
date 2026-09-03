@@ -1,6 +1,7 @@
 import { Box, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import type { JourneyStats } from '../../lib/journeyStats';
+import { formatCoords } from '../../lib/coords';
 import { Typewriter } from './Typewriter';
 
 type Props = {
@@ -10,24 +11,36 @@ type Props = {
 };
 
 /**
- * Where the journey stands, over the top-left of the globe.
+ * Where the journey stands, down the left of the globe.
  *
  * Deliberately not a panel: a soft vignette in the space colour carries the text
  * instead of a card, so the corner reads as part of the map rather than as one more
- * piece of UI. Every line is real trip data or it doesn't render.
+ * piece of UI — and so the page never starts to look like a cockpit. Every line is
+ * real trip data or it doesn't render.
+ *
+ * The registers are split on purpose. The day is editorial — serif, large, the
+ * sentence you'd say out loud. The stamp and the figures under the rule are
+ * monospace, because they are readings: a leg number, a date, a distance, a
+ * position. Nothing else on the site borrows the technical voice.
  */
 export function GlobeHud({ stats, scrim }: Props) {
   const { t, i18n } = useTranslation();
-  const { day, countdown, current, origin, km } = stats;
+  const { day, countdown, current, origin, km, mission } = stats;
 
-  // Zero-padded to three digits: a mission counter reads 003, not 3, and the
-  // width stops the line from jumping as the journey moves into double figures.
   const headline =
     day !== null
-      ? t('globe.hud.day', { n: String(day).padStart(3, '0') })
+      ? t('globe.hud.day', { n: day })
       : countdown !== null
         ? t('globe.hud.countdown', { count: countdown })
         : null;
+
+  // A log entry's header: which leg, and the date it is being read on.
+  const stamp = [
+    mission !== null ? t('globe.hud.mission', { n: String(mission).padStart(2, '0') }) : null,
+    new Date().toLocaleDateString(i18n.language, { day: 'numeric', month: 'short', year: 'numeric' }),
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   // Before departure there is no current stop, so the origin is the place to name.
   const place = current ?? (countdown !== null ? origin : null);
@@ -41,8 +54,11 @@ export function GlobeHud({ stats, scrim }: Props) {
           origin: origin.title,
         })
       : null;
+  const coords = place ? formatCoords(place.lat, place.lng, i18n.language) : null;
 
   if (!headline && !where) return null;
+
+  const micro = { letterSpacing: '0.18em' } as const;
 
   return (
     <Box
@@ -50,36 +66,51 @@ export function GlobeHud({ stats, scrim }: Props) {
         position: 'absolute',
         top: 0,
         left: 0,
-        maxWidth: 'min(22rem, 66vw)',
-        padding: '18px 52px 52px 22px',
+        maxWidth: 'min(24rem, 70vw)',
+        padding: '16px 52px 52px 22px',
         pointerEvents: 'none',
-        background: `radial-gradient(120% 130% at 0% 0%, color-mix(in srgb, ${scrim} 80%, transparent), transparent 72%)`,
+        background: `radial-gradient(120% 130% at 0% 0%, color-mix(in srgb, ${scrim} 82%, transparent), transparent 74%)`,
         textShadow: `0 1px 12px ${scrim}`,
       }}
     >
+      <Text ff="monospace" fz={10} c="dimmed" tt="uppercase" mb={6} style={micro}>
+        {stamp}
+      </Text>
+
       {headline && (
-        <Text
-          ff="monospace"
-          fw={600}
-          lh={1.05}
-          tt="uppercase"
-          fz="clamp(1.15rem, 2.4vw, 1.65rem)"
-          style={{ letterSpacing: '0.1em' }}
-        >
+        <Text ff="heading" fw={600} lh={1.05} fz="clamp(1.5rem, 3.2vw, 2.15rem)">
           {/* Keyed on the text so a language switch retypes rather than freezing
               half-written. */}
           <Typewriter key={headline} text={headline} />
         </Text>
       )}
+
       {where && (
         <Text fz="sm" mt={6} lh={1.3}>
           {where}
         </Text>
       )}
+
       {distance && (
-        <Text fz="xs" c="dimmed" mt={2} style={{ letterSpacing: '0.04em' }}>
+        <Text ff="monospace" fz={11} c="dimmed" mt={4} lh={1.45}>
           {distance}
         </Text>
+      )}
+
+      {coords && (
+        <>
+          {/* The rule is the only piece of chrome here, and it carries the signature
+              amber: it separates the sentence above from the readings below. */}
+          <Box mt={14} mb={8} style={{ width: 30, height: 2, background: 'var(--app-accent)' }} />
+          <Text ff="monospace" fz={9} c="dimmed" tt="uppercase" mb={3} style={micro}>
+            {t('globe.hud.coordinates')}
+          </Text>
+          <Text ff="monospace" fz={11} lh={1.5} c="dimmed">
+            {coords.lat}
+            <br />
+            {coords.lng}
+          </Text>
+        </>
       )}
     </Box>
   );

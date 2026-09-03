@@ -389,10 +389,12 @@
     "noStory": "Pas encore de récit",
     "ariaLabel": "Globe interactif du voyage. Vous préférez une liste ? Ouvrez le Journal.",
     "hud": {
+      "mission": "Mission {{n}}",
       "day": "Jour {{n}}",
       "countdown_one": "J-{{count}} avant le départ",
       "countdown_other": "J-{{count}} avant le départ",
-      "distance": "{{km}} km depuis {{origin}}"
+      "distance": "{{km}} km depuis {{origin}}",
+      "coordinates": "Coordonnées actuelles"
     }
   },
   "notFound": {

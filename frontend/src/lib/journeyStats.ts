@@ -18,6 +18,8 @@ export type JourneyStats = {
   current: GlobePlace | null;
   /** Distance along the route from `origin` to `current`, in kilometres. */
   km: number | null;
+  /** Which country of the route we're in, 1-based — the journey's leg number. */
+  mission: number | null;
 };
 
 /** Index of the last place matching `status`, or -1. (`findLastIndex` is ES2023.) */
@@ -34,6 +36,7 @@ const EMPTY: JourneyStats = {
   origin: null,
   current: null,
   km: null,
+  mission: null,
 };
 
 /**
@@ -57,12 +60,15 @@ export function journeyStats(trips: GlobeTrip[], today: Date = new Date()): Jour
     .sort((a, b) => a.getTime() - b.getTime())[0];
 
   const elapsed = start ? daysBetween(start, today) : null;
+  const currentPlace = currentIndex === -1 ? null : places[currentIndex];
+  const missionIndex = currentPlace ? trips.findIndex((trip) => trip.slug === currentPlace.trip_slug) : -1;
 
   return {
     day: elapsed !== null && elapsed >= 0 ? elapsed + 1 : null,
     countdown: elapsed !== null && elapsed < 0 ? -elapsed : null,
     origin: places[0],
-    current: currentIndex === -1 ? null : places[currentIndex],
+    current: currentPlace,
     km: currentIndex <= 0 ? null : pathLengthKm(places.slice(0, currentIndex + 1)),
+    mission: missionIndex === -1 ? null : missionIndex + 1,
   };
 }

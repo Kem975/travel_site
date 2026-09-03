@@ -28,24 +28,31 @@
   font-display: swap;
 }
 
+/* Daylight is paper, not parchment: a faintly cool off-white so the globe's real
+   colours stay real instead of being tinted warm by everything around them.
+   Contrast measured, not eyeballed — text 15.9:1, muted 5.3:1, accent 5.1:1. */
 :root[data-mantine-color-scheme='light'] {
-  --app-bg: #F7F0E3;
-  --app-surface: #FFF9EE;
-  --app-surface-muted: #EFE3D0;
-  --app-text: #1F2A2E;
-  --app-muted: #6F665A;
-  --app-border: #D8C8AD;
-  --app-accent: #B8793A;
+  --app-bg: #F2F4F6;
+  --app-surface: #FFFFFF;
+  --app-surface-muted: #E7EBEF;
+  --app-text: #141A1F;
+  --app-muted: #5B666F;
+  --app-border: #D2D9DF;
+  /* One amber, two values. This one carries text, so it clears AA on the page;
+     --globe-route below is the same hue turned up for marks nothing has to read
+     as prose. Anything brighter fails 4.5:1 here, and anything else would be a
+     second accent colour. */
+  --app-accent: #96590A;
 
   --globe-ocean: #AFC7C8;
   --globe-land: #EFE7D3;
   --globe-border: #D8C8A8;
-  --globe-route: #B96A3C;
+  --globe-route: #E08A00;
   --globe-label: #2D3A32;
-  --globe-marker-active: #B96A3C;
-  --globe-marker-halo: rgba(185, 106, 60, 0.18);
-  --globe-marker-stroke: #FBF7EF;
-  --globe-space: #FBF7EF;
+  --globe-marker-active: #E08A00;
+  --globe-marker-halo: rgba(224, 138, 0, 0.20);
+  --globe-marker-stroke: #FFFFFF;
+  --globe-space: #F2F4F6;
 }
 
 :root[data-mantine-color-scheme='dark'] {
@@ -55,7 +62,8 @@
   --app-text: #F3EBDD;
   --app-muted: #B9AA94;
   --app-border: #213342;
-  --app-accent: #D6A15C;
+  /* The trajectory's amber, promoted: one signature colour across the site. */
+  --app-accent: #FFD27D;
 
   --globe-ocean: #0B1F30;
   --globe-land: #1D3B4B;

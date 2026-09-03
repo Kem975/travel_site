@@ -25,7 +25,7 @@ export const theme = createTheme({
     travelTeal,
   },
 
-  white: '#FFF9EE',
+  white: '#FFFFFF',
   black: '#05101A',
 
   fontFamily:
@@ -92,13 +92,13 @@ export const theme = createTheme({
     articleWideWidth: '82rem',
 
     light: {
-      bg: '#F7F0E3',
-      surface: '#FFF9EE',
-      surfaceMuted: '#EFE3D0',
-      text: '#1F2A2E',
-      muted: '#6F665A',
-      border: '#D8C8AD',
-      accent: '#B8793A',
+      bg: '#F2F4F6',
+      surface: '#FFFFFF',
+      surfaceMuted: '#E7EBEF',
+      text: '#141A1F',
+      muted: '#5B666F',
+      border: '#D2D9DF',
+      accent: '#96590A',
     },
 
     dark: {
@@ -108,7 +108,7 @@ export const theme = createTheme({
       text: '#F3EBDD',
       muted: '#B9AA94',
       border: '#213342',
-      accent: '#D6A15C',
+      accent: '#FFD27D',
     },
   },
 });

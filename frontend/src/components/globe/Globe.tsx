@@ -45,6 +45,23 @@ const markerStroke = (p: Palette): maplibregl.ExpressionSpecification => [
   p.markerStroke,
 ];
 
+/** Night: a blurred glow in the route's own colour. Day: an opaque dark casing. */
+function routeCasing(scheme: Scheme, p: Palette): Record<string, unknown> {
+  return scheme === 'dark'
+    ? {
+        'line-color': p.route,
+        'line-width': ['interpolate', ['linear'], ['zoom'], 1, 4, 5, 9],
+        'line-blur': 4,
+        'line-opacity': 0.35,
+      }
+    : {
+        'line-color': 'rgba(28,38,48,0.55)',
+        'line-width': ['interpolate', ['linear'], ['zoom'], 1, 4.4, 5, 6.6],
+        'line-blur': 0,
+        'line-opacity': 1,
+      };
+}
+
 function paintMarkers(map: maplibregl.Map, p: Palette): void {
   if (!map.getLayer('markers')) return;
   map.setPaintProperty('markers', 'circle-color', markerFill(p));
@@ -79,6 +96,12 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
 
   const [selected, setSelected] = useState<GlobePlace | null>(null);
   const [spinning, setSpinning] = useState(false);
+  // Mirrors readyRef as state. The map is built once, with whatever scheme was
+  // resolved at mount — useComputedColorScheme reports its fallback first — so the
+  // palette has to be re-applied once the style has actually loaded. As a ref alone
+  // that correction never fired: the effect below bailed on `!ready` and, with
+  // nothing in its dependencies changing afterwards, never ran again.
+  const [ready, setReady] = useState(false);
 
   const places = trips.flatMap((tr) => tr.places).filter((p) => p.lng != null && p.lat != null);
   const showData = interactive && places.length > 0;
@@ -147,17 +170,17 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
           data: { type: 'FeatureCollection', features: [routeFeature(places)] },
         });
         if (rich) {
+          // Same layer, two jobs. At night it is a glow: the route is the brightest
+          // thing around, and bleeding light off it reads as altitude. In daylight
+          // it is a casing instead — a dark line under the amber one — because a
+          // mid-value stroke crossing pale desert and pale ocean has nothing to
+          // contrast against on its own.
           map.addLayer({
             id: 'route-glow',
             type: 'line',
             source: 'route',
             layout: { 'line-cap': 'round', 'line-join': 'round' },
-            paint: {
-              'line-color': p.route,
-              'line-width': ['interpolate', ['linear'], ['zoom'], 1, 4, 5, 9],
-              'line-blur': 4,
-              'line-opacity': 0.35,
-            },
+            paint: routeCasing(scheme, p),
           });
         }
         map.addLayer({
@@ -300,6 +323,7 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
       }
 
       readyRef.current = true;
+      setReady(true);
       startSpin();
     });
 
@@ -319,10 +343,16 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !readyRef.current) return;
+    if (!map || !ready) return;
     applyPalette(map, scheme, stylePreset);
-    paintMarkers(map, palette(scheme, stylePreset));
-  }, [scheme, stylePreset]);
+    const p = palette(scheme, stylePreset);
+    paintMarkers(map, p);
+    if (map.getLayer('route-glow')) {
+      for (const [key, value] of Object.entries(routeCasing(scheme, p))) {
+        map.setPaintProperty('route-glow', key, value as never);
+      }
+    }
+  }, [scheme, stylePreset, ready]);
 
   const space = palette(scheme, stylePreset).space;
   // Darkening cream with pure black turns it grey, which is exactly the note the
