@@ -13,8 +13,14 @@ export function AboutPage() {
       <Title order={1} mb="md">
         {t('about.title')}
       </Title>
-      <Text mb="lg">{t('app.subtitle')}</Text>
-      <Text c="dimmed">{t('about.body')}</Text>
+      {/* app.subtitle is deliberately not repeated here: the second paragraph below
+          says the same thing in the voice of the people writing it. */}
+      <Stack gap="md">
+        <Text fz="lg">{t('about.body.greeting')}</Text>
+        <Text>{t('about.body.trip')}</Text>
+        <Text>{t('about.body.blog')}</Text>
+        <Text>{t('about.body.closing')}</Text>
+      </Stack>
 
       {trips && trips.length > 0 && (
         <Stack mt="xl" gap="xs">

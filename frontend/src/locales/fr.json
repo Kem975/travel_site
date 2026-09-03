@@ -378,7 +378,12 @@
   },
   "about": {
     "title": "À propos du voyage",
-    "body": "Un journal de voyage privé pour les proches — récits, photographies et itinéraire, une étape à la fois.",
+    "body": {
+      "greeting": "Bonjour et bienvenue !",
+      "trip": "Ce site est dédié à notre voyage à travers quelques pays d'Amérique du Sud et d'Asie.",
+      "blog": "Ce blog regroupera nos aventures et expériences des divers endroits que nous visiterons. Nous y publierons également des recettes partagées par les locaux.",
+      "closing": "Bonne lecture !"
+    },
     "trips": "Pays"
   },
   "globe": {

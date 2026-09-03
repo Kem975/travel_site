@@ -64,13 +64,13 @@ export function RootLayout() {
           }}
         >
           <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
-            <Burger opened={menuOpened} onClick={toggleMenu} hiddenFrom="md" size="sm" aria-label={t('nav.menu')} />
+            <Burger opened={menuOpened} onClick={toggleMenu} hiddenFrom="lg" size="sm" aria-label={t('nav.menu')} />
             <Anchor component={Link} to="/" underline="never" c="inherit" onClick={closeMenu}>
               <Title order={4} style={{ whiteSpace: 'nowrap' }}>
                 {t('app.title')}
               </Title>
             </Anchor>
-            <Group gap={4} visibleFrom="md">
+            <Group gap={4} visibleFrom="lg">
               {navItems.map(([to, label]) => (
                 <Button key={to} component={Link} to={to} size="xs" variant={pathname === to ? 'light' : 'subtle'}>
                   {label}

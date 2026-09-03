@@ -24,13 +24,17 @@ function useVisibleStops(): number {
   const eager = { getInitialValueInEffect: false } as const;
   const wide = useMediaQuery('(min-width: 90em)', false, eager);
   const desktop = useMediaQuery('(min-width: 75em)', false, eager);
-  const tablet = useMediaQuery('(min-width: 62em)', false, eager);
-  if (wide) return 7;
-  if (desktop) return 5;
+  const tablet = useMediaQuery('(min-width: 992px)', false, eager);
+  const tablet2 = useMediaQuery('(min-width: 700px)', false, eager);
+  const phone = useMediaQuery('(min-width: 500px)', false, eager);
+  if (wide) return 5;
+  if (desktop) return 3;
   if (tablet) return 3;
+  if (tablet2) return 3;
+  if (phone) return 1;
   // Below that the header has a burger, a wordmark and two toggles to fit: the
   // strip earns room for exactly one stop, which is the one that matters.
-  return 1;
+  return 0;
 }
 
 /**
@@ -62,7 +66,7 @@ export function JourneyTimeline() {
     return () => observer.disconnect();
   }, [data, limit, readEdges]);
 
-  if (!data || data.stops.length === 0) return null;
+  if (!data || data.stops.length === 0 || limit == 0) return null;
 
   const stops = data.stops.slice(-limit);
   // A leading rule where the route was cut, so the line reads as continuing off

@@ -378,7 +378,12 @@
   },
   "about": {
     "title": "About the journey",
-    "body": "A private travel journal for friends and family — stories, photographs, and the route, one stop at a time.",
+    "body": {
+      "greeting": "Hello, and welcome!",
+      "trip": "This site is about our journey through a few countries in South America and Asia.",
+      "blog": "This blog will gather our adventures and experiences from the various places we visit. We'll also publish recipes shared with us by the people we meet.",
+      "closing": "Happy reading!"
+    },
     "trips": "Countries"
   },
   "globe": {
