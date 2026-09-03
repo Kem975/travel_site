@@ -53,14 +53,24 @@ export function RootLayout() {
         <Box
           h="100%"
           px="lg"
-          style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 'var(--mantine-spacing-sm)' }}
+          style={{
+            display: 'grid',
+            // minmax(0, 1fr) rather than 1fr: a bare 1fr floors at the content's
+            // own width, so the wordmark and the toggles pushed the strip out of
+            // the header instead of letting it shrink.
+            gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+            alignItems: 'center',
+            gap: 'var(--mantine-spacing-sm)',
+          }}
         >
-          <Group gap="sm" wrap="nowrap">
-            <Burger opened={menuOpened} onClick={toggleMenu} hiddenFrom="sm" size="sm" aria-label={t('nav.menu')} />
+          <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+            <Burger opened={menuOpened} onClick={toggleMenu} hiddenFrom="md" size="sm" aria-label={t('nav.menu')} />
             <Anchor component={Link} to="/" underline="never" c="inherit" onClick={closeMenu}>
-              <Title order={4}>{t('app.title')}</Title>
+              <Title order={4} style={{ whiteSpace: 'nowrap' }}>
+                {t('app.title')}
+              </Title>
             </Anchor>
-            <Group gap={4} visibleFrom="sm">
+            <Group gap={4} visibleFrom="md">
               {navItems.map(([to, label]) => (
                 <Button key={to} component={Link} to={to} size="xs" variant={pathname === to ? 'light' : 'subtle'}>
                   {label}
@@ -76,7 +86,7 @@ export function RootLayout() {
             <LanguageToggle />
             <ColorSchemeToggle />
             <Button
-              visibleFrom="sm"
+              visibleFrom="md"
               variant="subtle"
               color="gray"
               size="xs"
@@ -90,7 +100,7 @@ export function RootLayout() {
       </AppShell.Header>
 
       {/* Lightweight mobile menu (no Modal/Drawer weight). */}
-      <Box hiddenFrom="sm" style={{ position: 'fixed', top: 60, left: 0, right: 0, zIndex: 200 }}>
+      <Box hiddenFrom="md" style={{ position: 'fixed', top: 60, left: 0, right: 0, zIndex: 200 }}>
         <Collapse in={menuOpened}>
           <Paper shadow="md" radius={0} p="sm" withBorder>
             <Stack gap="xs">
