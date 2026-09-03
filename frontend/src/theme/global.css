@@ -43,6 +43,11 @@
      as prose. Anything brighter fails 4.5:1 here, and anything else would be a
      second accent colour. */
   --app-accent: #96590A;
+  /* Secondary readings on the globe. Mantine's own dimmed sits at 3.0:1 here,
+     which is where a line stops being quiet and starts being missable; this is
+     the same grey a fifth of a step up (3.6:1). --app-muted was the obvious
+     candidate and the wrong one — at 5.3:1 it stops reading as secondary at all. */
+  --app-hud-muted: #78818A;
 
   --globe-ocean: #AFC7C8;
   --globe-land: #EFE7D3;
@@ -64,6 +69,8 @@
   --app-border: #213342;
   /* The trajectory's amber, promoted: one signature colour across the site. */
   --app-accent: #FFD27D;
+  /* Same step at night: 5.0:1 → 6.0:1. */
+  --app-hud-muted: #8C9096;
 
   --globe-ocean: #0B1F30;
   --globe-land: #1D3B4B;

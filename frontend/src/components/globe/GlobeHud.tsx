@@ -73,7 +73,7 @@ export function GlobeHud({ stats, scrim }: Props) {
         textShadow: `0 1px 12px ${scrim}`,
       }}
     >
-      <Text ff="monospace" fz={10} c="dimmed" tt="uppercase" mb={6} style={micro}>
+      <Text ff="monospace" fz={10} c="var(--app-hud-muted)" tt="uppercase" mb={6} style={micro}>
         {stamp}
       </Text>
 
@@ -92,7 +92,7 @@ export function GlobeHud({ stats, scrim }: Props) {
       )}
 
       {distance && (
-        <Text ff="monospace" fz={11} c="dimmed" mt={4} lh={1.45}>
+        <Text ff="monospace" fz={11} c="var(--app-hud-muted)" mt={4} lh={1.45}>
           {distance}
         </Text>
       )}
@@ -102,10 +102,10 @@ export function GlobeHud({ stats, scrim }: Props) {
           {/* The rule is the only piece of chrome here, and it carries the signature
               amber: it separates the sentence above from the readings below. */}
           <Box mt={14} mb={8} style={{ width: 30, height: 2, background: 'var(--app-accent)' }} />
-          <Text ff="monospace" fz={9} c="dimmed" tt="uppercase" mb={3} style={micro}>
+          <Text ff="monospace" fz={10} c="var(--app-hud-muted)" tt="uppercase" mb={3} style={micro}>
             {t('globe.hud.coordinates')}
           </Text>
-          <Text ff="monospace" fz={11} lh={1.5} c="dimmed">
+          <Text ff="monospace" fz={11} lh={1.5} c="var(--app-hud-muted)">
             {coords.lat}
             <br />
             {coords.lng}
