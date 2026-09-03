@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Objectif : Terre — the globe and the route across it.
+       Drawn for 16px first, where a favicon actually lives. The land sits close in
+       value to the ocean so it reads as texture when small and as continents from
+       32px up; the amber is the only thing asked to survive at any size.
+       The route is bowed rather than straight: a straight stroke ending in a disc
+       reads as a magnifying glass, which is not the journey. -->
+  <defs>
+    <clipPath id="sphere"><circle cx="16" cy="16" r="15"/></clipPath>
+  </defs>
+  <circle cx="16" cy="16" r="15" fill="#16506F"/>
+  <g clip-path="url(#sphere)" fill="#2F6B54">
+    <path d="M4 5c3.4 0 5.6 2.2 4.6 5.4S4.4 13.6 4.4 16.8 6.6 22 5.4 24.2 1 25.4-.2 23.2V5Z"/>
+    <path d="M19 3.5c4.4-1.1 8.8 0 11 3.3s0 6.6-3.3 7.7-3.3 4.4-6.6 4.4-5.5-2.2-4.4-6.6 0-7.7 3.3-8.8Z"/>
+    <path d="M12 23c3.3-1.1 5.5 1.1 5.5 4.4S15.3 33 12 31.9s-4.4-3.3-3.3-5.5S9.8 24.2 12 23Z"/>
+  </g>
+  <!-- The route, and where we are now. -->
+  <path d="M6 24.5C7.5 14 14 7.5 24.5 8" fill="none" stroke="#FFAC2B" stroke-width="3.2"
+        stroke-linecap="round" clip-path="url(#sphere)"/>
+  <circle cx="24.5" cy="8" r="3.4" fill="#FFAC2B"/>
+</svg>
