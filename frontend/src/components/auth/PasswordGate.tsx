@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Alert, Box, Button, Center, Paper, PasswordInput, Stack, Text, Title } from '@mantine/core';
+import { Alert, Box, Button, Center, Group, Paper, PasswordInput, Stack, Text, Title } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { visitorLogin } from '../../api/auth';
 import { ApiError, setCsrfToken } from '../../api/client';
 import { SESSION_KEY } from '../../hooks/useSession';
 import { LanguageToggle } from '../layout/LanguageToggle';
+import { RocketMark } from '../layout/RocketMark';
 import { LazyGlobe } from '../globe/LazyGlobe';
 
 // Signature landing: the rotating globe sits behind the shared-password form.
@@ -51,7 +52,10 @@ export function PasswordGate() {
           >
             <Stack>
               <div>
-                <Title order={2}>{t('app.title')}</Title>
+                <Group gap={8} wrap="nowrap" align="baseline" justify="center">
+                  <Title order={2}>{t('app.title')}</Title>
+                  <RocketMark height="1.32em" />
+                </Group>
                 <Text c="dimmed" size="sm" mt={4}>
                   {t('app.subtitle')}
                 </Text>
