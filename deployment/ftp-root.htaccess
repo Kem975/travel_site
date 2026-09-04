@@ -1,0 +1,21 @@
+# Upload as `.htaccess` at the FTP home — the folder that contains www/, voyage/
+# and voyage-private/, NOT inside voyage/.
+#
+# Why: a hostname pointed at this hosting without a Multisite entry of its own
+# gets the FTP home as its document root. www.voyage.kemen.fr did exactly that and
+# served a browsable index of every site on the account. The .env was still refused
+# (403) and PHP still executed rather than being handed over as source, so nothing
+# secret leaked — but the layout of the whole account was on display.
+#
+# This is defence in depth. The actual fix is to give the hostname a document root
+# in the OVH Multisite panel; keep this anyway, so the next hostname that appears
+# without one fails closed.
+
+# No directory listings, anywhere below this point.
+Options -Indexes
+
+# Dotfiles and the things that should never be fetched over HTTP, whichever
+# document root a request arrives through.
+<FilesMatch "(^\.|\.(env|sql|log|ini|sh|lock|bak|dist)$)">
+    Require all denied
+</FilesMatch>
