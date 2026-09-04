@@ -37,7 +37,10 @@ export function PasswordGate() {
       </Box>
       <Box style={{ position: 'absolute', inset: 0, background: 'rgba(4,12,20,0.45)', backdropFilter: 'blur(2px)' }} />
 
-      <Box style={{ position: 'absolute', top: 16, right: 16, zIndex: 2 }}>
+      {/* z-index 3, not 2: the Center below stretches to 100dvh and so covers this
+          corner too. At equal z-index the later element wins, so the toggle stayed
+          visible but every click landed on the form's container instead. */}
+      <Box style={{ position: 'absolute', top: 16, right: 16, zIndex: 3 }}>
         <LanguageToggle />
       </Box>
 
