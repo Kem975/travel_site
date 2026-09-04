@@ -198,7 +198,7 @@ export function ArticleEditor({ destinationId, lang }: { destinationId: number; 
                 </ActionIcon>
               </Group>
             </Group>
-            <BlockEditor block={row.block} photos={photos} onChange={(b) => updateBlock(i, b)} onPhoto={registerPhoto} />
+            <BlockEditor block={row.block} photos={photos} onChange={(b) => updateBlock(i, b)} onPhoto={registerPhoto} uploadTo={destinationId} />
           </Card>
         ))}
       </Stack>

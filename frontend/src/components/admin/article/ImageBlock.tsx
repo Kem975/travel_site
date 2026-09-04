@@ -6,9 +6,9 @@ import type { Photo } from '../../../api/media';
 import { MediaPicker } from '../MediaPicker';
 
 type Content = Extract<ArticleBlock, { type: 'image' }>['content'];
-type Props = { content: Content; photos: PhotoMap; onChange: (content: Content) => void; onPhoto: (photo: Photo) => void };
+type Props = { content: Content; photos: PhotoMap; onChange: (content: Content) => void; onPhoto: (photo: Photo) => void; uploadTo?: number };
 
-export function ImageBlock({ content, photos, onChange, onPhoto }: Props) {
+export function ImageBlock({ content, photos, onChange, onPhoto, uploadTo }: Props) {
   const { t } = useTranslation();
   const [opened, { open, close }] = useDisclosure(false);
   const photo = content.photoId ? photos[String(content.photoId)] : undefined;
@@ -42,6 +42,7 @@ export function ImageBlock({ content, photos, onChange, onPhoto }: Props) {
         onChange={(e) => onChange({ ...content, caption: e.currentTarget.value || null })}
       />
       <MediaPicker
+        uploadTo={uploadTo}
         opened={opened}
         onClose={close}
         onSelect={(p) => {

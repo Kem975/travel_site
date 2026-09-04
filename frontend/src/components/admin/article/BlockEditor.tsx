@@ -13,9 +13,11 @@ type Props = {
   photos: PhotoMap;
   onChange: (block: ArticleBlock) => void;
   onPhoto: (photo: Photo) => void;
+  /** Stop that photos uploaded from inside this article are filed under. */
+  uploadTo?: number;
 };
 
-export function BlockEditor({ block, photos, onChange, onPhoto }: Props) {
+export function BlockEditor({ block, photos, onChange, onPhoto, uploadTo }: Props) {
   switch (block.type) {
     case 'richText':
       return <RichTextBlock content={block.content} onChange={(content) => onChange({ type: 'richText', content })} />;
@@ -25,6 +27,7 @@ export function BlockEditor({ block, photos, onChange, onPhoto }: Props) {
           content={block.content}
           photos={photos}
           onPhoto={onPhoto}
+          uploadTo={uploadTo}
           onChange={(content) => onChange({ type: 'image', content })}
         />
       );
@@ -34,6 +37,7 @@ export function BlockEditor({ block, photos, onChange, onPhoto }: Props) {
           content={block.content}
           photos={photos}
           onPhoto={onPhoto}
+          uploadTo={uploadTo}
           onChange={(content) => onChange({ type: 'gallery', content })}
         />
       );

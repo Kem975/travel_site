@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Database;
 use App\Exceptions\VersionConflictException;
+use App\Services\ArticleBlocks;
 use Throwable;
 
 final class ArticleRepository
@@ -81,6 +82,34 @@ final class ArticleRepository
     }
 
     /**
+     * A photo used in a stop's article belongs to that stop.
+     *
+     * Nothing was setting this: the article editor never handed its destination to
+     * the media picker, so anything uploaded or chosen from inside an article kept
+     * destination_id NULL — present in the library, embedded in the published page,
+     * and invisible in the public gallery, whose query joins through destinations.
+     *
+     * Only unassigned photos are claimed, so reusing one picture across two stops
+     * leaves it with the first, rather than having each save steal it back.
+     *
+     * @param list<array{type:string,content:mixed}> $blocks
+     */
+    private function adoptPhotos(\PDO $pdo, int $destinationId, array $blocks): void
+    {
+        /** @var list<array{type:string,content:array<string,mixed>}> $typed */
+        $typed = $blocks;
+        $ids = ArticleBlocks::referencedPhotoIds($typed);
+        if ($ids === []) {
+            return;
+        }
+        $in = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $pdo->prepare(
+            "UPDATE photos SET destination_id = ? WHERE destination_id IS NULL AND id IN ({$in})",
+        );
+        $stmt->execute([$destinationId, ...$ids]);
+    }
+
+    /**
      * Persist the whole article in one transaction: upsert the article row, update
      * meta + publication state, and replace all blocks. A failure rolls everything
      * back, leaving the previously-saved article intact.
@@ -142,6 +171,8 @@ final class ArticleRepository
                     $i,
                 ]);
             }
+
+            $this->adoptPhotos($pdo, $destinationId, $blocks);
 
             $pdo->commit();
             return $newVersion;
