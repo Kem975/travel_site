@@ -100,7 +100,7 @@ export function RootLayout() {
       </AppShell.Header>
 
       {/* Lightweight mobile menu (no Modal/Drawer weight). */}
-      <Box hiddenFrom="md" style={{ position: 'fixed', top: 60, left: 0, right: 0, zIndex: 200 }}>
+      <Box hiddenFrom="lg" style={{ position: 'fixed', top: 60, left: 0, right: 0, zIndex: 200 }}>
         <Collapse in={menuOpened}>
           <Paper shadow="md" radius={0} p="sm" withBorder>
             <Stack gap="xs">
