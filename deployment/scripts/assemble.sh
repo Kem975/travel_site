@@ -53,6 +53,9 @@ cat <<SUMMARY
     $PUBLIC        $(du -sh "$PUBLIC"  | cut -f1)   → upload to server  voyage/
     $PRIVATE  $(du -sh "$PRIVATE" | cut -f1)   → upload to server  voyage-private/
 
+  The shell now points at:
+$(grep -oE 'assets/[A-Za-z0-9_-]+\.(js|css)' "$PUBLIC/index.html" | sed 's/^/    /')
+
   Upload the CONTENTS of each folder. Do not delete voyage/uploads/ on the server.
   New migrations are not applied by uploading — run their SQL in phpMyAdmin.
 SUMMARY
