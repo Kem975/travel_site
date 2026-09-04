@@ -10,7 +10,13 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# 3) SPA fallback: every other route renders the React shell.
+# 3) Build output is never a route. Without this a missing chunk falls through to
+#    the shell below and arrives as an HTML document with a 200, which a dynamic
+#    import fails on with a message that names the file but not the cause. Let it
+#    404 honestly instead — an incomplete upload should look like one.
+RewriteRule ^(assets|fonts|tiles)/ - [R=404,L]
+
+# 4) SPA fallback: every other route renders the React shell.
 RewriteRule ^ index.html [L]
 
 # --- Caching ---
