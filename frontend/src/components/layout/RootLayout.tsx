@@ -86,7 +86,7 @@ export function RootLayout() {
             <LanguageToggle />
             <ColorSchemeToggle />
             <Button
-              visibleFrom="md"
+              visibleFrom="lg"
               variant="subtle"
               color="gray"
               size="xs"
