@@ -1,24 +1,65 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { Badge, Box, Button, Card, Group, Image, Text, useComputedColorScheme } from '@mantine/core';
+import { Box, Button, Group, useComputedColorScheme } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_MAP_CONFIG, registerPmtiles } from '../../lib/map/mapConfig';
 import { applyPalette, buildStyle, palette, type Palette, type Scheme, type StylePreset } from '../../lib/map/worldStyle';
 import { routeFeature } from '../../lib/map/greatCircle';
 import { roundImage } from '../../lib/map/roundImage';
 import { journeyStats } from '../../lib/journeyStats';
-import { formatDateRange } from '../../lib/date';
 import { statusColor } from './statusColors';
 import { GlobeHud } from './GlobeHud';
-import type { GlobePlace, GlobeTrip } from '../../api/public';
+import { PlacePreviewCard } from './PlacePreviewCard';
+import type { DeparturePoint, GlobePlace, GlobeTrip } from '../../api/public';
 
 registerPmtiles();
 
 const SPIN_SPEED = 0.06;
 const WORLD_VIEW: [number, number] = [10, 25];
-const WORLD_ZOOM = 2.85;
 const NONE = '__none__';
+
+/**
+ * MapLibre's default field of view puts the camera 1.5 viewport-heights back:
+ * cameraToCenterDistance = 0.5 / tan(fov / 2) * height, and tan(fov / 2) is 1/3.
+ * We never set `fov`, so this holds.
+ */
+const CAMERA_DISTANCE_PER_HEIGHT = 1.5;
+
+/**
+ * Narrower than this and we stop fitting and start filling — see fitZoom. 768 is
+ * an iPad in portrait, and also Mantine's `sm` breakpoint, which the rest of the
+ * site already turns on.
+ */
+const TABLET_WIDTH = 768;
+
+/** Used only if the container has not been laid out yet. */
+const FALLBACK_ZOOM = 2.85;
+
+/**
+ * The zoom at which the globe is exactly as wide as the shorter side of its
+ * container — so the whole Earth is on screen, touching two edges.
+ *
+ * MapLibre draws the globe as a sphere of `worldSize / 2π` pixels seen in
+ * perspective from `cameraToCenterDistance` in front of its near surface, which
+ * puts its centre at d = f + R. The silhouette of a sphere is smaller than the
+ * sphere: its on-screen radius is f·R / √(d² − R²) = f·R / √(f² + 2fR). This
+ * inverts that for R, then turns R back into a zoom.
+ *
+ * Below tablet width the rule flips: a phone screen is tall and narrow, so
+ * fitting the *shorter* side would leave the Earth as a small disc marooned in a
+ * column of empty sky. There we hold the tablet size instead, which fills the
+ * height and crops the sides — too big rather than too small.
+ */
+function fitZoom(width: number, height: number): number {
+  if (width <= 0 || height <= 0) return FALLBACK_ZOOM;
+
+  const target = width >= TABLET_WIDTH ? Math.min(width, height) : TABLET_WIDTH;
+  const f = CAMERA_DISTANCE_PER_HEIGHT * height;
+  const r = target / 2;
+  const R = (r * r) / f + r * Math.sqrt(1 + (r * r) / (f * f));
+  return Math.log2((R * 2 * Math.PI) / 512);
+}
 const reducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -70,6 +111,15 @@ function paintMarkers(map: maplibregl.Map, p: Palette): void {
 
 type Props = {
   trips: GlobeTrip[];
+  /**
+   * Where the journey started. When set, the globe opens on it and the rotation
+   * runs from there, so the first thing you see is home and the Earth turns away
+   * from it. Left out on the password gate: that globe is decorative and must not
+   * disclose anything about us before sign-in, not even which coast we left.
+   */
+  departure?: DeparturePoint | null;
+  /** Stop whose article was published last — shown in the corner until one is picked. */
+  latestDestinationId?: number | null;
   interactive?: boolean;
   onOpen?: (place: GlobePlace) => void;
   stylePreset?: StylePreset;
@@ -81,8 +131,16 @@ type Props = {
   forceScheme?: Scheme;
 };
 
-export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minimal', forceScheme }: Props) {
-  const { t, i18n } = useTranslation();
+export function Globe({
+  trips,
+  departure,
+  latestDestinationId,
+  interactive = true,
+  onOpen,
+  stylePreset = 'minimal',
+  forceScheme,
+}: Props) {
+  const { t } = useTranslation();
   const themeScheme = useComputedColorScheme('dark');
   const scheme = forceScheme ?? themeScheme;
   // The generous treatment (route glow, marker halo, larger type) belongs to every
@@ -106,6 +164,24 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
   const places = trips.flatMap((tr) => tr.places).filter((p) => p.lng != null && p.lat != null);
   const showData = interactive && places.length > 0;
   const stats = useMemo(() => journeyStats(trips), [trips]);
+
+  // The view the globe opens on and returns to. The departure point when there is
+  // one; otherwise the generic world view, which is all the gate ever gets.
+  const home: [number, number] = departure ? [departure.lng, departure.lat] : WORLD_VIEW;
+
+  // Measured from the container at the moment it is needed rather than cached:
+  // "back to the journey" should fit the window the reader has now, not the one
+  // they arrived with.
+  // Null, not a guess, when the container has no size yet — a lazily loaded chunk
+  // can mount before layout settles, and a zoom computed from a zero-width box
+  // would stick for the whole session. getBoundingClientRect because clientWidth
+  // reads 0 on a box whose own width is still unresolved.
+  const measuredFitZoom = (): number | null => {
+    const el = containerRef.current;
+    if (!el) return null;
+    const { width, height } = el.getBoundingClientRect();
+    return width > 0 && height > 0 ? fitZoom(width, height) : null;
+  };
 
   const stopSpin = () => {
     spinningRef.current = false;
@@ -142,20 +218,34 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
   const resetView = () => {
     setSelected(null);
     mapRef.current?.setFilter('markers-selected', ['==', ['get', 'key'], NONE]);
-    mapRef.current?.flyTo({ center: WORLD_VIEW, zoom: WORLD_ZOOM, duration: 1600 });
+    mapRef.current?.flyTo({ center: home, zoom: measuredFitZoom() ?? FALLBACK_ZOOM, duration: 1600 });
   };
 
   useEffect(() => {
     if (!containerRef.current) return;
+    const initialZoom = measuredFitZoom();
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: buildStyle(DEFAULT_MAP_CONFIG, scheme, stylePreset),
-      center: WORLD_VIEW,
-      zoom: WORLD_ZOOM,
+      center: home,
+      zoom: initialZoom ?? FALLBACK_ZOOM,
       attributionControl: false,
       dragRotate: false,
     });
     mapRef.current = map;
+
+    // Mounted before the container had a width, so the zoom above is a guess.
+    // Take the first real size MapLibre reports and fit to it, once — after that
+    // the zoom belongs to the reader.
+    if (initialZoom === null) {
+      const refit = () => {
+        const zoom = measuredFitZoom();
+        if (zoom === null) return;
+        map.off('resize', refit);
+        map.setZoom(zoom);
+      };
+      map.on('resize', refit);
+    }
     const byKey = new Map(places.map((p) => [keyOf(p), p]));
     const p = palette(scheme, stylePreset);
 
@@ -354,14 +444,18 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
     }
   }, [scheme, stylePreset, ready]);
 
+  // What the corner card shows: the stop you clicked, or — until then — the stop
+  // whose article was published most recently. Looked up in `places` rather than
+  // sent whole, so the card and its marker are always the same record.
+  const latest =
+    latestDestinationId != null ? (places.find((p) => p.id === latestDestinationId) ?? null) : null;
+  const previewed = selected ?? latest;
+
   const space = palette(scheme, stylePreset).space;
   // Darkening cream with pure black turns it grey, which is exactly the note the
   // warm light theme does not have. In daylight the vignette closes toward the
   // palette's own brown instead; at night black is still the right shadow.
   const shade = scheme === 'dark' ? '#000' : '#6E431E';
-  const selectedDates = selected
-    ? formatDateRange(selected.arrival_date, selected.departure_date, i18n.language)
-    : null;
   const background = rich
     ? `radial-gradient(circle at 50% 45%, color-mix(in srgb, ${space} 82%, #fff 18%), ${space} 55%, color-mix(in srgb, ${space} 82%, ${shade} 18%) 100%)`
     : space;
@@ -403,41 +497,16 @@ export function Globe({ trips, interactive = true, onOpen, stylePreset = 'minima
         </Box>
       )}
 
-      {selected && (
-        <Card style={{ position: 'absolute', bottom: 16, left: 16, width: 280 }} withBorder shadow="md" radius="md" padding="sm">
-          {selected.cover_thumb ? (
-            <Card.Section>
-              <Image src={selected.cover_thumb} alt="" h={120} fit="cover" className="vt-hero" />
-            </Card.Section>
-          ) : (
-            <Box mb="xs" style={{ height: 80, borderRadius: 6, background: `linear-gradient(135deg, ${statusColor(selected.status)}, #1c3a4a)` }} />
-          )}
-          <Group justify="space-between" mt="xs">
-            <Text fw={700}>{selected.title}</Text>
-            <Badge size="sm" variant="light">
-              {t(`admin.destStatus.${selected.status}`)}
-            </Badge>
-          </Group>
-          {selected.country && (
-            <Text size="sm" c="dimmed">
-              {selected.country}
-            </Text>
-          )}
-          {selectedDates && (
-            <Text size="xs" c="dimmed" mt={2}>
-              {selectedDates}
-            </Text>
-          )}
-          <Button
-            size="xs"
-            mt="sm"
-            fullWidth
-            disabled={!selected.has_article}
-            onClick={() => selected && onOpen?.(selected)}
-          >
-            {selected.has_article ? t('globe.read') : t('globe.noStory')}
-          </Button>
-        </Card>
+      {/* Nothing picked yet: offer the newest piece of writing rather than an empty
+          corner. The first click replaces it, label and all, and returning to the
+          world view brings it back — it is simply what the corner says when no stop
+          is selected. */}
+      {showData && previewed && (
+        <PlacePreviewCard
+          place={previewed}
+          label={selected === null ? t('globe.latestArticle') : null}
+          onOpen={onOpen}
+        />
       )}
     </Box>
   );

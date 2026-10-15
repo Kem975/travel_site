@@ -20,6 +20,7 @@ use App\Controllers\PublicJourneyController;
 use App\Controllers\PublicRecipeController;
 use App\Controllers\RecipeController;
 use App\Controllers\PublicTripController;
+use App\Controllers\SettingsController;
 use App\Controllers\TripController;
 use App\Http\Response;
 use App\Http\Router;
@@ -86,6 +87,10 @@ $adminStats = new AdminStatsController();
 $router->get('/api/admin/stats', [$adminStats, 'index']);
 $router->get('/api/admin/visitors', [$adminStats, 'visitors']);
 $router->get('/api/admin/geocode', [new GeocodeController(), 'search']);
+
+$adminSettings = new SettingsController();
+$router->get('/api/admin/settings', [$adminSettings, 'show']);
+$router->put('/api/admin/settings', [$adminSettings, 'update']);
 
 $adminRecipes = new RecipeController();
 $router->get('/api/admin/recipes', [$adminRecipes, 'index']);

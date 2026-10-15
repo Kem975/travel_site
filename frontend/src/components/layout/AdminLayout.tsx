@@ -31,6 +31,7 @@ export function AdminLayout() {
     ['/admin/recettes', t('admin.recipes.title')],
     ['/admin/media', t('media.nav')],
     ['/admin/comments', t('comments.admin.nav')],
+    ['/admin/reglages', t('admin.settings.nav')],
   ];
   const isActive = (to: string) => (to === '/admin' ? pathname === to : pathname.startsWith(to));
 

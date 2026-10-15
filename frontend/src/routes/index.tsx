@@ -24,6 +24,7 @@ const ArticleEditorPage = lazy(() =>
 );
 const DestinationPage = lazy(() => import('../pages/DestinationPage').then((m) => ({ default: m.DestinationPage })));
 const CommentsPage = lazy(() => import('../pages/admin/CommentsPage').then((m) => ({ default: m.CommentsPage })));
+const SettingsPage = lazy(() => import('../pages/admin/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const JournalPage = lazy(() => import('../pages/JournalPage').then((m) => ({ default: m.JournalPage })));
 const RecipesPage = lazy(() => import('../pages/RecipesPage').then((m) => ({ default: m.RecipesPage })));
 const RecipePage = lazy(() => import('../pages/RecipePage').then((m) => ({ default: m.RecipePage })));
@@ -102,6 +103,7 @@ export const router = createBrowserRouter([
       { path: 'destinations/:destinationId/article', element: <ArticleEditorPage /> },
       { path: 'media', element: <MediaLibraryPage /> },
       { path: 'comments', element: <CommentsPage /> },
+      { path: 'reglages', element: <SettingsPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

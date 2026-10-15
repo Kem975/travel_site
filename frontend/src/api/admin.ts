@@ -71,15 +71,45 @@ export type DestinationInput = {
 
 export type GeoResult = { label: string; lat: number; lng: number; country: string };
 
-export type Visitor = { visitor_name: string; created_at: string; last_used_at: string | null };
+/**
+ * Timestamps are epoch seconds, not DATETIME strings: the raw column says nothing
+ * about which clock it was written on, and a browser reads it as its own.
+ */
+export type Visitor = { visitor_name: string; created_ts: number; last_used_ts: number | null };
+
+/**
+ * One page of the connection log. `page` is the page the server actually served,
+ * which may not be the one asked for — it clamps out-of-range values. `timezone`
+ * is the clock to render the timestamps in; null means the reader's own.
+ */
+export type VisitorPage = {
+  visitors: Visitor[];
+  page: number;
+  pages: number;
+  total: number;
+  per_page: number;
+  timezone: string | null;
+};
+
+/** Editable site settings. Kept as strings: these are raw site_settings values. */
+export type SiteSettings = {
+  departure_name: string | null;
+  departure_lat: string | null;
+  departure_lng: string | null;
+  departure_timezone: string | null;
+};
 
 export const adminApi = {
   stats: () => api.get<{ stats: Stats }>('/admin/stats').then((r) => r.stats),
 
-  visitors: () => api.get<{ visitors: Visitor[] }>('/admin/visitors').then((r) => r.visitors),
+  visitors: (page = 1) => api.get<VisitorPage>(`/admin/visitors?page=${page}`),
 
   geocode: (q: string) =>
     api.get<{ results: GeoResult[] }>(`/admin/geocode?q=${encodeURIComponent(q)}`).then((r) => r.results),
+
+  getSettings: () => api.get<{ settings: SiteSettings }>('/admin/settings').then((r) => r.settings),
+  updateSettings: (data: SiteSettings) =>
+    api.put<{ settings: SiteSettings }>('/admin/settings', data).then((r) => r.settings),
 
   getDestination: (id: number) =>
     api.get<{ destination: Destination }>(`/admin/destinations/${id}`).then((r) => r.destination),

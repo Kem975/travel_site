@@ -34,6 +34,12 @@
     "previous": "Previous",
     "next": "Next",
     "close": "Close",
+    "pagination": {
+      "first": "First page",
+      "previous": "Previous page",
+      "next": "Next page",
+      "last": "Last page"
+    },
     "languages": {
       "fr": "French",
       "en": "English"
@@ -48,7 +54,11 @@
       "label": "Trip password",
       "placeholder": "Enter the trip password",
       "button": "Access the journey",
-      "genericError": "Something went wrong. Please try again."
+      "genericError": "Something went wrong. Please try again.",
+      "notice": {
+        "title": "This site is private",
+        "body": "If neither of us gave you access personally, you are not invited. Please go no further. We would also ask that you not send us any requests."
+      }
     },
     "logout": "Log out",
     "name": {
@@ -82,7 +92,10 @@
   "admin": {
     "visitors": {
       "title": "Who's following along",
-      "empty": "Nobody has introduced themselves yet."
+      "empty": "Nobody has introduced themselves yet.",
+      "total_one": "{{count}} connection",
+      "total_other": "{{count}} connections",
+      "timezoneNote": "Times shown in {{zone}}."
     },
     "trips": {
       "title": "Countries",
@@ -123,6 +136,19 @@
     "actions": {
       "save": "Save",
       "cancel": "Cancel"
+    },
+    "settings": {
+      "nav": "Settings",
+      "title": "Site settings",
+      "saved": "Settings saved.",
+      "departure": {
+        "title": "Departure point",
+        "name": "Place name",
+        "help": "The globe opens on this point and the rotation starts there. It is not a stop on the journey: it appears in neither the journal, the gallery, nor the route line.",
+        "timezone": "Time zone",
+        "timezoneHelp": "Connection times are shown in this zone, wherever in the world you are reading the admin from.",
+        "timezoneNotFound": "No matching time zone."
+      }
     },
     "stats": {
       "trips": "Countries",
@@ -195,7 +221,11 @@
     },
     "retry": "Retry",
     "picker": {
-      "title": "Choose a photo"
+      "title": "Choose a photo",
+      "titleMultiple": "Choose photos",
+      "selectedCount_one": "{{count}} photo selected",
+      "selectedCount_other": "{{count}} photos selected",
+      "addSelected": "Add selection"
     },
     "empty": "No photos yet.",
     "edit": {
@@ -234,6 +264,16 @@
     "addBlock": "Add block",
     "save": "Save article",
     "saved": "Saved",
+    "confirmDelete": "Delete this block?\n\n{{summary}}\n\nThe article saves itself, so this cannot be undone.",
+    "summary": {
+      "empty": "empty",
+      "words_one": "{{count}} word",
+      "words_other": "{{count}} words",
+      "photos_one": "{{count}} photo",
+      "photos_other": "{{count}} photos",
+      "rows_one": "{{count}} row",
+      "rows_other": "{{count}} rows"
+    },
     "fields": {
       "title": "Title",
       "subtitle": "Subtitle",
@@ -250,7 +290,8 @@
       "video": "Video",
       "quote": "Quote",
       "practicalInfo": "Practical info",
-      "divider": "Divider"
+      "divider": "Divider",
+      "columns": "Two columns"
     },
     "layouts": {
       "normal": "Normal",
@@ -270,7 +311,7 @@
         "caption": "Caption (optional)"
       },
       "gallery": {
-        "add": "Add photo",
+        "add": "Add photos",
         "empty": "No photos in this gallery yet."
       },
       "video": {
@@ -283,6 +324,11 @@
       "quote": {
         "text": "Quote text",
         "attribution": "Attribution (optional)"
+      },
+      "columns": {
+        "left": "Left",
+        "right": "Right",
+        "swap": "Swap the two columns"
       },
       "practical": {
         "label": "Label",
@@ -392,6 +438,7 @@
     "reset": "Back to the journey",
     "read": "Read the story",
     "noStory": "No story yet",
+    "latestArticle": "Latest article",
     "ariaLabel": "Interactive globe of the journey. Prefer a text list? Open the Journal.",
     "hud": {
       "country": "Country {{n}}",

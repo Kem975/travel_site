@@ -15,7 +15,7 @@ const DEFAULT_PRESET: StylePreset = 'terrain';
 export function HomePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: trips, isLoading, isError } = useQuery({ queryKey: ['globe'], queryFn: publicApi.globe });
+  const { data, isLoading, isError } = useQuery({ queryKey: ['globe'], queryFn: publicApi.globe });
 
   // ?globe=terrain lets the globe styles be compared side by side without shipping a
   // control to visitors. Unknown values fall back to the default.
@@ -46,7 +46,9 @@ export function HomePage() {
         <LazyGlobe
           // Remount on preset change: the style is built once when the map is created.
           key={preset}
-          trips={trips ?? []}
+          trips={data?.trips ?? []}
+          departure={data?.departure ?? null}
+          latestDestinationId={data?.latest_destination_id ?? null}
           interactive
           stylePreset={preset}
           fallback={fallback}

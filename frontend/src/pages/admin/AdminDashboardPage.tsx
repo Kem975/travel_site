@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import { Card, Container, Group, SimpleGrid, Skeleton, Stack, Text, Title } from '@mantine/core';
+import { useState } from 'react';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { Card, Container, Group, Pagination, SimpleGrid, Skeleton, Stack, Text, Title } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { adminApi, type Stats } from '../../api/admin';
 
@@ -15,11 +16,33 @@ const KEYS: (keyof Stats)[] = [
 export function AdminDashboardPage() {
   const { t, i18n } = useTranslation();
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'stats'], queryFn: adminApi.stats });
-  const visitors = useQuery({ queryKey: ['admin', 'visitors'], queryFn: adminApi.visitors });
 
-  // MySQL DATETIME ("Y-m-d H:i:s") isn't a format `new Date` parses portably.
-  const when = (value: string) =>
-    new Date(value.replace(' ', 'T')).toLocaleString(i18n.language, { dateStyle: 'medium', timeStyle: 'short' });
+  const [page, setPage] = useState(1);
+  const visitors = useQuery({
+    queryKey: ['admin', 'visitors', page],
+    queryFn: () => adminApi.visitors(page),
+    // Keep the previous page on screen while the next one loads, so the card does
+    // not collapse to a skeleton and shove the pagination under the cursor.
+    placeholderData: keepPreviousData,
+  });
+
+  // Rendered in the departure point's clock, not the reader's: these hours mean
+  // "what time was it at home", and we are not reading them from home. The server
+  // sends epoch seconds precisely so this choice is ours to make here.
+  const tz = visitors.data?.timezone ?? undefined;
+  const when = (seconds: number) =>
+    new Date(seconds * 1000).toLocaleString(i18n.language, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: tz,
+    });
+
+  // The zone spelled out once, so an hour on this page is never read as local.
+  const tzLabel = tz
+    ? new Intl.DateTimeFormat(i18n.language, { timeZone: tz, timeZoneName: 'long' })
+        .formatToParts(new Date())
+        .find((part) => part.type === 'timeZoneName')?.value
+    : null;
 
   return (
     <Container size="lg" py="md">
@@ -43,19 +66,29 @@ export function AdminDashboardPage() {
         ))}
       </SimpleGrid>
 
-      <Title order={3} mt="xl" mb="sm">
-        {t('admin.visitors.title')}
-      </Title>
+      <Group mt="xl" mb="sm" justify="space-between" align="baseline">
+        <Title order={3}>{t('admin.visitors.title')}</Title>
+        {visitors.data && visitors.data.total > 0 && (
+          <Text size="sm" c="dimmed">
+            {t('admin.visitors.total', { count: visitors.data.total })}
+          </Text>
+        )}
+      </Group>
+      {tzLabel && (
+        <Text size="xs" c="dimmed" mt={-6} mb="sm">
+          {t('admin.visitors.timezoneNote', { zone: tzLabel })}
+        </Text>
+      )}
       <Card withBorder radius="md" padding="lg">
         {visitors.isLoading ? (
           <Skeleton h={20} />
-        ) : visitors.data && visitors.data.length > 0 ? (
+        ) : visitors.data && visitors.data.visitors.length > 0 ? (
           <Stack gap="xs">
-            {visitors.data.map((visitor, i) => (
-              <Group key={i} justify="space-between" wrap="nowrap">
+            {visitors.data.visitors.map((visitor, i) => (
+              <Group key={`${visitor.visitor_name}-${visitor.created_ts}-${i}`} justify="space-between" wrap="nowrap">
                 <Text fw={500}>{visitor.visitor_name}</Text>
                 <Text size="sm" c="dimmed">
-                  {visitor.last_used_at ? when(visitor.last_used_at) : when(visitor.created_at)}
+                  {when(visitor.last_used_ts ?? visitor.created_ts)}
                 </Text>
               </Group>
             ))}
@@ -64,6 +97,20 @@ export function AdminDashboardPage() {
           <Text c="dimmed" size="sm">
             {t('admin.visitors.empty')}
           </Text>
+        )}
+
+        {/* One page is no choice to make, so no control. */}
+        {visitors.data && visitors.data.pages > 1 && (
+          <Group justify="center" mt="md">
+            <Pagination
+              total={visitors.data.pages}
+              value={visitors.data.page}
+              onChange={setPage}
+              size="sm"
+              withEdges
+              getControlProps={(control) => ({ 'aria-label': t(`common.pagination.${control}`) })}
+            />
+          </Group>
         )}
       </Card>
     </Container>

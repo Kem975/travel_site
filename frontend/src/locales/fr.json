@@ -34,6 +34,12 @@
     "previous": "Précédent",
     "next": "Suivant",
     "close": "Fermer",
+    "pagination": {
+      "first": "Première page",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "last": "Dernière page"
+    },
     "languages": {
       "fr": "française",
       "en": "anglaise"
@@ -48,7 +54,11 @@
       "label": "Mot de passe du voyage",
       "placeholder": "Saisissez le mot de passe du voyage",
       "button": "Accéder au voyage",
-      "genericError": "Une erreur est survenue. Veuillez réessayer."
+      "genericError": "Une erreur est survenue. Veuillez réessayer.",
+      "notice": {
+        "title": "Ce site est privé",
+        "body": "Si l'un de nous deux ne vous a pas donné l'accès personnellement, vous n'y êtes pas convié. Merci de passer votre chemin. Nous vous remercions de ne nous adresser aucune demande également."
+      }
     },
     "logout": "Se déconnecter",
     "name": {
@@ -82,7 +92,10 @@
   "admin": {
     "visitors": {
       "title": "Qui nous suit",
-      "empty": "Personne ne s'est encore présenté."
+      "empty": "Personne ne s'est encore présenté.",
+      "total_one": "{{count}} connexion",
+      "total_other": "{{count}} connexions",
+      "timezoneNote": "Heures affichées en {{zone}}."
     },
     "trips": {
       "title": "Pays",
@@ -123,6 +136,19 @@
     "actions": {
       "save": "Enregistrer",
       "cancel": "Annuler"
+    },
+    "settings": {
+      "nav": "Réglages",
+      "title": "Réglages du site",
+      "saved": "Réglages enregistrés.",
+      "departure": {
+        "title": "Point de départ",
+        "name": "Nom du lieu",
+        "help": "Le globe s'ouvre sur ce point et la rotation démarre de là. Ce n'est pas une étape du voyage : il n'apparaît ni dans le journal, ni dans la galerie, ni sur le tracé de la route.",
+        "timezone": "Fuseau horaire",
+        "timezoneHelp": "Les heures de connexion sont affichées dans ce fuseau, quel que soit l'endroit d'où vous consultez l'administration.",
+        "timezoneNotFound": "Aucun fuseau ne correspond."
+      }
     },
     "stats": {
       "trips": "Pays",
@@ -195,7 +221,11 @@
     },
     "retry": "Réessayer",
     "picker": {
-      "title": "Choisir une photo"
+      "title": "Choisir une photo",
+      "titleMultiple": "Choisir des photos",
+      "selectedCount_one": "{{count}} photo sélectionnée",
+      "selectedCount_other": "{{count}} photos sélectionnées",
+      "addSelected": "Ajouter la sélection"
     },
     "empty": "Aucune photo.",
     "edit": {
@@ -234,6 +264,16 @@
     "addBlock": "Ajouter un bloc",
     "save": "Enregistrer l'article",
     "saved": "Enregistré",
+    "confirmDelete": "Supprimer ce bloc ?\n\n{{summary}}\n\nL'article s'enregistre tout seul : cette suppression ne pourra pas être annulée.",
+    "summary": {
+      "empty": "vide",
+      "words_one": "{{count}} mot",
+      "words_other": "{{count}} mots",
+      "photos_one": "{{count}} photo",
+      "photos_other": "{{count}} photos",
+      "rows_one": "{{count}} ligne",
+      "rows_other": "{{count}} lignes"
+    },
     "fields": {
       "title": "Titre",
       "subtitle": "Sous-titre",
@@ -250,7 +290,8 @@
       "video": "Vidéo",
       "quote": "Citation",
       "practicalInfo": "Infos pratiques",
-      "divider": "Séparateur"
+      "divider": "Séparateur",
+      "columns": "Deux colonnes"
     },
     "layouts": {
       "normal": "Normal",
@@ -270,7 +311,7 @@
         "caption": "Légende (facultatif)"
       },
       "gallery": {
-        "add": "Ajouter une photo",
+        "add": "Ajouter des photos",
         "empty": "Aucune photo dans cette galerie."
       },
       "video": {
@@ -283,6 +324,11 @@
       "quote": {
         "text": "Texte de la citation",
         "attribution": "Attribution (facultatif)"
+      },
+      "columns": {
+        "left": "Gauche",
+        "right": "Droite",
+        "swap": "Intervertir les deux colonnes"
       },
       "practical": {
         "label": "Libellé",
@@ -392,6 +438,7 @@
     "reset": "Retour au voyage",
     "read": "Lire le récit",
     "noStory": "Pas encore de récit",
+    "latestArticle": "Dernier article publié",
     "ariaLabel": "Globe interactif du voyage. Vous préférez une liste ? Ouvrez le Journal.",
     "hud": {
       "country": "Pays {{n}}",

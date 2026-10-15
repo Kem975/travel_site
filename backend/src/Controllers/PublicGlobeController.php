@@ -63,7 +63,26 @@ final class PublicGlobeController
             $trips[] = ['slug' => $trip['slug'], 'title' => $trip['title'], 'places' => $places];
         }
 
-        Response::json(['trips' => $trips]);
+        // The stop to show on arrival. Sent as an id, not a second copy of the
+        // place: it is already in `trips`, and duplicating it would let the card
+        // and the marker drift apart. Withheld unless that stop actually made it
+        // into the payload, so privacy filtering can never be undone by the card
+        // naming a stop the rest of the globe is hiding.
+        $latest = $this->articles->latestPublishedDestinationId();
+        $visible = [];
+        foreach ($trips as $trip) {
+            foreach ($trip['places'] as $place) {
+                $visible[(int) $place['id']] = true;
+            }
+        }
+
+        // Where we left from — the globe's opening view. Not a destination and not
+        // part of the route, so it is sent alongside the trips rather than inside them.
+        Response::json([
+            'trips' => $trips,
+            'departure' => $this->settings->departure(),
+            'latest_destination_id' => $latest !== null && isset($visible[$latest]) ? $latest : null,
+        ]);
     }
 
     /** @return array<string,mixed>|null */

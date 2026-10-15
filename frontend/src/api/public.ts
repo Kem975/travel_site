@@ -51,6 +51,19 @@ export type GlobePlace = {
 };
 export type GlobeTrip = { slug: string; title: string; places: GlobePlace[] };
 
+/**
+ * Where the journey started. Not a stop on the route — it is home, so it carries
+ * no slug, no article and no photos, and the globe only uses it as the view to
+ * open on. Null when no coordinates are set.
+ */
+export type DeparturePoint = { name: string; lat: number; lng: number };
+export type GlobeData = {
+  trips: GlobeTrip[];
+  departure: DeparturePoint | null;
+  /** Stop whose article was published last, or null when none is visible. */
+  latest_destination_id: number | null;
+};
+
 /** Only stops already reached, so the list always ends on the current one. */
 export type JourneyStop = {
   title: string;
@@ -62,7 +75,7 @@ export type JourneyTimeline = { stops: JourneyStop[] };
 
 export const publicApi = {
   trips: () => api.get<{ trips: WithCover<Trip>[] }>('/trips').then((r) => r.trips),
-  globe: () => api.get<{ trips: GlobeTrip[] }>('/globe').then((r) => r.trips),
+  globe: () => api.get<GlobeData>('/globe'),
   journeyTimeline: () => api.get<JourneyTimeline>('/journey/timeline'),
   trip: (slug: string) => api.get<TripOverview>(`/trips/${slug}`),
   journal: () => api.get<{ entries: JournalEntry[] }>('/journal').then((r) => r.entries),

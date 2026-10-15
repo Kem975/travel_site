@@ -68,6 +68,30 @@ final class ArticleRepository
         return array_map('intval', $ids);
     }
 
+    /**
+     * The stop whose article was published most recently — what the globe offers
+     * on arrival, before anything is clicked.
+     *
+     * A stop can hold one article per language, and translating an old piece does
+     * not make it news; `published_at` is stamped once, on the first publish, so
+     * the newest row here is genuinely the newest writing either way.
+     *
+     * Articles published without a stamp are skipped rather than sorted last: an
+     * unknown date cannot be claimed to be the latest.
+     */
+    public function latestPublishedDestinationId(): ?int
+    {
+        $id = Database::connection()
+            ->query(
+                "SELECT destination_id FROM articles
+                 WHERE status = 'published' AND published_at IS NOT NULL
+                 ORDER BY published_at DESC, id DESC
+                 LIMIT 1",
+            )
+            ->fetchColumn();
+        return $id === false || $id === null ? null : (int) $id;
+    }
+
     /** @return list<array{type:string,content:array<string,mixed>}> */
     public function blocks(int $articleId): array
     {
