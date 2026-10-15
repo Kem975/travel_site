@@ -30,6 +30,7 @@ import {
 import type { Photo } from '../../../api/media';
 import { ApiError, fieldErrors } from '../../../api/client';
 import { BlockEditor } from './BlockEditor';
+import { blockSummary } from './blockSummary';
 
 // Stable client id per block so reordering never desyncs a TipTap editor instance.
 type Row = { id: string; block: ArticleBlock };
@@ -122,7 +123,15 @@ export function ArticleEditor({ destinationId, lang }: { destinationId: number; 
 
   const addBlock = (type: BlockType) => setRows((r) => [...r, { id: crypto.randomUUID(), block: emptyBlock(type) }]);
   const updateBlock = (i: number, block: ArticleBlock) => setRows((r) => r.map((x, k) => (k === i ? { ...x, block } : x)));
-  const removeBlock = (i: number) => setRows((r) => r.filter((_, k) => k !== i));
+
+  // Autosave fires two seconds later and there is no history to walk back, so the
+  // prompt names what is going — an afternoon's writing and an empty paragraph
+  // look identical once they are both just "a block".
+  const removeBlock = (i: number) => {
+    const summary = blockSummary(rows[i].block, t);
+    if (!window.confirm(t('article.confirmDelete', { summary }))) return;
+    setRows((r) => r.filter((_, k) => k !== i));
+  };
   const moveBlock = (i: number, dir: -1 | 1) =>
     setRows((r) => {
       const j = i + dir;
