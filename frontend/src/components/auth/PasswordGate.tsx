@@ -60,6 +60,13 @@ export function PasswordGate() {
                 </Text>
               </div>
 
+              {/* The same point as the notice behind the gate, but made here on
+                  purpose: the people who should turn back are exactly the ones who
+                  never see anything past this screen. */}
+              <Alert color="travelGold" variant="light" title={t('auth.gate.notice.title')}>
+                <Text size="sm">{t('auth.gate.notice.body')}</Text>
+              </Alert>
+
               {errorMessage && (
                 <Alert color="red" variant="light">
                   {errorMessage}
