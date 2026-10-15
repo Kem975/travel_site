@@ -143,6 +143,12 @@ export type Scheme = 'light' | 'dark';
 /** 'terrain' is the Natural Earth II raster: land cover, bathymetry and shaded relief. */
 export type StylePreset = 'minimal' | 'atlas' | 'terrain';
 
+/**
+ * Bumped when the terrain tiles are regenerated. v2: rebuilt from the 1:10m
+ * Natural Earth II source with area-averaged resampling, and extended to z5.
+ */
+const TILE_VERSION = 2;
+
 export type Palette = {
   ocean: string;
   land: string;
@@ -316,10 +322,22 @@ export function buildStyle(
     // baked into the image, so no land/coastline geometry is needed — only borders.
     sources.terrain = {
       type: 'raster',
-      tiles: [`${import.meta.env.BASE_URL}tiles/${preset}/{z}/{x}/{y}.webp`],
+      // ?v= is a cache buster, and it is not optional. The tiles live at fixed
+      // paths and .htaccess gives every .webp a 30-day max-age, so regenerating
+      // them leaves returning visitors — the family, the people who come back
+      // most — on the old images for a month. Bump it whenever the tiles change.
+      tiles: [`${import.meta.env.BASE_URL}tiles/${preset}/{z}/{x}/{y}.webp?v=${TILE_VERSION}`],
       tileSize: 512,
       minzoom: 0,
-      maxzoom: 4,
+      // z5 is the deepest the 10m source supports: 16384 px across the world
+      // against its 21600. It serves visitors who zoom in by hand.
+      //
+      // It does *not* kick in when a stop is opened. MapLibre rounds the map zoom
+      // to pick a raster level — measured here, 2.85 loads z3 and 4.4 loads z4 —
+      // and Globe.select() flies to exactly 4.4, which lands just under the 4.5
+      // threshold. Raising that flight to 4.6 would buy the sharper tiles at the
+      // cost of a slightly tighter framing; left at 4.4 deliberately.
+      maxzoom: 5,
       attribution: 'Natural Earth',
     };
     sources.borders = { type: 'geojson', data: atlasBorders() };
