@@ -11,7 +11,9 @@ export type ArticleLang = 'fr' | 'en';
 export type PracticalItem = { label: string; value: string };
 
 // The typed block model (DECISIONS D6). TipTap owns only the richText block's html.
-export type ArticleBlock =
+
+/** Blocks that hold content rather than other blocks. */
+export type LeafBlock =
   | { type: 'richText'; content: { html: string; align?: TextAlign; size?: TextSize } }
   | { type: 'image'; content: { photoId: number; layout: ImageLayout; caption: string | null } }
   | { type: 'gallery'; content: { photoIds: number[]; layout: GalleryLayout } }
@@ -20,7 +22,18 @@ export type ArticleBlock =
   | { type: 'practicalInfo'; content: { items: PracticalItem[] } }
   | { type: 'divider'; content: Record<string, never> };
 
+/**
+ * What a column may hold. Drawn from the leaves, so a column can never contain
+ * another `columns` — the nesting is one level deep by construction, not by a
+ * runtime check that something could forget. A divider is excluded too: a rule
+ * across half the page separates nothing.
+ */
+export type ColumnBlock = Exclude<LeafBlock, { type: 'divider' }>;
+
+export type ArticleBlock = LeafBlock | { type: 'columns'; content: { left: ColumnBlock; right: ColumnBlock } };
+
 export type BlockType = ArticleBlock['type'];
+export type ColumnBlockType = ColumnBlock['type'];
 
 export type Article = {
   id: number;
@@ -80,9 +93,17 @@ export type PublicArticle = {
   next: { slug: string; title: string } | null;
 };
 
-export const BLOCK_TYPES: BlockType[] = ['richText', 'image', 'gallery', 'video', 'quote', 'practicalInfo', 'divider'];
+export const COLUMN_BLOCK_TYPES: ColumnBlockType[] = [
+  'richText',
+  'image',
+  'gallery',
+  'video',
+  'quote',
+  'practicalInfo',
+];
+export const BLOCK_TYPES: BlockType[] = [...COLUMN_BLOCK_TYPES, 'divider', 'columns'];
 
-export function emptyBlock(type: BlockType): ArticleBlock {
+export function emptyColumnBlock(type: ColumnBlockType): ColumnBlock {
   switch (type) {
     case 'richText':
       return { type, content: { html: '', align: 'left', size: 'normal' } };
@@ -96,9 +117,17 @@ export function emptyBlock(type: BlockType): ArticleBlock {
       return { type, content: { text: '', attribution: null } };
     case 'practicalInfo':
       return { type, content: { items: [{ label: '', value: '' }] } };
-    case 'divider':
-      return { type, content: {} as Record<string, never> };
   }
+}
+
+export function emptyBlock(type: BlockType): ArticleBlock {
+  if (type === 'divider') return { type, content: {} as Record<string, never> };
+  // Two videos: the pairing this block was added for. Either side can be changed
+  // to any other type from the editor, so the default costs nothing.
+  if (type === 'columns') {
+    return { type, content: { left: emptyColumnBlock('video'), right: emptyColumnBlock('video') } };
+  }
+  return emptyColumnBlock(type);
 }
 
 export const articleApi = {

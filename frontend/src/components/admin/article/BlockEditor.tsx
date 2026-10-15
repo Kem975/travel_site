@@ -7,6 +7,7 @@ import { GalleryBlock } from './GalleryBlock';
 import { VideoBlock } from './VideoBlock';
 import { QuoteBlock } from './QuoteBlock';
 import { PracticalInfoBlock } from './PracticalInfoBlock';
+import { ColumnsBlock } from './ColumnsBlock';
 
 type Props = {
   block: ArticleBlock;
@@ -47,6 +48,16 @@ export function BlockEditor({ block, photos, onChange, onPhoto, uploadTo }: Prop
       return <QuoteBlock content={block.content} onChange={(content) => onChange({ type: 'quote', content })} />;
     case 'practicalInfo':
       return <PracticalInfoBlock content={block.content} onChange={(content) => onChange({ type: 'practicalInfo', content })} />;
+    case 'columns':
+      return (
+        <ColumnsBlock
+          content={block.content}
+          photos={photos}
+          onPhoto={onPhoto}
+          uploadTo={uploadTo}
+          onChange={(content) => onChange({ type: 'columns', content })}
+        />
+      );
     case 'divider':
       return (
         <Text c="dimmed" size="sm" ta="center">

@@ -169,6 +169,24 @@ function BlockView({
         </Centered>
       );
 
+    case 'columns':
+      return (
+        <Centered max={1200}>
+          {/* One column on a phone: half of a reading column is not a column.
+              Stacking keeps left above right, which is the order the lightbox
+              indices below were built in. */}
+          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg" verticalSpacing="lg">
+            <BlockView block={block.content.left} photos={photos} offset={offset} onOpen={onOpen} />
+            <BlockView
+              block={block.content.right}
+              photos={photos}
+              offset={offset + photosIn(block.content.left, photos).length}
+              onOpen={onOpen}
+            />
+          </SimpleGrid>
+        </Centered>
+      );
+
     case 'divider':
       return (
         <Centered max={TEXT_WIDTH}>
@@ -179,23 +197,36 @@ function BlockView({
 }
 
 /**
+ * The photos one block contributes, in reading order — columns left then right,
+ * which is also the order they stack in on a narrow screen.
+ *
+ * It must skip exactly the photos BlockView skips, or every lightbox index after
+ * the gap points at the wrong picture.
+ */
+function photosIn(block: ArticleBlock, photos: PhotoMap): Photo[] {
+  switch (block.type) {
+    case 'image': {
+      const photo = photos[String(block.content.photoId)];
+      return photo ? [photo] : [];
+    }
+    case 'gallery':
+      return block.content.photoIds.map((id) => photos[String(id)]).filter((p): p is Photo => Boolean(p));
+    case 'columns':
+      return [...photosIn(block.content.left, photos), ...photosIn(block.content.right, photos)];
+    default:
+      return [];
+  }
+}
+
+/**
  * Every article photo in reading order, so the lightbox arrows walk the whole
- * article rather than stopping at the block boundary. Must skip the same missing
- * photos BlockView skips, or the indices drift.
+ * article rather than stopping at the block boundary.
  */
 function collectPhotos(blocks: ArticleBlock[], photos: PhotoMap) {
   const flat: Photo[] = [];
   const offsets = blocks.map((block) => {
     const offset = flat.length;
-    if (block.type === 'image') {
-      const photo = photos[String(block.content.photoId)];
-      if (photo) flat.push(photo);
-    } else if (block.type === 'gallery') {
-      for (const id of block.content.photoIds) {
-        const photo = photos[String(id)];
-        if (photo) flat.push(photo);
-      }
-    }
+    flat.push(...photosIn(block, photos));
     return offset;
   });
   return { flat, offsets };
