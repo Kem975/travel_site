@@ -14,9 +14,14 @@ photo galleries, and family comments.
 
 ## Local development
 
-**Quick start (macOS):** `./dev.sh` starts MySQL + the PHP API + Vite together and prints the
-URLs and test credentials. `./stop-dev.sh` (or Ctrl+C) stops PHP + Vite. The manual steps below
-are the equivalent if you'd rather run each piece yourself.
+**Quick start (macOS / Linux / WSL):** `./dev.sh` starts MySQL + the PHP API + Vite together and
+prints the URLs and test credentials. `./stop-dev.sh` (or Ctrl+C) stops PHP + Vite. The manual
+steps below are the equivalent if you'd rather run each piece yourself.
+
+**Quick start (Windows):** `powershell -NoProfile -ExecutionPolicy Bypass -File .\dev.ps1` — same
+services, same ports, same credentials. `.\stop-dev.ps1` stops PHP + Vite. `dev.ps1` is a separate
+script rather than a tweak to `dev.sh` because the shell one leans on `pkill`/`nohup`/`trap`, none
+of which exist here. See [Windows setup](#windows-setup) for the one-time install.
 
 ### 1. Backend (PHP API) — port 8000
 ```bash
@@ -57,6 +62,68 @@ npm run dev
 
 Open http://localhost:5173 — the home page calls `/api/health` and shows API + database
 status, the FR/EN toggle, and the light/dark switch (proving the Phase 1 foundation end to end).
+
+<a id="windows-setup"></a>
+### Windows setup
+
+One-time, on a machine with none of the toolchain installed:
+
+```powershell
+winget install -e --id OpenJS.NodeJS.LTS
+winget install -e --id PHP.PHP.8.3
+winget install -e --id Oracle.MySQL
+```
+
+Then the four things that are not automatic:
+
+**1. PHP ships no `php.ini`.** The winget package leaves only `php.ini-development` and
+`php.ini-production` next to `php.exe`. Copy the development one to `php.ini` there, set an
+*absolute* `extension_dir`, and enable `curl`, `fileinfo`, `gd`, `mbstring`, `openssl`,
+`pdo_mysql`. Two checks that are easy to miss:
+
+```powershell
+php -r "var_dump(gd_info()['WebP Support']);"   # must be true, or the photo pipeline builds nothing
+php -i | Select-String "Loaded Configuration File|upload_max_filesize"
+```
+
+`upload_max_filesize`/`post_max_size` must sit above the 15 MB `PhotoController` allows itself
+(16M/20M here) — on PHP's 2 MB default the server refuses a large photo before the endpoint's own
+limit ever runs, so the error you get is the wrong one. A `winget upgrade` of PHP replaces that
+folder, which takes `php.ini` with it; put it back afterwards.
+
+**2. MySQL installs neither a service nor a data dir.** Dev uses the same isolated, gitignored
+`.devdb/` instance as the Mac, so nothing on the machine owns port 3306 permanently:
+
+```powershell
+& "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe" --initialize-insecure `
+    --basedir="C:\Program Files\MySQL\MySQL Server 8.4" --datadir="$PWD\.devdb\data"
+```
+
+`dev.ps1` starts it on each run. The MSI does not put `mysqld` on PATH, so the script resolves it
+out of `C:\Program Files\MySQL\MySQL Server *\bin` — the same fallback `dev.sh` does for Homebrew.
+Create the database and the `oj_app` user that `backend/.env` names, then run the migration and
+`console.php` steps from §2 above. PHP's request log lands in `.devdb\php.log`, not `/tmp`.
+
+**3. `git config core.filemode false`.** Windows has no exec bit, so the four committed `755`
+scripts show up as modified on a fresh checkout. Committing that would strip the bit on macOS and
+on OVH, where the deploy scripts need it.
+
+**4. The deploy scripts have Windows counterparts.** `deployment/scripts/assemble.sh` calls
+`rsync`, which Git Bash does not ship, so `assemble.ps1` does the same job with `robocopy /MIR`
+(whose `/XD` and `/XF` exclusions apply to the purge, which is what protects the server-owned
+`uploads/`, `api/`, `.htaccess` and `.ovhconfig`). `pending-sql.ps1` matches `pending-sql.sh`:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\deployment\scripts\assemble.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\deployment\scripts\pending-sql.ps1 `
+    -OutFile prod-migrations.sql 009_departure_point.sql 010_departure_timezone.sql
+```
+
+Two Windows-only traps these scripts work around, worth knowing before editing them: dotfiles
+carry the **hidden** attribute, so `Get-Item`/`Test-Path` need `-Force` or a healthy `.env` reads
+as missing; and Windows PowerShell 5.1 decodes BOM-less files with the **ANSI codepage**, both the
+files a script reads and the script itself — hence the explicit UTF-8 reads, the `-OutFile` flag
+instead of a `>` redirect, and the BOM on `pending-sql.ps1`.
 
 ## Production build
 ```bash
