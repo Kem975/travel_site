@@ -61,13 +61,16 @@ export function GalleryBlock({ content, photos, onChange, onPhoto, uploadTo }: P
           {t('article.blocks.gallery.empty')}
         </Text>
       )}
+      {/* A gallery is built in batches, not one photo at a time: pick the lot,
+          then reorder here. Appended in the order they were ticked. */}
       <MediaPicker
+        multiple
         uploadTo={uploadTo}
         opened={opened}
         onClose={close}
-        onSelect={(p) => {
-          onPhoto(p);
-          onChange({ ...content, photoIds: [...content.photoIds, p.id] });
+        onSelect={(picked) => {
+          picked.forEach(onPhoto);
+          onChange({ ...content, photoIds: [...content.photoIds, ...picked.map((p) => p.id)] });
         }}
       />
     </Stack>
